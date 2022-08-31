@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Matterlab.Rails", "src\Matterlab.Rails\Matterlab.Rails.csproj", "{7DBC2ABB-B14A-457A-99E6-84D207F90E83}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Matterlab.Rails.Tests", "tests\Matterlab.Rails.Tests\Matterlab.Rails.Tests.csproj", "{2D4F0D62-1AB7-4CA4-B1DC-A778D612F74B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7DBC2ABB-B14A-457A-99E6-84D207F90E83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DBC2ABB-B14A-457A-99E6-84D207F90E83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DBC2ABB-B14A-457A-99E6-84D207F90E83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DBC2ABB-B14A-457A-99E6-84D207F90E83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D4F0D62-1AB7-4CA4-B1DC-A778D612F74B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D4F0D62-1AB7-4CA4-B1DC-A778D612F74B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D4F0D62-1AB7-4CA4-B1DC-A778D612F74B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D4F0D62-1AB7-4CA4-B1DC-A778D612F74B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ACDCC761-DC48-4C66-9429-D6DD1C17B6C4}
+	EndGlobalSection
+EndGlobal
