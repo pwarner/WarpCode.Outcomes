@@ -26,20 +26,20 @@ public static class Outcome
     /// <summary>
     /// A successful outcome with the no-value type <see cref="None"/>, which acts in place of <see cref="Void"/>.
     /// This outcome implicitly casts to any Outcome{T} where the internal value will be the default for type T.
-    /// <example>
+    /// <code>
     /// Outcome{string} okStringOutcome = Outcome.NoProblem; // value: NULL, problem: NULL
     /// Outcome{int} okIntegerOutcome = Outcome.NoProblem; // value: 0, problem: NULL
-    /// </example>
+    /// </code>
     /// </summary>
     public static Outcome<None> NoProblem => default;
 
     /// <summary>
     /// An outcome representing a <see cref="IProblem"/>, whose value type is <see cref="None"/>.
     /// This outcome implicitly casts to any Outcome{T} where the internal value will be the default for type T.
-    /// <example>
+    /// <code>
     /// Outcome{string} okStringOutcome = Outcome.NoProblem; // value: NULL, problem: NULL
     /// Outcome{int} okIntegerOutcome = Outcome.NoProblem; // value: 0, problem: NULL
-    /// </example>
+    /// </code>
     /// </summary>
     /// <param name="problem">The <see cref="IProblem"/> which this outcome represents.</param>
     /// <returns>An <see cref="Outcome{None}"/> representing this problem.</returns>
