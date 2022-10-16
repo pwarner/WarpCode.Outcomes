@@ -16,7 +16,7 @@ public static class Outcome
     public static Outcome<T> Ok<T>(T value) => new(value);
 
     /// <summary>
-    /// Creates a new outcome that represents a <see cref="Outcomes.Problem"/>.
+    /// Creates a new outcome that represents a <see cref="IProblem"/>.
     /// </summary>
     /// <typeparam name="T">The type of the outcome value.</typeparam>
     /// <param name="problem">The <see cref="IProblem"/> which this outcome represents.</param>
@@ -24,12 +24,22 @@ public static class Outcome
     public static Outcome<T> Problem<T>(IProblem problem) => new(problem);
 
     /// <summary>
-    /// An outcome that represents the no-value type <see cref="None"/>, which acts in place of <see cref="Void"/>
+    /// A successful outcome with the no-value type <see cref="None"/>, which acts in place of <see cref="Void"/>.
+    /// This outcome implicitly casts to any Outcome{T} where the internal value will be the default for type T.
+    /// <example>
+    /// Outcome{string} okStringOutcome = Outcome.NoProblem; // value: NULL, problem: NULL
+    /// Outcome{int} okIntegerOutcome = Outcome.NoProblem; // value: 0, problem: NULL
+    /// </example>
     /// </summary>
     public static Outcome<None> NoProblem => default;
 
     /// <summary>
-    /// An outcome representing a <see cref="IProblem"/>, whose value type is <see cref="None"/>
+    /// An outcome representing a <see cref="IProblem"/>, whose value type is <see cref="None"/>.
+    /// This outcome implicitly casts to any Outcome{T} where the internal value will be the default for type T.
+    /// <example>
+    /// Outcome{string} okStringOutcome = Outcome.NoProblem; // value: NULL, problem: NULL
+    /// Outcome{int} okIntegerOutcome = Outcome.NoProblem; // value: 0, problem: NULL
+    /// </example>
     /// </summary>
     /// <param name="problem">The <see cref="IProblem"/> which this outcome represents.</param>
     /// <returns>An <see cref="Outcome{None}"/> representing this problem.</returns>
@@ -116,5 +126,5 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
 
     public static implicit operator Outcome<T>(T value) => new(value);
     public static implicit operator Outcome<T>(Problem problem) => new(problem);
-    public static implicit operator Outcome<T>(Outcome<None> _) => default;
+    public static implicit operator Outcome<T>(Outcome<None> o) => o.Then<T>(_ => default);
 }

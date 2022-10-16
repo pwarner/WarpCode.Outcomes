@@ -29,9 +29,9 @@ public class SuccessOutcomeTests
     [Fact]
     public void Should_CreateSuccessOutcome_FromEntryHelper()
     {
-        var expected = new Outcome<None>();
+        var expected = new Outcome<string>();
 
-        Outcome<None> actual = Outcome.NoProblem;
+        Outcome<string> actual = Outcome.NoProblem;
 
         Assert.Equal(expected, actual);
     }

@@ -19,7 +19,7 @@ public static class OutcomeLinqExtensions
         Func<TSource, TResult> selector) =>
         selector is null
             ? throw new ArgumentNullException(nameof(selector))
-            : self.Then(x => new Outcome<TResult>(selector(x)));
+            : self.Then(x => Outcome.Ok(selector(x)));
 
     /// <summary>
     /// Syntactic operator to support multiple 'from' clauses in a LINQ natural query comprehension

@@ -29,9 +29,9 @@ public class ProblemOutcomeTests
     [Fact]
     public void Should_CreateProblemOutcome_FromEntryHelper()
     {
-        var expected = new Outcome<None>(TestProblem);
+        var expected = new Outcome<int>(TestProblem);
 
-        Outcome<None> actual = Outcome.Problem(TestProblem);
+        Outcome<int> actual = Outcome.Problem(TestProblem);
 
         Assert.Equal(expected, actual);
     }
