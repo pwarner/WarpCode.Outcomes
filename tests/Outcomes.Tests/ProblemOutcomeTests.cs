@@ -1,10 +1,10 @@
-namespace Matterlab.Rails.Tests;
+namespace Outcomes.Tests;
 
 public class ProblemOutcomeTests
 {
     private static readonly Problem TestProblem = new(nameof(TestProblem));
 
-    private Problem? _actual;
+    private IProblem? _actual;
 
     [Fact]
     public void Match_Problem_ShouldCallProblemHandler()
@@ -64,7 +64,7 @@ public class ProblemOutcomeTests
         AssertProblemWasMatched(result, message);
     }
 
-    private bool OnProblem(Problem p)
+    private bool OnProblem(IProblem p)
     {
         _actual = p;
         return true;

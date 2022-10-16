@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Matterlab.Rails;
+namespace Outcomes;
 
 /// <summary>
 /// Helpers/entry-points for producing outcomes.
@@ -16,12 +16,12 @@ public static class Outcome
     public static Outcome<T> Ok<T>(T value) => new(value);
 
     /// <summary>
-    /// Creates a new outcome that represents a <see cref="Rails.Problem"/>.
+    /// Creates a new outcome that represents a <see cref="Outcomes.Problem"/>.
     /// </summary>
     /// <typeparam name="T">The type of the outcome value.</typeparam>
-    /// <param name="problem">The <see cref="Rails.Problem"/> with which to produce a problem.</param>
+    /// <param name="problem">The <see cref="IProblem"/> which this outcome represents.</param>
     /// <returns>An <see cref="Outcome{T}"/> representing this problem.</returns>
-    public static Outcome<T> Problem<T>(Problem problem) => new(problem);
+    public static Outcome<T> Problem<T>(IProblem problem) => new(problem);
 
     /// <summary>
     /// An outcome that represents the no-value type <see cref="None"/>, which acts in place of <see cref="Void"/>
@@ -29,11 +29,11 @@ public static class Outcome
     public static Outcome<None> NoProblem => default;
 
     /// <summary>
-    /// An outcome representing a <see cref="Rails.Problem"/>, whose value type is <see cref="None"/>
+    /// An outcome representing a <see cref="IProblem"/>, whose value type is <see cref="None"/>
     /// </summary>
-    /// <param name="problem">The <see cref="Rails.Problem"/> with which to produce a problem.</param>
+    /// <param name="problem">The <see cref="IProblem"/> which this outcome represents.</param>
     /// <returns>An <see cref="Outcome{None}"/> representing this problem.</returns>
-    public static Outcome<None> Problem(Problem problem) => new(problem);
+    public static Outcome<None> Problem(IProblem problem) => new(problem);
 }
 
 /// <summary>
@@ -44,7 +44,7 @@ public static class Outcome
 public readonly struct Outcome<T> : IEquatable<Outcome<T>>
 {
     private readonly T _value;
-    private readonly Problem? _problem;
+    private readonly IProblem? _problem;
 
     /// <summary>
     /// Creates a new outcome that represents a value.
@@ -61,7 +61,7 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     /// </summary>
     /// <param name="problem">The problem that this outcome represents.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public Outcome(Problem problem)
+    public Outcome(IProblem problem)
     {
         _problem = problem ?? throw new ArgumentNullException(nameof(problem));
         _value = default!;
@@ -77,7 +77,7 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     /// <exception cref="ArgumentNullException">Thrown when either onSuccess or onProblem is null.</exception>
     public TResult Match<TResult>(
         Func<T, TResult> onSuccess,
-        Func<Problem, TResult> onProblem) =>
+        Func<IProblem, TResult> onProblem) =>
         onSuccess is null
             ? throw new ArgumentNullException(nameof(onSuccess))
             : onProblem is null
@@ -88,10 +88,10 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
                     null => onSuccess(_value)
                 };
 
-    internal Outcome<TResult> Bind<TResult>(Func<T, Outcome<TResult>> selector) =>
+    internal Outcome<TResult> Then<TResult>(Func<T, Outcome<TResult>> selector) =>
         _problem switch
         {
-            not null => _problem,
+            not null => Outcome.Problem<TResult>(_problem),
             _ => selector(_value)
         };
 
@@ -116,4 +116,5 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
 
     public static implicit operator Outcome<T>(T value) => new(value);
     public static implicit operator Outcome<T>(Problem problem) => new(problem);
+    public static implicit operator Outcome<T>(Outcome<None> _) => default;
 }

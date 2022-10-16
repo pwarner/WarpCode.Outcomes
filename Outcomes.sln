@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Matterlab.Rails", "src\Matterlab.Rails\Matterlab.Rails.csproj", "{7DBC2ABB-B14A-457A-99E6-84D207F90E83}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Outcomes", "src\Outcomes\Outcomes.csproj", "{7DBC2ABB-B14A-457A-99E6-84D207F90E83}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Matterlab.Rails.Tests", "tests\Matterlab.Rails.Tests\Matterlab.Rails.Tests.csproj", "{2D4F0D62-1AB7-4CA4-B1DC-A778D612F74B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Outcomes.Tests", "tests\Outcomes.Tests\Outcomes.Tests.csproj", "{2D4F0D62-1AB7-4CA4-B1DC-A778D612F74B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

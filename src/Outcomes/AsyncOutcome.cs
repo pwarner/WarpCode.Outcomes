@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Matterlab.Rails;
+namespace Outcomes;
 
 /// <summary>
 /// Syntactic class that wraps an async outcome task, to better support monadic combinatorial operations.
@@ -32,15 +32,9 @@ public readonly struct AsyncOutcome<T>
     /// Creates an async outcome from a non-async <see cref="Outcome{T}"/>.
     /// </summary>
     /// <param name="outcome">The outcome to wrap.</param>
-#if NET6_0
-    public AsyncOutcome(Outcome<T> outcome) : this(ValueTask.FromResult(outcome))
-    {
-    }
-#else
     public AsyncOutcome(Outcome<T> outcome) : this(new ValueTask<Outcome<T>>(outcome))
     {
     }
-#endif
 
     /// <summary>
     /// Creates an awaiter for this async outcome.
@@ -51,7 +45,7 @@ public readonly struct AsyncOutcome<T>
 
     /// <summary>   
     /// Aynchronous version of
-    /// <see cref="Outcome{T}.Match{TResult}(Func{T,TResult}, Func{Problem,TResult})"/>
+    /// <see cref="Outcome{T}.Match{TResult}(Func{T,TResult}, Func{IProblem,TResult})"/>
     /// </summary>
     /// <typeparam name="TResult">Type of resulting value.</typeparam>
     /// <param name="onSuccess">Transformation function to apply when there is no problem.</param>
@@ -60,14 +54,14 @@ public readonly struct AsyncOutcome<T>
     /// <exception cref="ArgumentNullException">Thrown when either onSuccess or onProblem is null.</exception>
     public async ValueTask<TResult> MatchAsync<TResult>(
         Func<T, TResult> onSuccess,
-        Func<Problem, TResult> onProblem) =>
+        Func<IProblem, TResult> onProblem) =>
         onSuccess is null
             ? throw new ArgumentNullException(nameof(onSuccess))
             : onProblem is null
                 ? throw new ArgumentNullException(nameof(onProblem))
                 : (await this).Match(onSuccess, onProblem);
 
-    internal AsyncOutcome<TResult> Bind<TResult>(Func<T, AsyncOutcome<TResult>> selector)
+    internal AsyncOutcome<TResult> Then<TResult>(Func<T, AsyncOutcome<TResult>> selector)
     {
         return new AsyncOutcome<TResult>(Undress(this));
 
@@ -77,7 +71,7 @@ public readonly struct AsyncOutcome<T>
 
             return await outcome.Match(
                 selector,
-                p => new AsyncOutcome<TResult>(p));
+                p => new AsyncOutcome<TResult>(Outcome.Problem<TResult>(p)));
         }
     }
 }

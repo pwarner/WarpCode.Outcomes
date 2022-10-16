@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Matterlab.Rails\Matterlab.Rails.csproj" />
+    <ProjectReference Include="..\..\src\Outcomes\Outcomes.csproj" />
   </ItemGroup>
 
 </Project>

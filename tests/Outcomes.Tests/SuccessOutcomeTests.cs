@@ -1,4 +1,4 @@
-﻿namespace Matterlab.Rails.Tests;
+﻿namespace Outcomes.Tests;
 
 public class SuccessOutcomeTests
 {
@@ -60,7 +60,7 @@ public class SuccessOutcomeTests
         AssertSuccessWasMatched(result, "ABC");
     }
 
-    private static bool OnProblem(Problem _) => false;
+    private static bool OnProblem(IProblem _) => false;
 
     private bool OnNoProblem(string value)
     {

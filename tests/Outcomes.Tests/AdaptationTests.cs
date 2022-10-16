@@ -1,4 +1,4 @@
-﻿namespace Matterlab.Rails.Tests;
+﻿namespace Outcomes.Tests;
 
 public class AdaptationTests
 {

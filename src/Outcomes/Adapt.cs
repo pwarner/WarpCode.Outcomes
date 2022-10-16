@@ -1,13 +1,13 @@
-﻿namespace Matterlab.Rails;
+﻿namespace Outcomes;
 
 /// <summary>
 /// A function called when exceptions are thrown by code instead of returning outcomes.
-/// If the function returns a <see cref="Problem"/> then a new <see cref="Outcome{T}"/> or <see cref="AsyncOutcome{T}"/>
+/// If the function returns a <see cref="IProblem"/> then a new <see cref="Outcome{T}"/> or <see cref="AsyncOutcome{T}"/>
 /// will be returned by the adaptive methods. If null is returned, the exception will be re-thrown.
 /// </summary>
-/// <param name="exception">A caught <see cref="Exception"/> instance to try to map to a <see cref="Problem"/>.</param>
-/// <returns>A <see cref="Problem"/> if one could be created from the exception, or null.</returns>
-public delegate Problem? ExceptionMap(Exception exception);
+/// <param name="exception">A caught <see cref="Exception"/> instance to try to map to a <see cref="IProblem"/>.</param>
+/// <returns>A <see cref="IProblem"/> if one could be created from the exception, or null.</returns>
+public delegate IProblem? ExceptionMap(Exception exception);
 
 public static class Adapt
 {
@@ -23,7 +23,7 @@ public static class Adapt
     /// <typeparam name="T">Type of return value from the function.</typeparam>
     /// <param name="func">The function to adapt.</param>
     /// <param name="map">Optional <see cref="ExceptionMap"/> function.</param>
-    /// <returns>An <see cref="Outcome{T}"/> carrying the function result, or a <see cref="Problem"/>.</returns>
+    /// <returns>An <see cref="Outcome{T}"/> carrying the function result, or a <see cref="IProblem"/>.</returns>
     /// <exception cref="Exception">Re-throws any unmapped exceptions.</exception>
     public static Outcome<T> ToOutcome<T>(Func<T> func, ExceptionMap? map = null)
     {
@@ -33,9 +33,9 @@ public static class Adapt
         }
         catch (Exception e)
         {
-            Problem? problem = (map ?? MapExceptions)?.Invoke(e);
+            IProblem? problem = (map ?? MapExceptions)?.Invoke(e);
             if (problem is null) throw;
-            return problem;
+            return Outcome.Problem<T>(problem);
         }
     }
 
@@ -74,9 +74,9 @@ public static class Adapt
             }
             catch (Exception e)
             {
-                Problem? problem = (map ?? MapExceptions)?.Invoke(e);
+                IProblem? problem = (map ?? MapExceptions)?.Invoke(e);
                 if (problem is null) throw;
-                return problem;
+                return Outcome.Problem<T>(problem);
             }
         }
     }

@@ -1,10 +1,9 @@
-﻿namespace Matterlab.Rails;
+﻿namespace Outcomes;
 
 /// <summary>
-/// A simple, immutable data object intended to replace the practice of
-/// throwing exceptions in your code when a business rule fails.
+/// Default implementation of <see cref="IProblem"/>.
 /// </summary>
-public class Problem : IEquatable<Problem>
+public class Problem : IProblem, IEquatable<Problem>
 {
     /// <summary>
     /// Creates a new problem with the provided detail.
@@ -12,9 +11,7 @@ public class Problem : IEquatable<Problem>
     /// <param name="detail"><see cref="Detail"/> parameter.</param>
     public Problem(string detail) => Detail = detail;
 
-    /// <summary>
-    /// Human-readable detail of the problem that occured.
-    /// </summary>
+    /// <inheritdoc />
     public string Detail { get; }
 
     /// <inheritdoc />
