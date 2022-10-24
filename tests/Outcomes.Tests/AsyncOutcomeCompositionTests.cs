@@ -8,7 +8,7 @@ public class AsyncOutcomeCompositionTests
         static Outcome<int> PlusOne(int x) => x + 1;
 
         AsyncOutcome<int> composition =
-            from x in new AsyncOutcome<int>(2)
+            from x in Outcome.OkAsync(2)
             from y in PlusOne(x)
             select x * y;
 
@@ -22,7 +22,7 @@ public class AsyncOutcomeCompositionTests
         static AsyncOutcome<int> PlusOne(int x) => new(x + 1);
 
         AsyncOutcome<int> composition =
-            from x in new AsyncOutcome<int>(2)
+            from x in Outcome.OkAsync(2)
             from y in PlusOne(x)
             select x * y;
 
@@ -37,7 +37,7 @@ public class AsyncOutcomeCompositionTests
             Task.FromResult(Outcome.Ok(x + 1));
 
         AsyncOutcome<int> composition =
-            from x in new AsyncOutcome<int>(2)
+            from x in Outcome.OkAsync(2)
             from y in PlusOne(x)
             select x * y;
 
@@ -52,7 +52,7 @@ public class AsyncOutcomeCompositionTests
             ValueTask.FromResult(Outcome.Ok(x + 1));
 
         AsyncOutcome<int> composition =
-            from x in new AsyncOutcome<int>(2)
+            from x in Outcome.OkAsync(2)
             from y in PlusOne(x)
             select x * y;
 
@@ -67,7 +67,7 @@ public class AsyncOutcomeCompositionTests
             Task.FromResult(x + 1);
 
         AsyncOutcome<int> composition =
-            from x in new AsyncOutcome<int>(2)
+            from x in Outcome.OkAsync(2)
             from y in PlusOne(x)
             select x * y;
 
@@ -82,7 +82,7 @@ public class AsyncOutcomeCompositionTests
             ValueTask.FromResult(x + 1);
 
         AsyncOutcome<int> composition =
-            from x in new AsyncOutcome<int>(2)
+            from x in Outcome.OkAsync(2)
             from y in PlusOne(x)
             select x * y;
 
@@ -96,9 +96,9 @@ public class AsyncOutcomeCompositionTests
         static Task SomeAction() => Task.CompletedTask;
 
         AsyncOutcome<int> composition =
-            from x in new AsyncOutcome<int>(3)
+            from x in Outcome.OkAsync(2)
             from _ in SomeAction()
-            select x + 3;
+            select x * 3;
 
         int actual = await composition.MatchAsync(x => x, p => 0);
         Assert.Equal(6, actual);
@@ -110,9 +110,9 @@ public class AsyncOutcomeCompositionTests
         static ValueTask SomeAction() => ValueTask.CompletedTask;
 
         AsyncOutcome<int> composition =
-            from x in new AsyncOutcome<int>(3)
+            from x in Outcome.OkAsync(2)
             from _ in SomeAction()
-            select x + 3;
+            select x * 3;
 
         int actual = await composition.MatchAsync(x => x, p => 0);
         Assert.Equal(6, actual);

@@ -71,7 +71,7 @@ public readonly struct AsyncOutcome<T>
 
             return await outcome.Match(
                 selector,
-                p => new AsyncOutcome<TResult>(Outcome.Problem<TResult>(p)));
+                p => p.ToOutcomeAsync<TResult>());
         }
     }
 }

@@ -3,50 +3,6 @@
 namespace Outcomes;
 
 /// <summary>
-/// Helpers/entry-points for producing outcomes.
-/// </summary>
-public static class Outcome
-{
-    /// <summary>
-    /// Creates a new outcome that represents a value.
-    /// </summary>
-    /// <typeparam name="T">The type of the outcome value.</typeparam>
-    /// <param name="value">The value with which to produce an outcome.</param>
-    /// <returns>An <see cref="Outcome{T}"/> representing this value.</returns>
-    public static Outcome<T> Ok<T>(T value) => new(value);
-
-    /// <summary>
-    /// Creates a new outcome that represents a <see cref="IProblem"/>.
-    /// </summary>
-    /// <typeparam name="T">The type of the outcome value.</typeparam>
-    /// <param name="problem">The <see cref="IProblem"/> which this outcome represents.</param>
-    /// <returns>An <see cref="Outcome{T}"/> representing this problem.</returns>
-    public static Outcome<T> Problem<T>(IProblem problem) => new(problem);
-
-    /// <summary>
-    /// A successful outcome with the no-value type <see cref="None"/>, which acts in place of <see cref="Void"/>.
-    /// This outcome implicitly casts to any Outcome{T} where the internal value will be the default for type T.
-    /// <code>
-    /// Outcome{string} okStringOutcome = Outcome.NoProblem; // value: NULL, problem: NULL
-    /// Outcome{int} okIntegerOutcome = Outcome.NoProblem; // value: 0, problem: NULL
-    /// </code>
-    /// </summary>
-    public static Outcome<None> NoProblem => default;
-
-    /// <summary>
-    /// An outcome representing a <see cref="IProblem"/>, whose value type is <see cref="None"/>.
-    /// This outcome implicitly casts to any Outcome{T} where the internal value will be the default for type T.
-    /// <code>
-    /// Outcome{string} okStringOutcome = Outcome.NoProblem; // value: NULL, problem: NULL
-    /// Outcome{int} okIntegerOutcome = Outcome.NoProblem; // value: 0, problem: NULL
-    /// </code>
-    /// </summary>
-    /// <param name="problem">The <see cref="IProblem"/> which this outcome represents.</param>
-    /// <returns>An <see cref="Outcome{None}"/> representing this problem.</returns>
-    public static Outcome<None> Problem(IProblem problem) => new(problem);
-}
-
-/// <summary>
 /// Primitve union type that can hold either a value or a <see cref="Problem"/>, but not both.
 /// </summary>
 /// <typeparam name="T">The type of the outcome value.</typeparam>
@@ -101,7 +57,7 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     internal Outcome<TResult> Then<TResult>(Func<T, Outcome<TResult>> selector) =>
         _problem switch
         {
-            not null => Outcome.Problem<TResult>(_problem),
+            not null => _problem.ToOutcome<TResult>(),
             _ => selector(_value)
         };
 

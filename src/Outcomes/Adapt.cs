@@ -35,7 +35,7 @@ public static class Adapt
         {
             IProblem? problem = (map ?? MapExceptions)?.Invoke(e);
             if (problem is null) throw;
-            return Outcome.Problem<T>(problem);
+            return problem.ToOutcome<T>();
         }
     }
 
@@ -76,7 +76,7 @@ public static class Adapt
             {
                 IProblem? problem = (map ?? MapExceptions)?.Invoke(e);
                 if (problem is null) throw;
-                return Outcome.Problem<T>(problem);
+                return problem.ToOutcome<T>();
             }
         }
     }

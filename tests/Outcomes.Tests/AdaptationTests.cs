@@ -18,7 +18,7 @@ public class AdaptationTests
 
         Outcome<int> actual = Adapt.ToOutcome(Func, MapExceptions);
 
-        Assert.Equal(new Outcome<int>(13), actual);
+        Assert.Equal(Outcome.Ok(13), actual);
     }
 
     [Fact]
@@ -28,7 +28,7 @@ public class AdaptationTests
 
         Outcome<int> actual = Adapt.ToOutcome(Func, MapExceptions);
 
-        Assert.Equal(new Outcome<int>(new Problem(Message)), actual);
+        Assert.Equal(new Problem(Message).ToOutcome<int>(), actual);
     }
 
     [Fact]
@@ -50,7 +50,7 @@ public class AdaptationTests
 
         Outcome<None> actual = Adapt.ToOutcome(Action, MapExceptions);
 
-        Assert.Equal(new Outcome<None>(), actual);
+        Assert.Equal(Outcome.NoProblem, actual);
     }
 
     [Fact]
@@ -62,7 +62,7 @@ public class AdaptationTests
 
         Outcome<None> actual = Adapt.ToOutcome(Action, MapExceptions);
 
-        Assert.Equal(new Outcome<None>(new Problem(message)), actual);
+        Assert.Equal(new Problem(message).ToOutcome(), actual);
     }
 
     [Fact]

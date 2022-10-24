@@ -27,21 +27,21 @@ public class ProblemOutcomeTests
     }
 
     [Fact]
-    public void Should_CreateProblemOutcome_FromEntryHelper()
+    public void Should_CreateProblemOutcome_FromToOutcomeExtension()
     {
         var expected = new Outcome<int>(TestProblem);
 
-        Outcome<int> actual = Outcome.Problem(TestProblem);
+        Outcome<int> actual = TestProblem.ToOutcome();
 
         Assert.Equal(expected, actual);
     }
 
     [Fact]
-    public void Should_CreateProblemOutcome_FromStrongTypedEntryHelper()
+    public void Should_CreateProblemOutcome_FromStrongTypedToOutcomeExtension()
     {
         var expected = new Outcome<int>(TestProblem);
 
-        Outcome<int> actual = Outcome.Problem<int>(TestProblem);
+        Outcome<int> actual = TestProblem.ToOutcome<int>();
 
         Assert.Equal(expected, actual);
     }

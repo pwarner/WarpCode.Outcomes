@@ -85,32 +85,54 @@ Outcome<None> outcome = Outcome.NoProblem;
 
 `Outcome<None>` also implicitly converts to other `Outcome<T>` types, so you can write:
 ```csharp
-Outcome<string?> outcome = Outcome.NoProblem; // value is default(string), or null
+Outcome<string?> outcome = Outcome.NoProblem; // value is default(string?), or null
 Outcome<int> outcome = Outcome.NoProblem; // value is default(int), or 0
 ```
 
 ## Creating Problem Outcomes
-By constructor
+
 ```csharp
-var outcome = new Outcome<string>(new SomeProblem());
+public class SomeProblem: Problem { ... }
+
+public class AnotherProblem: IProblem { ... }
+
+public abstract class BaseAppProblem: IProblem
+{
+    public static implicit operator Outcome<None>(BaseAppProblem problem) => new(problem);
+}
+
+public class YetAnotherProblem: BaseAppProblem { ... }
 ```
 
-With `Outcome.Problem<T>`
+
+By constructor
 ```csharp
-Outcome<string> outcome = Outcome.Problem<string>(new SomeProblem());
+Outcome<string> outcome = new Outcome<string>(new SomeProblem());
+Outcome<int> outcome = new Outcome<int>(new AnotherProblem());
+Outcome<Blog> outcome = new Outcome<Blog>(new YetAnotherProblem());
+```
+
+With `ToOutcome<T> extensions`
+```csharp
+Outcome<string> outcome = new SomeProblem().ToOutcome<string>();
+Outcome<int> outcome = new AnotherProblem().ToOutcome<int>();
+Outcome<Blog> outcome = new YetAnotherProblem().ToOutcome<Blog>();
 ```
 
 By implicit coversion
 ```csharp
 Outcome<string> outcome = new SomeProblem();
+//Outcome<bool> outcome = new AnotherProblem ** fails **
+Outcome<None> outcome = new YetAnotherProblem();
 ```
 
-Create value-less Outcomes with `Outcome.Problem`
+Create value-less Outcomes with `ToOutcome()`
 ```csharp
-Outcome<None> outcome = Outcome.Problem(new SomeProblem());
+Outcome<None> outcome = new AnotherProblem().ToOutcome();
 ```
 
 Again, since `Outcome<None>` implicitly converts to other `Outcome<T>` types, you can write:
 ```csharp
-Outcome<string?> outcome = Outcome.Problem(new SomeProblem());
+Outcome<bool> outcome = new AnotherProblem().ToOutcome();
+Outcome<Blog> outcome = new YetAnotherProblem(); // because base class implicitly converts to Outcome<None>
 ```
