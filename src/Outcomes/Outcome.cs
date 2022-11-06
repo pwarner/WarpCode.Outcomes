@@ -41,7 +41,7 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     /// <param name="onProblem">Transformation function to apply when there is a problem.</param>
     /// <returns>The result of applying one of the transformation functions.</returns>
     /// <exception cref="ArgumentNullException">Thrown when either onSuccess or onProblem is null.</exception>
-    public TResult Match<TResult>(
+    public TResult Resolve<TResult>(
         Func<T, TResult> onSuccess,
         Func<IProblem, TResult> onProblem) =>
         onSuccess is null

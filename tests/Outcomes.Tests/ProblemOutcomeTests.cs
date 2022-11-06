@@ -11,7 +11,7 @@ public class ProblemOutcomeTests
     {
         var testable = new Outcome<None>(TestProblem);
 
-        bool result = testable.Match(OnNoProblem, OnProblem);
+        bool result = testable.Resolve(OnNoProblem, OnProblem);
 
         AssertProblemWasMatched(result);
     }
@@ -59,7 +59,7 @@ public class ProblemOutcomeTests
             from _ in Outcome.NoProblem
             select default(None);
 
-        bool result = testable.Match(OnNoProblem, OnProblem);
+        bool result = testable.Resolve(OnNoProblem, OnProblem);
 
         AssertProblemWasMatched(result, message);
     }

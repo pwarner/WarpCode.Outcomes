@@ -7,9 +7,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Outcomes", "src\Outcomes\Ou
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Outcomes.Tests", "tests\Outcomes.Tests\Outcomes.Tests.csproj", "{2D4F0D62-1AB7-4CA4-B1DC-A778D612F74B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A2BE4F24-8F72-4B75-86DF-3A213C29C1A7}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{579198A7-B9E4-4AF1-B731-42572A908923}"
 	ProjectSection(SolutionItems) = preProject
+		docs\creating-outcomes.md = docs\creating-outcomes.md
 		readme.md = readme.md
+		docs\resolving-outcomes.md = docs\resolving-outcomes.md
+		docs\what-is-a-problem.md = docs\what-is-a-problem.md
 	EndProjectSection
 EndProject
 Global

@@ -11,7 +11,7 @@ public class SuccessOutcomeTests
     {
         var testable = new Outcome<string>(TestValue);
 
-        bool result = testable.Match(OnNoProblem, OnProblem);
+        bool result = testable.Resolve(OnNoProblem, OnProblem);
 
         AssertSuccessWasMatched(result);
     }
@@ -55,7 +55,7 @@ public class SuccessOutcomeTests
             from c in Outcome.Ok('C')
             select $"{a}{b}{c}";
 
-        bool result = testable.Match(OnNoProblem, OnProblem);
+        bool result = testable.Resolve(OnNoProblem, OnProblem);
 
         AssertSuccessWasMatched(result, "ABC");
     }

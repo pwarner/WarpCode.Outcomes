@@ -1,8 +1,8 @@
 # Why Outcomes?
 
-Throwing exceptions in your code to express business logic is:
+Throwing exceptions in your code to enforce business logic is:
 - expensive (the call-stack is captured for the exception)
-- incorrect (exceptions should represent unexpected states and events, not expected ones)
+- incorrect (exceptions should represent unexpected/unwanted states and events, not expected ones)
 
 In place of throwing exceptions, we can use Outcomes to control our program flow.
 
@@ -54,85 +54,4 @@ private AsyncOutcome<CustomerUpdateResult> UpdateCustomerNameFlow(UpdateCustomer
     select new CustomerUpdateResult(cmd.Id, modified.Name, result.LastUpdated);
 ```
 
-# Creating Outcomes
-As mentioned, Outcomes have exactly two states: either they carry a value (Successful Outcomes), or they carry a Problem (Problem Outcomes) 
-
-Successful Outcomes can also carry an absence of value (The `None` type, which is like `System.Void` or `Unit`)
-
-## Creating Successful Outcomes
-By constructor
-```csharp
-var outcome = new Outcome<string>("success!");
-var outcome2 = new Outcome<int>(13);
-```
-
-With `Outcome.Ok`
-```csharp
-Outcome<string> outcome = Outcome.Ok("success!");
-Outcome<int> outcome2 = Outcome.Ok(13);
-```
-
-By implicit coversion
-```csharp
-Outcome<string> outcome = "foo";
-Outcome<int> outcome2 = 13;
-```
-
-Create value-less Outcomes with `Outcome.NoProblem`
-```csharp
-Outcome<None> outcome = Outcome.NoProblem;
-```
-
-`Outcome<None>` also implicitly converts to other `Outcome<T>` types, so you can write:
-```csharp
-Outcome<string?> outcome = Outcome.NoProblem; // value is default(string?), or null
-Outcome<int> outcome = Outcome.NoProblem; // value is default(int), or 0
-```
-
-## Creating Problem Outcomes
-
-```csharp
-public class SomeProblem: Problem { ... }
-
-public class AnotherProblem: IProblem { ... }
-
-public abstract class BaseAppProblem: IProblem
-{
-    public static implicit operator Outcome<None>(BaseAppProblem problem) => new(problem);
-}
-
-public class YetAnotherProblem: BaseAppProblem { ... }
-```
-
-
-By constructor
-```csharp
-Outcome<string> outcome = new Outcome<string>(new SomeProblem());
-Outcome<int> outcome = new Outcome<int>(new AnotherProblem());
-Outcome<Blog> outcome = new Outcome<Blog>(new YetAnotherProblem());
-```
-
-With `ToOutcome<T> extensions`
-```csharp
-Outcome<string> outcome = new SomeProblem().ToOutcome<string>();
-Outcome<int> outcome = new AnotherProblem().ToOutcome<int>();
-Outcome<Blog> outcome = new YetAnotherProblem().ToOutcome<Blog>();
-```
-
-By implicit coversion
-```csharp
-Outcome<string> outcome = new SomeProblem();
-//Outcome<bool> outcome = new AnotherProblem ** fails **
-Outcome<None> outcome = new YetAnotherProblem();
-```
-
-Create value-less Outcomes with `ToOutcome()`
-```csharp
-Outcome<None> outcome = new AnotherProblem().ToOutcome();
-```
-
-Again, since `Outcome<None>` implicitly converts to other `Outcome<T>` types, you can write:
-```csharp
-Outcome<bool> outcome = new AnotherProblem().ToOutcome();
-Outcome<Blog> outcome = new YetAnotherProblem(); // because base class implicitly converts to Outcome<None>
-```
+## Next: [What is a Problem?](./docs/what-is-a-problem.md)
