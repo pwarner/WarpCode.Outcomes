@@ -33,14 +33,23 @@ public static class Outcome
 
     /// <summary>
     /// Extension method that creates a new outcome from a <see cref="IProblem"/>, whose value type is {T}.
+    /// If the problem is null, the Outcome carries the default value of {T}.
+    /// If the problem is not null, the Outcome carries the problem.
     /// </summary>
     /// <typeparam name="T">The type of the outcome value.</typeparam>
     /// <param name="problem">The <see cref="IProblem"/> with which to make an outcome.</param>
     /// <returns>An <see cref="Outcome{T}"/> representing this problem.</returns>
-    public static Outcome<T> ToOutcome<T>(this IProblem problem) => new(problem);
+    public static Outcome<T> ToOutcome<T>(this IProblem? problem) =>
+        problem switch
+        {
+            not null => new Outcome<T>(problem),
+            null => default
+        };
 
     /// <summary>
     /// Extension method that creates a new outcome from a <see cref="IProblem"/>, whose value type is <see cref="None"/>.
+    /// If the problem is null, the Outcome carries the default value of {T}.
+    /// If the problem is not null, the Outcome carries the problem.
     /// This outcome implicitly casts to any Outcome{T} where the internal value will be the default for type T.
     /// <code>
     /// Outcome{string} okStringOutcome = p.ToOutcome(); // value: NULL, problem: p
@@ -49,7 +58,12 @@ public static class Outcome
     /// </summary>
     /// <param name="problem">The <see cref="IProblem"/> with which to make an outcome.</param>
     /// <returns>An <see cref="Outcome{None}"/> representing this problem.</returns>
-    public static Outcome<None> ToOutcome(this IProblem problem) => new(problem);
+    public static Outcome<None> ToOutcome(this IProblem? problem) =>
+        problem switch
+        {
+            not null => new Outcome<None>(problem),
+            null => default
+        };
 
     /// <summary>
     /// Creates a new async outcome that represents a value.

@@ -56,13 +56,11 @@ public class AdaptationTests
     [Fact]
     public void Adapt_From_Action_ShouldCreateProblemOutcomeIfErrorMapped()
     {
-        const string message = "Something went wrong";
-
-        static void Action() => throw new ApplicationException(message);
+        static void Action() => throw new ApplicationException(Message);
 
         Outcome<None> actual = Adapt.ToOutcome(Action, MapExceptions);
 
-        Assert.Equal(new Problem(message).ToOutcome(), actual);
+        Assert.Equal(new Problem(Message).ToOutcome(), actual);
     }
 
     [Fact]

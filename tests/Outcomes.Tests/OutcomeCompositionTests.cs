@@ -117,4 +117,28 @@ public class OutcomeCompositionTests
         int actual = await composition.ResolveAsync(x => x, p => 0);
         Assert.Equal(6, actual);
     }
+
+    [Fact]
+    public void Outcome_ComposesWith_IProblem()
+    {
+        Outcome<int> composition =
+            from x in Outcome.Ok(3)
+            from _ in new Problem("oops")
+            select x + 3;
+
+        int actual = composition.Resolve(x => x, p => 0);
+        Assert.Equal(0, actual);
+    }
+
+    [Fact]
+    public void Outcome_ComposesWith_Null_IProblem()
+    {
+        Outcome<int> composition =
+            from x in Outcome.Ok(3)
+            from _ in default(IProblem?)
+            select x + 3;
+
+        int actual = composition.Resolve(x => x, p => 0);
+        Assert.Equal(6, actual);
+    }
 }
