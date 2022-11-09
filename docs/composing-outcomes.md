@@ -1,8 +1,10 @@
 # Composing Outcomes
 
-When you've stuffed a value or a problem into an` Outcome<T>`, you might be surprised to find you can't directly them because the `Outcome<T>` type does not expose either a Value or Problem directly. 
+When you've stuffed a value or a problem into an` Outcome<T>`, you might be surprised to find you can't directly access them because the `Outcome<T>` type does not expose either a Value or Problem directly. 
 
 Nor does it expose any boolean indicators such as `IsSuccess` or `HasProblem`.
+
+Once you're using Outcomes, it's like being on a direct train hurtling down a rail-track to its destination. The train is either on the 'success/value' track, or the 'problem' track. And just like when you're on a moving train and the doors are locked, there's no way of jumping off until the train safely arrives in the station.
 
 This is a deliberate design decision to adhere to a `Monad` design pattern from the world of functional programming. A Monad usually appears in the form of a sort of wrapper that augments an inner value with additional logic, but it's also a type of contract.
 
