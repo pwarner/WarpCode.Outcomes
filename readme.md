@@ -46,12 +46,17 @@ By returning a Problem instead of throwing an exception:
 
 That intriguing last bullet-point means you can write code like this:
 ```csharp
-private AsyncOutcome<CustomerUpdateResult> UpdateCustomerNameFlow(UpdateCustomerNameCommand cmd) =>
+private Task<Outcome<CustomerUpdateResult>> UpdateCustomerNameFlow(UpdateCustomerNameCommand cmd) =>
     from _ in ValidateCommand(cmd)
     from customer in LoadCustomerAync(cmd.CustomerId)
     from modified in customer.UpdateName(cmd.NewName)
     from result in SaveCustomerAsync(modified)
     select new CustomerUpdateResult(cmd.Id, modified.Name, result.LastUpdated);
 ```
-
-## Next: [What is a Problem?](./docs/what-is-a-problem.md)
+### Index
+- this: Why Outcomes?
+- [What is a Problem?](./docs/what-is-a-problem.md)
+- [Creating Outcomes](./docs/creating-outcomes.md)
+- [Composing Outcomes](./docs/composing-outcomes.md)
+- [Adapting to Outcomes](./docs/outcome-adaptation.md)
+- [Resolving Outcomes](./docs/resolving-outcomes.md)

@@ -16,10 +16,12 @@ public static class OutcomeLinqExtensions
     /// <exception cref="ArgumentNullException">Thrown if the selector function is null.</exception>
     public static Outcome<TResult> Select<TSource, TResult>(
         this Outcome<TSource> self,
-        Func<TSource, TResult> selector) =>
-        selector is null
-            ? throw new ArgumentNullException(nameof(selector))
-            : self.Then(x => Outcome.Ok(selector(x)));
+        Func<TSource, TResult> selector)
+    {
+        if (selector == null) throw new ArgumentNullException(nameof(selector));
+
+        return self.Then(x => Outcome.Ok(selector(x)));
+    }
 
     /// <summary>
     /// Syntactic operator to support multiple 'from' clauses in a LINQ natural query comprehension
@@ -47,47 +49,6 @@ public static class OutcomeLinqExtensions
                 : self.Then(source =>
                     from next in selector(source)
                     select projector(source, next));
-
-    /// <summary>
-    /// Syntactic operator to support multiple 'from' clauses in a LINQ natural query comprehension
-    /// where the subsequent 'from' clause returns a nullable <see cref="IProblem"/>.
-    /// Creates a new <see cref="Outcome{TResult}"/> by invoking selctor and projector functions.
-    /// TResult will be a compiler-provided type combining both TSource and TNext values.
-    /// If self carries a <see cref="IProblem"/> or selector returns a problem, so will the result.
-    /// </summary>
-    /// <typeparam name="TSource">The type of the source outcome value.</typeparam>
-    /// <typeparam name="TResult">The type of the combined scope outcome value.</typeparam>
-    /// <param name="self">The source outcome on which to operate.</param>
-    /// <param name="selector">A compiler-provided function to obtain the next <see cref="Outcome{TNext}"/> by invoking the selector function with the outcome value.</param>
-    /// <param name="projector">A compiler-provided function to produce a tuple representing the combined values.</param>
-    /// <returns>An <see cref="Outcome{TResult}"/> whose value is either the result of invoking the composition functions on the value of source, or a <see cref="IProblem"/>.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if the selector or projector functions are null.</exception>
-    public static Outcome<TResult> SelectMany<TSource, TResult>(
-        this Outcome<TSource> self,
-        Func<TSource, IProblem?> selector,
-        Func<TSource, None, TResult> projector) =>
-        self.SelectMany(t => selector(t).ToOutcome(), projector);
-
-    /// <summary>
-    /// Syntactic operator to support multiple 'from' clauses in a LINQ natural query comprehension
-    /// where the subsequent 'from' clause returns an <see cref="AsyncOutcome{TNext}"/>.
-    /// Creates a new <see cref="AsyncOutcome{TResult}"/> by invoking selctor and projector functions.
-    /// TResult will be a compiler-provided type combining both TSource and TNext values.
-    /// If either outcome carries a <see cref="IProblem"/>, so will the result.
-    /// </summary>
-    /// <typeparam name="TSource">The type of the source outcome value.</typeparam>
-    /// <typeparam name="TNext">The type of the next outcome value.</typeparam>
-    /// <typeparam name="TResult">The type of the combined scope outcome value.</typeparam>
-    /// <param name="self">The source outcome on which to operate.</param>
-    /// <param name="selector">A compiler-provided function to obtain the next <see cref="AsyncOutcome{TNext}"/> by invoking the selector function with the outcome value.</param>
-    /// <param name="projector">A compiler-provided function to produce a tuple holding the combined values.</param>
-    /// <returns>An <see cref="AsyncOutcome{TResult}"/> whose eventual value is either the result of invoking the composition functions on the value of source, or a <see cref="IProblem"/>.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if the selector or projector functions are null.</exception>
-    public static AsyncOutcome<TResult> SelectMany<TSource, TNext, TResult>(
-        this Outcome<TSource> self,
-        Func<TSource, AsyncOutcome<TNext>> selector,
-        Func<TSource, TNext, TResult> projector) =>
-        new AsyncOutcome<TSource>(self).SelectMany(selector, projector);
 
     /// <summary>
     /// Syntactic operator to support multiple 'from' clauses in a LINQ natural query comprehension

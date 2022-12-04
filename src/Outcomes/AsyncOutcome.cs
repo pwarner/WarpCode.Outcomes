@@ -43,24 +43,6 @@ public readonly struct AsyncOutcome<T>
     public ValueTaskAwaiter<Outcome<T>> GetAwaiter() =>
         _outcomeTask.GetAwaiter();
 
-    /// <summary>   
-    /// Aynchronous version of
-    /// <see cref="Outcome{T}.Resolve{TResult}"/>
-    /// </summary>
-    /// <typeparam name="TResult">Type of resulting value.</typeparam>
-    /// <param name="onSuccess">Transformation function to apply when there is no problem.</param>
-    /// <param name="onProblem">Transformation function to apply when there is a problem.</param>
-    /// <returns>The result of applying one of the transformation functions.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when either onSuccess or onProblem is null.</exception>
-    public async ValueTask<TResult> ResolveAsync<TResult>(
-        Func<T, TResult> onSuccess,
-        Func<IProblem, TResult> onProblem) =>
-        onSuccess is null
-            ? throw new ArgumentNullException(nameof(onSuccess))
-            : onProblem is null
-                ? throw new ArgumentNullException(nameof(onProblem))
-                : (await this).Resolve(onSuccess, onProblem);
-
     internal AsyncOutcome<TResult> Then<TResult>(Func<T, AsyncOutcome<TResult>> selector)
     {
         return new AsyncOutcome<TResult>(Undress(this));
@@ -71,7 +53,13 @@ public readonly struct AsyncOutcome<T>
 
             return await outcome.Resolve(
                 selector,
-                p => p.ToOutcomeAsync<TResult>());
+                p => new AsyncOutcome<TResult>(p.ToOutcome<TResult>()));
         }
     }
+
+    public static implicit operator ValueTask<Outcome<T>>(AsyncOutcome<T> outcome) =>
+        outcome._outcomeTask;
+
+    public static implicit operator Task<Outcome<T>>(AsyncOutcome<T> outcome) =>
+        outcome._outcomeTask.AsTask();
 }

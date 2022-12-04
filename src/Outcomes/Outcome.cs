@@ -34,7 +34,7 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     }
 
     /// <summary>
-    /// Operation to produce a new value from this outcome.
+    /// Operation to produce a final value from this outcome.
     /// </summary>
     /// <typeparam name="TResult">Type of resulting value.</typeparam>
     /// <param name="onSuccess">Transformation function to apply when there is no problem.</param>
@@ -43,23 +43,36 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     /// <exception cref="ArgumentNullException">Thrown when either onSuccess or onProblem is null.</exception>
     public TResult Resolve<TResult>(
         Func<T, TResult> onSuccess,
-        Func<IProblem, TResult> onProblem) =>
-        onSuccess is null
-            ? throw new ArgumentNullException(nameof(onSuccess))
-            : onProblem is null
-                ? throw new ArgumentNullException(nameof(onProblem))
-                : _problem switch
-                {
-                    not null => onProblem(_problem),
-                    null => onSuccess(_value)
-                };
+        Func<IProblem, TResult> onProblem)
+    {
+        if (onSuccess == null) throw new ArgumentNullException(nameof(onSuccess));
+        if (onProblem == null) throw new ArgumentNullException(nameof(onProblem));
 
-    internal Outcome<TResult> Then<TResult>(Func<T, Outcome<TResult>> selector) =>
-        _problem switch
+        return _problem switch
+        {
+            not null => onProblem(_problem),
+            null => onSuccess(_value)
+        };
+    }
+
+    /// <summary>
+    /// Operation to produce a new Outcome in a composition chain.
+    /// </summary>
+    /// <typeparam name="TResult">Type of resulting value.</typeparam>
+    /// <param name="selector">A transform function to apply to the outcome value.</param>
+    /// <returns>An <see cref="Outcome{TResult}"/> whose value is either the result of invoking the transform function on the value of source,
+    /// or a <see cref="IProblem"/>.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if the selector function is null.</exception>
+    public Outcome<TResult> Then<TResult>(Func<T, Outcome<TResult>> selector)
+    {
+        if (selector == null) throw new ArgumentNullException(nameof(selector));
+
+        return _problem switch
         {
             not null => _problem.ToOutcome<TResult>(),
             _ => selector(_value)
         };
+    }
 
     /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
     public bool Equals(Outcome<T> other) =>

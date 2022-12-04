@@ -60,3 +60,10 @@ Again, since `Outcome<None>` implicitly converts to other `Outcome<T>` types, yo
 ```csharp
 Outcome<bool> outcome = new SomeProblem().ToOutcome();
 ```
+### Index
+- [Why Outcomes?](../readme.md)
+- [What is a Problem?](what-is-a-problem.md)
+- this: Creating Outcomes
+- [Composing Outcomes](composing-outcomes.md)
+- [Adapting to Outcomes](outcome-adaptation.md)
+- [Resolving Outcomes](resolving-outcomes.md)

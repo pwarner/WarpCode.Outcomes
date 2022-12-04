@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Outcomes.Tests", "tests\Out
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{579198A7-B9E4-4AF1-B731-42572A908923}"
 	ProjectSection(SolutionItems) = preProject
+		docs\composing-outcomes.md = docs\composing-outcomes.md
 		docs\creating-outcomes.md = docs\creating-outcomes.md
+		docs\outcome-adaptation.md = docs\outcome-adaptation.md
 		readme.md = readme.md
 		docs\resolving-outcomes.md = docs\resolving-outcomes.md
 		docs\what-is-a-problem.md = docs\what-is-a-problem.md
