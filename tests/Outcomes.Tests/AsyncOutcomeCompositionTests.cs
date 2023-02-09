@@ -15,7 +15,7 @@ public class AsyncOutcomeCompositionTests
             from y in PlusOne(x)
             select x * y;
 
-        int actual = (await composition).Resolve(x => x, p => 0);
+        int actual = (await composition).Match(x => x, p => 0);
         Assert.Equal(6, actual);
     }
 
@@ -30,7 +30,7 @@ public class AsyncOutcomeCompositionTests
             from y in PlusOne(x)
             select x * y;
 
-        int actual = (await composition).Resolve(x => x, p => 0);
+        int actual = (await composition).Match(x => x, p => 0);
         Assert.Equal(6, actual);
     }
 
@@ -45,7 +45,7 @@ public class AsyncOutcomeCompositionTests
             from y in PlusOne(x)
             select x * y;
 
-        int actual = (await composition).Resolve(x => x, p => 0);
+        int actual = (await composition).Match(x => x, p => 0);
         Assert.Equal(6, actual);
     }
 
@@ -60,7 +60,7 @@ public class AsyncOutcomeCompositionTests
             from y in PlusOne(x)
             select x * y;
 
-        int actual = (await composition).Resolve(x => x, p => 0);
+        int actual = (await composition).Match(x => x, p => 0);
         Assert.Equal(6, actual);
     }
 
@@ -74,7 +74,7 @@ public class AsyncOutcomeCompositionTests
             from _ in SomeAction()
             select x + 3;
 
-        int actual = (await composition).Resolve(x => x, p => 0);
+        int actual = (await composition).Match(x => x, p => 0);
         Assert.Equal(6, actual);
     }
 
@@ -88,7 +88,7 @@ public class AsyncOutcomeCompositionTests
             from _ in SomeAction()
             select x + 3;
 
-        int actual = (await composition).Resolve(x => x, p => 0);
+        int actual = (await composition).Match(x => x, p => 0);
         Assert.Equal(6, actual);
     }
 
@@ -102,7 +102,7 @@ public class AsyncOutcomeCompositionTests
             from y in PlusOne(x)
             select x * y;
 
-        int actual = (await composition).Resolve(x => x, p => 0);
+        int actual = (await composition).Match(x => x, p => 0);
         Assert.Equal(6, actual);
     }
 
@@ -117,7 +117,7 @@ public class AsyncOutcomeCompositionTests
             from y in PlusOne(x)
             select x * y;
 
-        int actual = (await composition).Resolve(x => x, p => 0);
+        int actual = (await composition).Match(x => x, p => 0);
         Assert.Equal(6, actual);
     }
 
@@ -132,7 +132,7 @@ public class AsyncOutcomeCompositionTests
             from y in PlusOne(x)
             select x * y;
 
-        int actual = (await composition).Resolve(x => x, p => 0);
+        int actual = (await composition).Match(x => x, p => 0);
         Assert.Equal(6, actual);
     }
 
@@ -147,7 +147,7 @@ public class AsyncOutcomeCompositionTests
             from y in PlusOne(x)
             select x * y;
 
-        int actual = (await composition).Resolve(x => x, p => 0);
+        int actual = (await composition).Match(x => x, p => 0);
         Assert.Equal(6, actual);
     }
 
@@ -162,7 +162,7 @@ public class AsyncOutcomeCompositionTests
             from y in PlusOne(x)
             select x * y;
 
-        int actual = (await composition).Resolve(x => x, p => 0);
+        int actual = (await composition).Match(x => x, p => 0);
         Assert.Equal(6, actual);
     }
 
@@ -176,7 +176,7 @@ public class AsyncOutcomeCompositionTests
             from _ in SomeAction()
             select x * 3;
 
-        int actual = (await composition).Resolve(x => x, p => 0);
+        int actual = (await composition).Match(x => x, p => 0);
         Assert.Equal(6, actual);
     }
 
@@ -190,7 +190,7 @@ public class AsyncOutcomeCompositionTests
             from _ in SomeAction()
             select x * 3;
 
-        int actual = (await composition).Resolve(x => x, p => 0);
+        int actual = (await composition).Match(x => x, p => 0);
         Assert.Equal(6, actual);
     }
 }

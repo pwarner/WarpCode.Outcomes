@@ -3,18 +3,18 @@
 /// <summary>
 /// Helpers/entry-points for producing outcomes.
 /// </summary>
-public static class Outcome
+public static partial class Outcome
 {
     /// <summary>
     /// A successful outcome with the no-value type <see cref="None"/>, which acts in place of <see cref="Void"/>.
     /// This outcome implicitly casts to any Outcome{T} where the internal value will be the default for type T.
     /// <code>
-    /// Outcome{string} okStringOutcome = Outcome.NoProblem; // value: NULL, problem: NULL
-    /// Outcome{int} okIntegerOutcome = Outcome.NoProblem; // value: 0, problem: NULL
+    /// Outcome{string} okStringOutcome = Outcome.Ok(); // value: NULL, problem: NULL
+    /// Outcome{int} okIntegerOutcome = Outcome.Ok(); // value: 0, problem: NULL
     /// </code>
     /// </summary>
     /// <returns>A successful <see cref="Outcome{None}"/>.</returns>
-    public static Outcome<None> NoProblem => default;
+    public static Outcome<None> Ok() => default;
 
     /// <summary>
     /// Creates a new outcome that represents a value.
@@ -26,8 +26,8 @@ public static class Outcome
 
     /// <summary>
     /// Extension method that creates a new outcome from a <see cref="IProblem"/>, whose value type is {T}.
-    /// If the problem is null, the Outcome carries the default value of {T}.
-    /// If the problem is not null, the Outcome carries the problem.
+    /// If the problem is null, the Outcome holds the default value of {T}.
+    /// If the problem is not null, the Outcome holds the problem.
     /// </summary>
     /// <typeparam name="T">The type of the outcome value.</typeparam>
     /// <param name="problem">The <see cref="IProblem"/> with which to make an outcome.</param>
@@ -41,8 +41,8 @@ public static class Outcome
 
     /// <summary>
     /// Extension method that creates a new outcome from a <see cref="IProblem"/>, whose value type is <see cref="None"/>.
-    /// If the problem is null, the Outcome carries the default value of {T}.
-    /// If the problem is not null, the Outcome carries the problem.
+    /// If the problem is null, the Outcome holds the default value of {T}.
+    /// If the problem is not null, the Outcome holds the problem.
     /// This outcome implicitly casts to any Outcome{T} where the internal value will be the default for type T.
     /// <code>
     /// Outcome{string} okStringOutcome = p.ToOutcome(); // value: NULL, problem: p

@@ -1,37 +1,36 @@
 
 # Creating Outcomes
-As mentioned, Outcomes have exactly two states: either they carry a value (Successful Outcomes), or they carry a Problem (Problem Outcomes) 
+As mentioned, Outcomes have exactly two states: either they hold a value (Successful Outcomes), or they hold a Problem (Problem Outcomes) 
 
-Successful Outcomes can also carry an absence of value (The `None` type, which is like `System.Void` or `Unit`)
+Successful Outcomes can also hold an absence of value (The `None` type, which is like `System.Void` or `Unit`)
 
 ## Creating Successful Outcomes
 By constructor
 ```csharp
-var outcome = new Outcome<string>("success!");
-var outcome2 = new Outcome<int>(13);
+var outcomeStr = new Outcome<string>("success!");
+var outcomeInt = new Outcome<int>(13);
 ```
 
 With `Outcome.Ok`
 ```csharp
-Outcome<string> outcome = Outcome.Ok("success!");
-Outcome<int> outcome2 = Outcome.Ok(13);
+Outcome<string> outcomeStr = Outcome.Ok("success!");
+Outcome<int> outcomeInt = Outcome.Ok(13);
+
+// create value-less Outcome
+Outcome<None> outcomeVoid = Outcome.Ok();
 ```
 
 By implicit coversion
 ```csharp
-Outcome<string> outcome = "success!";
-Outcome<int> outcome2 = 13;
-```
-
-Create value-less Outcomes with `Outcome.NoProblem`
-```csharp
-Outcome<None> outcome = Outcome.NoProblem;
+Outcome<string> outcomeStr = "success!";
+Outcome<int> outcomeInt = 13;
+Outcome<None> outcomeVoid = default;
 ```
 
 `Outcome<None>` also implicitly converts to other `Outcome<T>` types, so you can write:
 ```csharp
-Outcome<string> outcome = Outcome.NoProblem; // value is default(string), or null
-Outcome<int> outcome = Outcome.NoProblem; // value is default(int), or 0
+Outcome<string> outcome = Outcome.Ok(); // value is default(string), or null
+Outcome<int> outcome = Outcome.Ok(); // value is default(int), or 0
 ```
 
 ## Creating Problem Outcomes

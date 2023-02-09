@@ -26,6 +26,7 @@ public readonly struct AsyncOutcome<T>
     public AsyncOutcome(Task<Outcome<T>> outcomeTask) :
         this(new ValueTask<Outcome<T>>(outcomeTask))
     {
+        if (outcomeTask is null) throw new ArgumentNullException(nameof(outcomeTask));
     }
 
     /// <summary>
@@ -45,13 +46,15 @@ public readonly struct AsyncOutcome<T>
 
     internal AsyncOutcome<TResult> Then<TResult>(Func<T, AsyncOutcome<TResult>> selector)
     {
+        if (selector is null) throw new ArgumentNullException(nameof(selector));
+
         return new AsyncOutcome<TResult>(Undress(this));
 
         async ValueTask<Outcome<TResult>> Undress(AsyncOutcome<T> self)
         {
             Outcome<T> outcome = await self;
 
-            return await outcome.Resolve(
+            return await outcome.Match(
                 selector,
                 p => new AsyncOutcome<TResult>(p.ToOutcome<TResult>()));
         }

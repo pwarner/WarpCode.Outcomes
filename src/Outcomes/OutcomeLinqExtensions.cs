@@ -4,8 +4,8 @@ public static class OutcomeLinqExtensions
 {
     /// <summary>
     /// Syntactic operator to support the 'select' clause in a LINQ natural query comprehension.
-    /// Creates a new <see cref="Outcome{T}"/> by transforming the value of the source outcome if it carries no <see cref="IProblem"/>.
-    /// If the outcome carries a problem, the new outcome will carry the same problem.
+    /// Creates a new <see cref="Outcome{T}"/> by transforming the value of the source outcome if it holds no <see cref="IProblem"/>.
+    /// If the outcome holds a problem, the new outcome will carry the same problem.
     /// </summary>
     /// <typeparam name="TSource">The type of the source outcome value.</typeparam>
     /// <typeparam name="TResult">The type of the result outcome value.</typeparam>
@@ -18,7 +18,7 @@ public static class OutcomeLinqExtensions
         this Outcome<TSource> self,
         Func<TSource, TResult> selector)
     {
-        if (selector == null) throw new ArgumentNullException(nameof(selector));
+        if (selector is null) throw new ArgumentNullException(nameof(selector));
 
         return self.Then(x => Outcome.Ok(selector(x)));
     }
@@ -28,7 +28,7 @@ public static class OutcomeLinqExtensions
     /// where the subsequent 'from' clause returns an <see cref="Outcome{TNext}"/>.
     /// Creates a new <see cref="Outcome{TResult}"/> by invoking selctor and projector functions.
     /// TResult will be a compiler-provided type combining both TSource and TNext values.
-    /// If either outcome carries a <see cref="IProblem"/>, so will the result.
+    /// If either outcome holds a <see cref="IProblem"/>, so will the result.
     /// </summary>
     /// <typeparam name="TSource">The type of the source outcome value.</typeparam>
     /// <typeparam name="TNext">The type of the next outcome value.</typeparam>
@@ -41,21 +41,22 @@ public static class OutcomeLinqExtensions
     public static Outcome<TResult> SelectMany<TSource, TNext, TResult>(
         this Outcome<TSource> self,
         Func<TSource, Outcome<TNext>> selector,
-        Func<TSource, TNext, TResult> projector) =>
-        selector is null
-            ? throw new ArgumentNullException(nameof(selector))
-            : projector is null
-                ? throw new ArgumentNullException(nameof(projector))
-                : self.Then(source =>
-                    from next in selector(source)
-                    select projector(source, next));
+        Func<TSource, TNext, TResult> projector)
+    {
+        if (selector is null) throw new ArgumentNullException(nameof(selector));
+        if (projector is null) throw new ArgumentNullException(nameof(projector));
+
+        return self.Then(source =>
+            from next in selector(source)
+            select projector(source, next));
+    }
 
     /// <summary>
     /// Syntactic operator to support multiple 'from' clauses in a LINQ natural query comprehension
     /// where the subsequent 'from' clause returns a <see cref="Task{T}"/> of an <see cref="Outcome{TNext}"/>.
     /// Creates a new <see cref="AsyncOutcome{TResult}"/> by invoking selctor and projector functions.
     /// TResult will be a compiler-provided type combining both TSource and TNext values.
-    /// If either outcome carries a <see cref="IProblem"/>, so will the result.
+    /// If either outcome holds a <see cref="IProblem"/>, so will the result.
     /// </summary>
     /// <typeparam name="TSource">The type of the source outcome value.</typeparam>
     /// <typeparam name="TNext">The type of the next outcome value.</typeparam>
@@ -76,7 +77,7 @@ public static class OutcomeLinqExtensions
     /// where the subsequent 'from' clause returns a <see cref="ValueTask{T}"/> of an <see cref="Outcome{TNext}"/>.
     /// Creates a new <see cref="AsyncOutcome{TResult}"/> by invoking selctor and projector functions.
     /// TResult will be a compiler-provided type combining both TSource and TNext values.
-    /// If either outcome carries a <see cref="IProblem"/>, so will the result.
+    /// If either outcome holds a <see cref="IProblem"/>, so will the result.
     /// </summary>
     /// <typeparam name="TSource">The type of the source outcome value.</typeparam>
     /// <typeparam name="TNext">The type of the next outcome value.</typeparam>
@@ -97,7 +98,7 @@ public static class OutcomeLinqExtensions
     /// where the subsequent 'from' clause returns a <see cref="Task{TNext}"/>.
     /// Creates a new <see cref="AsyncOutcome{TResult}"/> by invoking selctor and projector functions.
     /// TResult will be a compiler-provided type combining both TSource and TNext values.
-    /// If either outcome carries a <see cref="IProblem"/>, so will the result.
+    /// If either outcome holds a <see cref="IProblem"/>, so will the result.
     /// </summary>
     /// <typeparam name="TSource">The type of the source outcome value.</typeparam>
     /// <typeparam name="TNext">The type of the next outcome value.</typeparam>
@@ -118,7 +119,7 @@ public static class OutcomeLinqExtensions
     /// where the subsequent 'from' clause returns a <see cref="ValueTask{TNext}"/>.
     /// Creates a new <see cref="AsyncOutcome{TResult}"/> by invoking selctor and projector functions.
     /// TResult will be a compiler-provided type combining both TSource and TNext values.
-    /// If either outcome carries a <see cref="IProblem"/>, so will the result.
+    /// If either outcome holds a <see cref="IProblem"/>, so will the result.
     /// </summary>
     /// <typeparam name="TSource">The type of the source outcome value.</typeparam>
     /// <typeparam name="TNext">The type of the next outcome value.</typeparam>
@@ -139,7 +140,7 @@ public static class OutcomeLinqExtensions
     /// where the subsequent 'from' clause returns a <see cref="Task"/>.
     /// Creates a new <see cref="AsyncOutcome{TResult}"/> by invoking selctor and projector functions.
     /// TResult will be a compiler-provided type combining both TSource and <see cref="None"/> values.
-    /// If either outcome carries a <see cref="IProblem"/>, so will the result.
+    /// If either outcome holds a <see cref="IProblem"/>, so will the result.
     /// </summary>
     /// <typeparam name="TSource">The type of the source outcome value.</typeparam>
     /// <typeparam name="TResult">The type of the combined scope outcome value.</typeparam>
@@ -159,7 +160,7 @@ public static class OutcomeLinqExtensions
     /// where the subsequent 'from' clause returns a <see cref="ValueTask"/>.
     /// Creates a new <see cref="AsyncOutcome{TResult}"/> by invoking selctor and projector functions.
     /// TResult will be a compiler-provided type combining both TSource and <see cref="None"/> values.
-    /// If either outcome carries a <see cref="IProblem"/>, so will the result.
+    /// If either outcome holds a <see cref="IProblem"/>, so will the result.
     /// </summary>
     /// <typeparam name="TSource">The type of the source outcome value.</typeparam>
     /// <typeparam name="TResult">The type of the combined scope outcome value.</typeparam>

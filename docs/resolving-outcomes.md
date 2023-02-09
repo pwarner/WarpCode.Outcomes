@@ -6,9 +6,9 @@ When you've stuffed a value or a problem into an` Outcome<T>`, you might be surp
 
 Nor does it expose any boolean indicators such as `IsSuccess` or `HasProblem`.
 
-You use the `Resolve` method to obtain a final non-outcome based value.
+You use the `Match` method to obtain a final non-outcome based value.
 
- The default `Resolve` method takes two resolver functions, one for each state of `value` or `problem`.
+ The default `Match` method takes two resolver functions, one for each state of `value` or `problem`.
 
 ```csharp
 Task<Outcome<OrderDetailDto>> Pipeline(OrderDetailRequest request) =>
@@ -20,7 +20,7 @@ public async Task<IResult> GetOrderDetail(OrderDetailRequest request)
 {
     Outcome<OrderDetailDto> outcome = await Pipline(request);
 
-    return outcome.Resolve
+    return outcome.Match
     (
         dto => Results.Ok(dto),
         problem => problem switch
@@ -31,20 +31,6 @@ public async Task<IResult> GetOrderDetail(OrderDetailRequest request)
     );    
 }
 ```
-Additionally, extensions on the `Resolve` method allow you to specify up to four strongly-typed problem resolvers, as well as a default fallback resolver. 
-
-```csharp
-outcome            
-    .Resolve(
-        value => ...value handler...
-        p => ... fallback to handle all other problem types...
-        (Problem1 p1) => ...handle problem type p1 here...,
-        (Problem2 p2) => ...handle problem type p2 here...,
-        (Problem3 p3) => ...handle problem type p3 here...,
-        (Problem4 p4) => ...handle problem type p4 here...
-    );
-```
-
 
 ### Index
 - [Why Outcomes?](../readme.md)

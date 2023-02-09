@@ -20,7 +20,7 @@ public class OutcomeCreationTests
     {
         var expected = new Outcome<string>();
 
-        Outcome<string> actual = Outcome.NoProblem;
+        Outcome<string> actual = Outcome.Ok();
 
         Assert.Equal(expected, actual);
     }

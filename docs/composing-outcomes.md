@@ -36,10 +36,11 @@ Outcome<string> FormatDate(Outcome<DateTime> input) =>
 ```
 
 A line in the form `from x in y` means:
-> `x` is the value contained in an Outcome - or something that can be converted to an Outcome - returned by the expression `y`.
+> `x` is the value contained in an Outcome (or something that can be converted to an Outcome) returned by the expression `y`.
 
 ## Important
-If any Outcome in a composition (the `y` in `from x in y`) holds an `IProblem`, *none* of the subsequent Outcome expressions (the `from` or `select` clauses) are evaluated. The flow is short-circuited, and a new problem Outcome of the desired return type is immediately returned.
+If any Outcome in a composition (the `y` in `from x in y`) holds an `IProblem`, *none* of the subsequent Outcome expressions (the `from` or `select` clauses) are evaluated. 
+The flow is short-circuited, and a new problem Outcome of the desired return type is immediately returned.
 
 In the example above, if the `input` Outcome holds an instance of `IProblem` instead of a `DateTime` value, the `select` clause is never evaluated.
 
@@ -55,11 +56,13 @@ Let's unpick what's going on here:
 
 - First, notice the return type is `Task<Outcome<GetProductRequest>>` because we compose an async expression. (`ValueTask<Outcome<GetProductRequest>>` is also supported.)
 
-- `validator.Validate()` is a method that validates the incoming request and returns an `Outcome<GetProductRequest>`. If the request was invalid, this will hold a problem representing all of the validation errors. The rest of the composition will not be evaluated and will immediately return an outcome holding this problem.
+- `validator.Validate()` is a method that validates the incoming request and returns an `Outcome<GetProductRequest>`. If the request was invalid, this will hold a problem representing all of the validation errors. 
+The rest of the composition will not be evaluated and will immediately return an outcome holding this problem.
 
 - next, the repository is invoked asychronously to return an `ValueTask<Outcome<Product>>`.
 
-- The variable `validRequest` from the first line is in scope here, and used to supply the productId parameter for invocation. With each successive line in composition, all previous variables (and any input parameters of course) are in scope.
+- The variable `validRequest` from the first line is in scope here, and used to supply the productId parameter for invocation. 
+With each successive line in composition, all previous variables (and any input parameters of course) are in scope.
 
 - If there was no product with this ID, the Outcome returned by `GetByIdAsync` will hold some kind of `EntityNotFoundProblem`. The composition will halt immediately, and this problem is used to create the return value.
 

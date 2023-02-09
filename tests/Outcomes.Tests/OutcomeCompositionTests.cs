@@ -14,7 +14,7 @@ public class OutcomeCompositionTests
                 .Then(a => CreateOutcome(code == 'B', $"B{a}"))
                 .Then(ba => CreateOutcome(code == 'C', $"C{ba}"));
 
-        string result = testable.Resolve(x => x, p => p.Detail);
+        string result = testable.Match(x => x, p => p.Detail);
 
         Assert.Equal(expected, result);
     }
@@ -32,7 +32,7 @@ public class OutcomeCompositionTests
             from cba in CreateOutcome(code == 'C', $"C{ba}")
             select cba;
 
-        string result = testable.Resolve(x => x, p => p.Detail);
+        string result = testable.Match(x => x, p => p.Detail);
 
         Assert.Equal(expected, result);
     }

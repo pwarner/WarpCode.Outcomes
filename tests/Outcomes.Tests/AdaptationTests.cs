@@ -50,7 +50,7 @@ public class AdaptationTests
 
         Outcome<None> actual = Adapt.ToOutcome(Action, MapExceptions);
 
-        Assert.Equal(Outcome.NoProblem, actual);
+        Assert.Equal(Outcome.Ok(), actual);
     }
 
     [Fact]
