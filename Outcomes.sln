@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{579198A7-B
 		docs\composing-outcomes.md = docs\composing-outcomes.md
 		docs\creating-outcomes.md = docs\creating-outcomes.md
 		docs\outcome-adaptation.md = docs\outcome-adaptation.md
+		docs\outcomes-as-monads.md = docs\outcomes-as-monads.md
 		readme.md = readme.md
 		docs\resolving-outcomes.md = docs\resolving-outcomes.md
 		docs\what-is-a-problem.md = docs\what-is-a-problem.md

@@ -2,13 +2,7 @@
 
 At the end of a pipeline of operations returning Outomes, you'll need to leave the 'rails' and return a final value that makes sense for your application, for example in a Web API that resolves to an `IActionResult` or `IResult`.
 
-When you've stuffed a value or a problem into an` Outcome<T>`, you might be surprised to find you can't directly access them because the `Outcome<T>` type does not expose either a Value or Problem directly. 
-
-Nor does it expose any boolean indicators such as `IsSuccess` or `HasProblem`.
-
-You use the `Match` method to obtain a final non-outcome based value.
-
- The default `Match` method takes two resolver functions, one for each state of `value` or `problem`.
+A switch expression with pattern matching is perfect for mapping your outcomes to a final return value.
 
 ```csharp
 Task<Outcome<OrderDetailDto>> Pipeline(OrderDetailRequest request) =>
@@ -20,15 +14,13 @@ public async Task<IResult> GetOrderDetail(OrderDetailRequest request)
 {
     Outcome<OrderDetailDto> outcome = await Pipline(request);
 
-    return outcome.Match
-    (
-        dto => Results.Ok(dto),
-        problem => problem switch
-        {
-            NotFoundProblem notFound => Results.NotFound(),
-            ValidationProblem invalid => Results.ValidationProblem(...)
-        }
-    );    
+    return outcome.Problem switch
+    {
+        null => Results.Ok(outcome.Value),
+        NotFoundProblem notFound => Results.NotFound(),
+        ValidationProblem invalid => Results.ValidationProblem(invalid.Message)
+        {} other => Results.Error(other.Detail)
+    };
 }
 ```
 
@@ -39,3 +31,6 @@ public async Task<IResult> GetOrderDetail(OrderDetailRequest request)
 - [Composing Outcomes](composing-outcomes.md)
 - [Adapting to Outcomes](outcome-adaptation.md)
 - this: Resolving Outcomes
+
+### further reading / miscellaneous
+- [Outcomes as Monads](./docs/outcomes-as-monads.md)

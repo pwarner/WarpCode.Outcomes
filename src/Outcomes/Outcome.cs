@@ -3,14 +3,14 @@
 namespace Outcomes;
 
 /// <summary>
-/// Primitve union type that can hold either a value or a <see cref="Problem"/>, but not both.
+/// Primitve union type that can hold either a value or a <see cref="Outcomes.Problem"/>, but not both.
 /// </summary>
 /// <typeparam name="T">The type of the outcome value.</typeparam>
 [StructLayout(LayoutKind.Auto)]
 public readonly struct Outcome<T> : IEquatable<Outcome<T>>
 {
-    private readonly T _value;
-    private readonly IProblem? _problem;
+    public readonly T Value;
+    public readonly IProblem? Problem;
 
     /// <summary>
     /// Creates a new outcome that represents a value.
@@ -18,8 +18,8 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     /// <param name="value">Value that this outcome represents.</param>
     public Outcome(T value)
     {
-        _value = value;
-        _problem = null;
+        Value = value;
+        Problem = null;
     }
 
     /// <summary>
@@ -29,30 +29,8 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     /// <exception cref="ArgumentNullException"></exception>
     public Outcome(IProblem problem)
     {
-        _problem = problem ?? throw new ArgumentNullException(nameof(problem));
-        _value = default!;
-    }
-
-    /// <summary>
-    /// Operation to produce a final value from this outcome.
-    /// </summary>
-    /// <typeparam name="TResult">Type of resulting value.</typeparam>
-    /// <param name="onSuccess">Transformation function to apply when there is no problem.</param>
-    /// <param name="onProblem">Transformation function to apply when there is a problem.</param>
-    /// <returns>The result of applying one of the transformation functions.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when either onSuccess or onProblem is null.</exception>
-    public TResult Match<TResult>(
-        Func<T, TResult> onSuccess,
-        Func<IProblem, TResult> onProblem)
-    {
-        if (onSuccess == null) throw new ArgumentNullException(nameof(onSuccess));
-        if (onProblem == null) throw new ArgumentNullException(nameof(onProblem));
-
-        return _problem switch
-        {
-            not null => onProblem(_problem),
-            null => onSuccess(_value)
-        };
+        Problem = problem ?? throw new ArgumentNullException(nameof(problem));
+        Value = default!;
     }
 
     /// <summary>
@@ -67,17 +45,17 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     {
         if (selector == null) throw new ArgumentNullException(nameof(selector));
 
-        return _problem switch
+        return Problem switch
         {
-            not null => _problem.ToOutcome<TResult>(),
-            _ => selector(_value)
+            not null => Problem.ToOutcome<TResult>(),
+            null => selector(Value)
         };
     }
 
     /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
     public bool Equals(Outcome<T> other) =>
-        EqualityComparer<T>.Default.Equals(_value, other._value)
-        && Equals(_problem, other._problem);
+        EqualityComparer<T>.Default.Equals(Value, other.Value)
+        && Equals(Problem, other.Problem);
 
     /// <inheritdoc />
     public override bool Equals(object? obj) =>
@@ -85,7 +63,7 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
 
     /// <inheritdoc />
     public override int GetHashCode() =>
-        HashCode.Combine(_value, _problem);
+        HashCode.Combine(Value, Problem);
 
     public static bool operator ==(Outcome<T> left, Outcome<T> right) =>
         left.Equals(right);

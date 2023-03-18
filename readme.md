@@ -24,7 +24,7 @@ public async Task<Customer> FetchCustomerAsync(string customerId)
 }
 ```
 
-we shall do this 👇
+we can do this 👇
 ```csharp
 public async Task<Outcome<Customer>> FetchCustomerAsync(string customerId)
 {
@@ -53,6 +53,7 @@ private Task<Outcome<CustomerUpdateResult>> UpdateCustomerNameFlow(UpdateCustome
     from result in SaveCustomerAsync(modified)
     select new CustomerUpdateResult(cmd.Id, modified.Name, result.LastUpdated);
 ```
+
 ### Index
 - this: Why Outcomes?
 - [What is a Problem?](./docs/what-is-a-problem.md)
@@ -60,3 +61,6 @@ private Task<Outcome<CustomerUpdateResult>> UpdateCustomerNameFlow(UpdateCustome
 - [Composing Outcomes](./docs/composing-outcomes.md)
 - [Adapting to Outcomes](./docs/outcome-adaptation.md)
 - [Resolving Outcomes](./docs/resolving-outcomes.md)
+
+### further reading / miscellaneous
+- [Outcomes as Monads](./docs/outcomes-as-monads.md)

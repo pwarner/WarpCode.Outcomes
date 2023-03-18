@@ -1,6 +1,6 @@
 ﻿namespace Outcomes;
 
-public static partial class Outcome
+public static class OutcomeExtensions
 {
     public static Outcome<T> OnSuccess<T>(
         this Outcome<T> outcome,
@@ -8,14 +8,10 @@ public static partial class Outcome
     {
         if (action is null) throw new ArgumentNullException(nameof(action));
 
-        return outcome.Match(
-            value =>
-            {
-                action(value);
-                return value;
-            },
-            problem => problem.ToOutcome<T>()
-        );
+        if (outcome.Problem is null)
+            action(outcome.Value);
+
+        return outcome;
     }
 
     public static Outcome<T> OnProblem<T>(
@@ -24,19 +20,15 @@ public static partial class Outcome
     {
         if (action is null) throw new ArgumentNullException(nameof(action));
 
-        return outcome.Match(
-            value => value,
-            problem =>
-            {
-                action(problem);
-                return problem.ToOutcome<T>();
-            }
-        );
+        if (outcome.Problem is not null)
+            action(outcome.Problem);
+
+        return outcome;
     }
 
     public static Outcome<List<T>?> Aggregate<T>(
         this IEnumerable<Outcome<T>> outcomes,
-        bool bailEarly)
+        bool bailEarly = false)
     {
         List<T>? list = null;
         List<IProblem>? problems = null;
@@ -44,64 +36,60 @@ public static partial class Outcome
         foreach (Outcome<T> outcome in outcomes)
         {
             _ = outcome
-                .OnSuccess((list ??= new List<T>()).Add)
-                .OnProblem((problems ??= new List<IProblem>()).Add);
+                .OnSuccess(x => (list ??= new List<T>()).Add(x))
+                .OnProblem(x => (problems ??= new List<IProblem>()).Add(x));
 
             if (problems is not null && bailEarly)
-                break;
+                return problems[0].ToOutcome();
         }
 
-        return problems is not null
-            ? new ProblemAggregate(problems)
-            : list;
+        return problems switch
+        {
+            not null => new ProblemAggregate(problems),
+            _ => list
+        };
     }
 
     public static Outcome<None> Aggregate(
         this IEnumerable<Outcome<None>> outcomes,
-        bool bailEarly)
+        bool bailEarly = false)
     {
         List<IProblem>? problems = null;
 
         foreach (Outcome<None> outcome in outcomes)
         {
             _ = outcome
-                .OnProblem((problems ??= new List<IProblem>()).Add);
+                .OnProblem(x => (problems ??= new List<IProblem>()).Add(x));
 
             if (problems is not null && bailEarly)
-                break;
+                return problems[0].ToOutcome();
         }
 
-        return problems is not null
-            ? new ProblemAggregate(problems)
-            : Ok();
-    }
-
-    public static Outcome<T> Ensure<T>(
-        T subject,
-        Predicate<T> predicate,
-        Func<T, IProblem> factory)
-    {
-        if (predicate is null) throw new ArgumentNullException(nameof(predicate));
-        if (factory is null) throw new ArgumentNullException(nameof(factory));
-
-        return predicate(subject) switch
+        return problems switch
         {
-            true => subject,
-            false => factory(subject).ToOutcome()
+            not null => new ProblemAggregate(problems),
+            _ => Ok()
         };
     }
 
     public static Outcome<T> Ensure<T>(
-        this Outcome<T> subject,
+        this Outcome<T> outcome,
         Predicate<T> predicate,
         Func<T, IProblem> factory)
     {
         if (predicate is null) throw new ArgumentNullException(nameof(predicate));
         if (factory is null) throw new ArgumentNullException(nameof(factory));
 
+        Outcome<T> Switch(T subject) =>
+            predicate(subject) switch
+            {
+                true => subject,
+                false => factory(subject).ToOutcome()
+            };
+
         return
-            from value in subject
-            from next in Ensure(value, predicate, factory)
+            from value in outcome
+            from next in Switch(value)
             select next;
     }
 }

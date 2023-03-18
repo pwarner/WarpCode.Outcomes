@@ -24,9 +24,8 @@ public readonly struct AsyncOutcome<T>
     /// </summary>
     /// <param name="outcomeTask">The <see cref="Task{T}"/> that will complete and yield an <see cref="Outcome{T}"/>.</param>
     public AsyncOutcome(Task<Outcome<T>> outcomeTask) :
-        this(new ValueTask<Outcome<T>>(outcomeTask))
+        this(new ValueTask<Outcome<T>>(outcomeTask ?? throw new ArgumentNullException(nameof(outcomeTask))))
     {
-        if (outcomeTask is null) throw new ArgumentNullException(nameof(outcomeTask));
     }
 
     /// <summary>
@@ -44,20 +43,20 @@ public readonly struct AsyncOutcome<T>
     public ValueTaskAwaiter<Outcome<T>> GetAwaiter() =>
         _outcomeTask.GetAwaiter();
 
-    internal AsyncOutcome<TResult> Then<TResult>(Func<T, AsyncOutcome<TResult>> selector)
+    internal AsyncOutcome<TResult> Then<TResult>(Func<T, AsyncOutcome<TResult>> selector) =>
+        selector is null
+            ? throw new ArgumentNullException(nameof(selector))
+            : Unwrap(selector).ToOutcome();
+
+    private async ValueTask<Outcome<TResult>> Unwrap<TResult>(Func<T, AsyncOutcome<TResult>> selector)
     {
-        if (selector is null) throw new ArgumentNullException(nameof(selector));
+        Outcome<T> outcome = await this;
 
-        return new AsyncOutcome<TResult>(Undress(this));
-
-        async ValueTask<Outcome<TResult>> Undress(AsyncOutcome<T> self)
+        return outcome.Problem switch
         {
-            Outcome<T> outcome = await self;
-
-            return await outcome.Match(
-                selector,
-                p => new AsyncOutcome<TResult>(p.ToOutcome<TResult>()));
-        }
+            null => await selector(outcome.Value),
+            not null => outcome.Problem.ToOutcome<TResult>()
+        };
     }
 
     public static implicit operator ValueTask<Outcome<T>>(AsyncOutcome<T> outcome) =>

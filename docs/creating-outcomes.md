@@ -42,6 +42,7 @@ Outcome<string> outcome = new Outcome<string>(new SomeProblem());
 
 By implicit coversion
 ```csharp
+// available if the SomeProblem type derives from the base Outcomes.Problem type
 Outcome<string> outcome = new SomeProblem();
 ```
 
@@ -59,6 +60,7 @@ Again, since `Outcome<None>` implicitly converts to other `Outcome<T>` types, yo
 ```csharp
 Outcome<bool> outcome = new SomeProblem().ToOutcome();
 ```
+
 ### Index
 - [Why Outcomes?](../readme.md)
 - [What is a Problem?](what-is-a-problem.md)
@@ -66,3 +68,6 @@ Outcome<bool> outcome = new SomeProblem().ToOutcome();
 - [Composing Outcomes](composing-outcomes.md)
 - [Adapting to Outcomes](outcome-adaptation.md)
 - [Resolving Outcomes](resolving-outcomes.md)
+
+### further reading / miscellaneous
+- [Outcomes as Monads](./docs/outcomes-as-monads.md)

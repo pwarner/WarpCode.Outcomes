@@ -7,3 +7,6 @@
 - [Composing Outcomes](composing-outcomes.md)
 - this: Adapting to Outcomes
 - [Resolving Outcomes](resolving-outcomes.md)
+
+### further reading / miscellaneous
+- [Outcomes as Monads](./docs/outcomes-as-monads.md)

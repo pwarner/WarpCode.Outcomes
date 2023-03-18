@@ -89,3 +89,6 @@ Additionally, the following types are also available thanks to [Outcome Adaptati
 - this: Composing Outcomes
 - [Adapting to Outcomes](outcome-adaptation.md)
 - [Resolving Outcomes](resolving-outcomes.md)
+
+### further reading / miscellaneous
+- [Outcomes as Monads](./docs/outcomes-as-monads.md)

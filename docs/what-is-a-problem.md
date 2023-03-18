@@ -67,3 +67,6 @@ throw new ArgumentOutOfRange(nameof(date), "The date is not in range");
 - [Composing Outcomes](composing-outcomes.md)
 - [Adapting to Outcomes](outcome-adaptation.md)
 - [Resolving Outcomes](resolving-outcomes.md)
+
+### further reading / miscellaneous
+- [Outcomes as Monads](./docs/outcomes-as-monads.md)
