@@ -15,12 +15,12 @@ public static class OutcomeLinqExtensions
     /// or a <see cref="IProblem"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the selector function is null.</exception>
     public static Outcome<TResult> Select<TSource, TResult>(
-        this Outcome<TSource> self,
+        this in Outcome<TSource> self,
         Func<TSource, TResult> selector)
     {
         if (selector is null) throw new ArgumentNullException(nameof(selector));
 
-        return self.Then(x => Outcome.Ok(selector(x)));
+        return self.Then<TResult>(x => selector(x));
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ public static class OutcomeLinqExtensions
     /// <returns>An <see cref="Outcome{TResult}"/> whose value is either the result of invoking the composition functions on the value of source, or a <see cref="IProblem"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the selector or projector functions are null.</exception>
     public static Outcome<TResult> SelectMany<TSource, TNext, TResult>(
-        this Outcome<TSource> self,
+        this in Outcome<TSource> self,
         Func<TSource, Outcome<TNext>> selector,
         Func<TSource, TNext, TResult> projector)
     {
@@ -67,7 +67,7 @@ public static class OutcomeLinqExtensions
     /// <returns>An <see cref="AsyncOutcome{TResult}"/> whose eventual value is either the result of invoking the composition functions on the value of source, or a <see cref="IProblem"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the selector or projector functions are null.</exception>
     public static AsyncOutcome<TResult> SelectMany<TSource, TNext, TResult>(
-        this Outcome<TSource> self,
+        this in Outcome<TSource> self,
         Func<TSource, Task<Outcome<TNext>>> selector,
         Func<TSource, TNext, TResult> projector) =>
         new AsyncOutcome<TSource>(self).SelectMany(selector, projector);
@@ -88,7 +88,7 @@ public static class OutcomeLinqExtensions
     /// <returns>An <see cref="AsyncOutcome{TResult}"/> whose eventual value is either the result of invoking the composition functions on the value of source, or a <see cref="IProblem"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the selector or projector functions are null.</exception>
     public static AsyncOutcome<TResult> SelectMany<TSource, TNext, TResult>(
-        this Outcome<TSource> self,
+        this in Outcome<TSource> self,
         Func<TSource, ValueTask<Outcome<TNext>>> selector,
         Func<TSource, TNext, TResult> projector) =>
         new AsyncOutcome<TSource>(self).SelectMany(selector, projector);
@@ -109,7 +109,7 @@ public static class OutcomeLinqExtensions
     /// <returns>An <see cref="AsyncOutcome{TResult}"/> whose eventual value is either the result of invoking the composition functions on the value of source, or a <see cref="IProblem"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the selector or projector functions are null.</exception>
     public static AsyncOutcome<TResult> SelectMany<TSource, TNext, TResult>(
-        this Outcome<TSource> self,
+        this in Outcome<TSource> self,
         Func<TSource, Task<TNext>> selector,
         Func<TSource, TNext, TResult> projector) =>
         new AsyncOutcome<TSource>(self).SelectMany(selector, projector);
@@ -130,7 +130,7 @@ public static class OutcomeLinqExtensions
     /// <returns>An <see cref="AsyncOutcome{TResult}"/> whose eventual value is either the result of invoking the composition functions on the value of source, or a <see cref="IProblem"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the selector or projector functions are null.</exception>
     public static AsyncOutcome<TResult> SelectMany<TSource, TNext, TResult>(
-        this Outcome<TSource> self,
+        this in Outcome<TSource> self,
         Func<TSource, ValueTask<TNext>> selector,
         Func<TSource, TNext, TResult> projector) =>
         new AsyncOutcome<TSource>(self).SelectMany(selector, projector);
@@ -150,7 +150,7 @@ public static class OutcomeLinqExtensions
     /// <returns>An <see cref="AsyncOutcome{TResult}"/> whose eventual value is either the result of invoking the composition functions on the value of source, or a <see cref="IProblem"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the selector or projector functions are null.</exception>
     public static AsyncOutcome<TResult> SelectMany<TSource, TResult>(
-        this Outcome<TSource> self,
+        this in Outcome<TSource> self,
         Func<TSource, Task> selector,
         Func<TSource, None, TResult> projector) =>
         new AsyncOutcome<TSource>(self).SelectMany(selector, projector);
@@ -170,7 +170,7 @@ public static class OutcomeLinqExtensions
     /// <returns>An <see cref="AsyncOutcome{TResult}"/> whose eventual value is either the result of invoking the composition functions on the value of source, or a <see cref="IProblem"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the selector or projector functions are null.</exception>
     public static AsyncOutcome<TResult> SelectMany<TSource, TResult>(
-        this Outcome<TSource> self,
+        this in Outcome<TSource> self,
         Func<TSource, ValueTask> selector,
         Func<TSource, None, TResult> projector) =>
         new AsyncOutcome<TSource>(self).SelectMany(selector, projector);

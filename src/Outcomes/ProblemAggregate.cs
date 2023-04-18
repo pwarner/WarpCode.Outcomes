@@ -5,7 +5,7 @@
 /// </summary>
 public sealed class ProblemAggregate : Problem, IEquatable<ProblemAggregate>
 {
-    internal ProblemAggregate(IReadOnlyList<IProblem> problems) :
+    public ProblemAggregate(IReadOnlyList<IProblem> problems) :
         base("More than one problem occurred. " +
              "Please see the Problems property for individual problem details.") =>
         Problems = problems;
@@ -21,7 +21,7 @@ public sealed class ProblemAggregate : Problem, IEquatable<ProblemAggregate>
         {
             null => false,
             _ when ReferenceEquals(this, other) => true,
-            _ => Problems.Equals(other.Problems)
+            _ => Problems.SequenceEqual(other.Problems)
         };
 
     /// <inheritdoc />

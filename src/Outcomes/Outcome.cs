@@ -47,7 +47,7 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
 
         return Problem switch
         {
-            not null => Problem.ToOutcome<TResult>(),
+            not null => new Outcome<TResult>(Problem),
             null => selector(Value)
         };
     }
@@ -73,5 +73,11 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
 
     public static implicit operator Outcome<T>(T value) => new(value);
     public static implicit operator Outcome<T>(Problem problem) => new(problem);
-    public static implicit operator Outcome<T>(Outcome<None> o) => o.Then<T>(_ => default);
+
+    public static implicit operator Outcome<T>(Outcome<None> o) =>
+        o.Problem switch
+        {
+            null => default,
+            not null => new Outcome<T>(o.Problem)
+        };
 }

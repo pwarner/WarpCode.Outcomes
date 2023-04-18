@@ -18,7 +18,7 @@ public static class Adapt
     public static ExceptionMap? MapExceptions { get; set; }
 
     /// <summary>
-    /// Adapts a function that does not return a <see cref="Outcome{T}"/> or <see cref="AsyncOutcome{T}"/>.
+    /// Adapts a function that does not return a <see cref="Outcome{T}"/>.
     /// </summary>
     /// <typeparam name="T">Type of return value from the function.</typeparam>
     /// <param name="func">The function to adapt.</param>
@@ -40,7 +40,7 @@ public static class Adapt
     }
 
     /// <summary>
-    /// Adapts a function that does not return a <see cref="Outcome{T}"/> or <see cref="AsyncOutcome{T}"/>.
+    /// Adapts an action that does not return a <see cref="Outcome{T}"/>.
     /// </summary>
     /// <param name="action">The action to adapt.</param>
     /// <param name="map">Optional <see cref="ExceptionMap"/> function.</param>
