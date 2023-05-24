@@ -12,8 +12,8 @@ public class AsyncOutcomeCompositionTests
             from y in Task.FromResult(Outcome.Ok(x + 1))
             select x * y;
 
-        int actual = (await composition).Value;
-        Assert.Equal(6, actual);
+        Outcome<int> actual = await composition;
+        Assert.Equal(new Outcome<int>(6), actual);
     }
 
     [Fact]
@@ -24,8 +24,8 @@ public class AsyncOutcomeCompositionTests
             from y in ValueTask.FromResult(Outcome.Ok(x + 1))
             select x * y;
 
-        int actual = (await composition).Value;
-        Assert.Equal(6, actual);
+        Outcome<int> actual = await composition;
+        Assert.Equal(new Outcome<int>(6), actual);
     }
 
     [Fact]
@@ -36,8 +36,8 @@ public class AsyncOutcomeCompositionTests
             from y in Task.FromResult(x + 1)
             select x * y;
 
-        int actual = (await composition).Value;
-        Assert.Equal(6, actual);
+        Outcome<int> actual = await composition;
+        Assert.Equal(new Outcome<int>(6), actual);
     }
 
     [Fact]
@@ -48,8 +48,8 @@ public class AsyncOutcomeCompositionTests
             from y in ValueTask.FromResult(x + 1)
             select x * y;
 
-        int actual = (await composition).Value;
-        Assert.Equal(6, actual);
+        Outcome<int> actual = await composition;
+        Assert.Equal(new Outcome<int>(6), actual);
     }
 
     [Fact]
@@ -60,8 +60,8 @@ public class AsyncOutcomeCompositionTests
             from _ in Task.CompletedTask
             select x + 3;
 
-        int actual = (await composition).Value;
-        Assert.Equal(6, actual);
+        Outcome<int> actual = await composition;
+        Assert.Equal(new Outcome<int>(6), actual);
     }
 
     [Fact]
@@ -72,8 +72,8 @@ public class AsyncOutcomeCompositionTests
             from _ in ValueTask.CompletedTask
             select x + 3;
 
-        int actual = (await composition).Value;
-        Assert.Equal(6, actual);
+        Outcome<int> actual = await composition;
+        Assert.Equal(new Outcome<int>(6), actual);
     }
 
     [Fact]
@@ -84,8 +84,8 @@ public class AsyncOutcomeCompositionTests
             from y in Outcome.Ok(x + 1)
             select x * y;
 
-        int actual = (await composition).Value;
-        Assert.Equal(6, actual);
+        Outcome<int> actual = await composition;
+        Assert.Equal(new Outcome<int>(6), actual);
     }
 
     [Fact]
@@ -96,8 +96,8 @@ public class AsyncOutcomeCompositionTests
             from y in Task.FromResult(Outcome.Ok(x + 1))
             select x * y;
 
-        int actual = (await composition).Value;
-        Assert.Equal(6, actual);
+        Outcome<int> actual = await composition;
+        Assert.Equal(new Outcome<int>(6), actual);
     }
 
     [Fact]
@@ -108,8 +108,8 @@ public class AsyncOutcomeCompositionTests
             from y in ValueTask.FromResult(Outcome.Ok(x + 1))
             select x * y;
 
-        int actual = (await composition).Value;
-        Assert.Equal(6, actual);
+        Outcome<int> actual = await composition;
+        Assert.Equal(new Outcome<int>(6), actual);
     }
 
     [Fact]
@@ -120,8 +120,8 @@ public class AsyncOutcomeCompositionTests
             from y in Task.FromResult(x + 1)
             select x * y;
 
-        int actual = (await composition).Value;
-        Assert.Equal(6, actual);
+        Outcome<int> actual = await composition;
+        Assert.Equal(new Outcome<int>(6), actual);
     }
 
     [Fact]
@@ -132,8 +132,8 @@ public class AsyncOutcomeCompositionTests
             from y in ValueTask.FromResult(x + 1)
             select x * y;
 
-        int actual = (await composition).Value;
-        Assert.Equal(6, actual);
+        Outcome<int> actual = await composition;
+        Assert.Equal(new Outcome<int>(6), actual);
     }
 
     [Fact]
@@ -144,8 +144,8 @@ public class AsyncOutcomeCompositionTests
             from _ in Task.CompletedTask
             select x * 3;
 
-        int actual = (await composition).Value;
-        Assert.Equal(6, actual);
+        Outcome<int> actual = await composition;
+        Assert.Equal(new Outcome<int>(6), actual);
     }
 
     [Fact]
@@ -156,7 +156,7 @@ public class AsyncOutcomeCompositionTests
             from _ in ValueTask.CompletedTask
             select x * 3;
 
-        int actual = (await composition).Value;
-        Assert.Equal(6, actual);
+        Outcome<int> actual = await composition;
+        Assert.Equal(new Outcome<int>(6), actual);
     }
 }

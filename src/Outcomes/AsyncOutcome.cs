@@ -43,20 +43,17 @@ public readonly struct AsyncOutcome<T>
     public ValueTaskAwaiter<Outcome<T>> GetAwaiter() =>
         _outcomeTask.GetAwaiter();
 
-    internal AsyncOutcome<TResult> Then<TResult>(Func<T, AsyncOutcome<TResult>> selector) =>
-        selector is null
-            ? throw new ArgumentNullException(nameof(selector))
-            : Unwrap(selector).ToOutcome();
+    internal AsyncOutcome<TResult> Bind<TResult>(Func<T, AsyncOutcome<TResult>> selector) =>
+        new(Unwrap(selector));
 
     private async ValueTask<Outcome<TResult>> Unwrap<TResult>(Func<T, AsyncOutcome<TResult>> selector)
     {
         Outcome<T> outcome = await this;
 
-        return outcome.Problem switch
-        {
-            null => await selector(outcome.Value),
-            not null => outcome.Problem.ToOutcome<TResult>()
-        };
+        return await outcome.Match<ValueTask<Outcome<TResult>>>(
+            value => selector(value),
+            problem => new AsyncOutcome<TResult>(problem.ToOutcome<TResult>())
+        );
     }
 
     public static implicit operator ValueTask<Outcome<T>>(AsyncOutcome<T> outcome) =>

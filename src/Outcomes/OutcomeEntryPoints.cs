@@ -57,22 +57,4 @@ public static class Outcome
             not null => new Outcome<None>(problem),
             null => default
         };
-
-    /// <summary>
-    /// Extension method that creates a new <see cref="AsyncOutcome{T}"/> from a value-task of Outcome{T}.
-    /// </summary>
-    /// <typeparam name="T">The type of the outcome value.</typeparam>
-    /// <param name="asyncOutcome">The value-task to wrap.</param>
-    /// <returns>An <see cref="AsyncOutcome{T}"/> wrapping this value-task.</returns>
-    public static AsyncOutcome<T> ToOutcome<T>(this ValueTask<Outcome<T>> asyncOutcome) =>
-        new(asyncOutcome);
-
-    /// <summary>
-    /// Extension method that creates a new <see cref="AsyncOutcome{T}"/> from a task of Outcome{T}.
-    /// </summary>
-    /// <typeparam name="T">The type of the outcome value.</typeparam>
-    /// <param name="asyncOutcome">The task to wrap.</param>
-    /// <returns>An <see cref="AsyncOutcome{T}"/> wrapping this task.</returns>
-    public static AsyncOutcome<T> ToOutcome<T>(this Task<Outcome<T>> asyncOutcome) =>
-        new(asyncOutcome);
 }

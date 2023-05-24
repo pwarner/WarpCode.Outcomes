@@ -2,7 +2,7 @@
 
 public class OutcomeExtensionTests
 {
-    private static readonly Problem TestProblem = new Problem(nameof(TestProblem));
+    private static readonly Problem TestProblem = new(nameof(TestProblem));
 
     [Fact]
     public void Outcome_OnSuccess_ShouldBeInvokedWhenThereIsNoProblem()
@@ -29,7 +29,7 @@ public class OutcomeExtensionTests
     {
         bool invoked = false;
 
-        TestProblem.ToOutcome().OnProblem(_ => invoked = true);
+        TestProblem.ToOutcome().OnFail(_ => invoked = true);
 
         Assert.True(invoked);
     }
@@ -39,7 +39,7 @@ public class OutcomeExtensionTests
     {
         bool invoked = false;
 
-        Outcome.Ok().OnProblem(_ => invoked = true);
+        Outcome.Ok().OnFail(_ => invoked = true);
 
         Assert.False(invoked);
     }
@@ -105,11 +105,11 @@ public class OutcomeExtensionTests
     {
         Outcome<List<int>?> actual = IntProblemOutcomes(3, 3).Aggregate();
 
-        var expected = Outcome.Ok(new List<int>(3) { 0, 1, 2 });
+        var expected = new List<int>(3) { 0, 1, 2 };
 
-        Assert.NotNull(actual.Value);
+        var actualList = actual.Match(v => v, _ => new List<int>())!;
 
-        Assert.Equal(expected.Value, actual.Value);
+        Assert.Equal(expected, actualList);
     }
 
     [Fact]
@@ -124,7 +124,7 @@ public class OutcomeExtensionTests
         Enumerable.Range(0, total)
             .Select(i =>
                 i < totalOk
-                    ? new Outcome<int>(i)
+                    ? i
                     : TestProblem.ToOutcome<int>()
             );
 

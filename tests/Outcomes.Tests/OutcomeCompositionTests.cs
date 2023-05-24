@@ -11,14 +11,13 @@ public class OutcomeCompositionTests
     {
         Outcome<string> testable =
             CreateOutcome(code == 'A', "A")
-                .Then(a => CreateOutcome(code == 'B', $"{a}B"))
-                .Then(ab => CreateOutcome(code == 'C', $"{ab}C"));
+                .Bind(a => CreateOutcome(code == 'B', $"{a}B"))
+                .Bind(ab => CreateOutcome(code == 'C', $"{ab}C"));
 
-        string result = testable switch
-        {
-            { Problem: null } => testable.Value,
-            { Problem: not null } => testable.Problem.Detail,
-        };
+        string result = testable.Match(
+            value => value,
+            problem => problem.Detail
+        );
 
         Assert.Equal(expected, result);
     }
@@ -36,11 +35,10 @@ public class OutcomeCompositionTests
             from abc in CreateOutcome(code == 'C', $"{ab}C")
             select abc;
 
-        string result = testable switch
-        {
-            { Problem: null } => testable.Value,
-            { Problem: not null } => testable.Problem.Detail,
-        };
+        string result = testable.Match(
+            value => value,
+            problem => problem.Detail
+        );
 
         Assert.Equal(expected, result);
     }
