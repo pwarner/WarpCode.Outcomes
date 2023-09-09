@@ -4,12 +4,12 @@ public static class OutcomeLinqExtensions
 {
     /// <summary>
     /// Syntactic operator to support the 'select' clause in a LINQ natural query comprehension.
-    /// Alias for the <see cref="Outcome{T}.Map{TResult}(Func{T,TResult})"/> function.
+    /// Alias for the <see cref="Outcome{T}.Then{TResult}(Func{T,TResult})"/> function.
     /// </summary>
     public static Outcome<TResult> Select<TSource, TResult>(
         this in Outcome<TSource> self,
         Func<TSource, TResult> selector) =>
-        self.Map(selector);
+        self.Then(selector);
 
     /// <summary>
     /// Syntactic operator to support multiple 'from' clauses in a LINQ natural query comprehension
@@ -36,9 +36,10 @@ public static class OutcomeLinqExtensions
         if (selector is null) throw new ArgumentNullException(nameof(selector));
         if (projector is null) throw new ArgumentNullException(nameof(projector));
 
-        return self.Bind(source =>
+        return self.Then(source =>
             from next in selector(source)
-            select projector(source, next));
+            select projector(source, next)
+        );
     }
 
     /// <summary>

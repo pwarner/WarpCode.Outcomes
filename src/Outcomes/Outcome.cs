@@ -3,6 +3,51 @@
 namespace Outcomes;
 
 /// <summary>
+/// Helpers/entry-points for producing outcomes.
+/// </summary>
+public static class Outcome
+{
+    /// <summary>
+    /// Returns A successful <see cref="Outcome{T}"/> with the no-value type <see cref="None"/>, which acts in place of <see cref="Void"/>.
+    /// </summary>
+    /// <remarks>
+    /// This outcome implicitly casts to any <see cref="Outcome{T}"/> where the internal value will be the default for type T.
+    /// <code>
+    /// Outcome{string} okStringOutcome = Outcome.Ok(); // value: NULL, problem: NULL
+    /// Outcome{int} okIntegerOutcome = Outcome.Ok(); // value: 0, problem: NULL
+    /// </code>
+    /// </remarks>
+    /// <returns>A successful <see cref="Outcome{None}"/>.</returns>
+    public static Outcome<None> Ok() => default;
+
+    /// <summary>
+    /// Creates a new <see cref="Outcome{T}"/> that represents a value of type T.
+    /// </summary>
+    /// <typeparam name="T">The type of the outcome value.</typeparam>
+    /// <param name="value">The value with which to produce an outcome.</param>
+    /// <returns>An <see cref="Outcome{T}"/> representing this value.</returns>
+    public static Outcome<T> Ok<T>(T value) => new(value);
+
+    /// <summary>
+    /// Creates a new <see cref="Outcome{None}"/> from a <see cref="IProblem"/>
+    /// </summary>
+    /// <remarks>
+    /// This outcome implicitly casts to any <see cref="Outcome{T}"/> where the internal value will be the default for type T.
+    /// <code>
+    /// Outcome{string} stringProblem = p.ToOutcome(); // value: NULL, problem: p
+    /// Outcome{int} integerProblem = p.ToOutcome(); // value: 0, problem: p
+    /// </code>
+    /// </remarks>
+    /// <param name="problem">The <see cref="IProblem"/> with which to make an outcome.</param>
+    /// <returns>An <see cref="Outcome{None}"/> representing this problem.</returns>
+    public static Outcome<None> Problem(IProblem problem)
+    {
+        ArgumentNullException.ThrowIfNull(problem);
+        return new Outcome<None>(problem);
+    }
+}
+
+/// <summary>
 /// Primitve union type that can hold either a value or a <see cref="Outcomes.Problem"/>, but not both.
 /// </summary>
 /// <typeparam name="T">The type of the outcome value.</typeparam>
@@ -19,7 +64,7 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     public Outcome(T value)
     {
         _value = value;
-        _problem = null;
+        _problem = default;
     }
 
     /// <summary>
@@ -54,39 +99,7 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     }
 
     /// <summary>
-    /// Calls the action delegate if the Outcome does not hold a problem.
-    /// </summary>
-    /// <param name="action">The action delegate to execute, which will be passed the outcome value as a parameter.</param>
-    /// <returns>An <see cref="Outcome{T}"/>.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if the action delegate is null.</exception>
-    public Outcome<T> OnSuccess(Action<T> action)
-    {
-        if (action is null) throw new ArgumentNullException(nameof(action));
-
-        if (_problem is null)
-            action(_value);
-
-        return this;
-    }
-
-    /// <summary>
-    /// Calls the action delegate if the Outcome holds a problem.
-    /// </summary>
-    /// <param name="action">The action delegate to execute, which will be passed the outcome problem as a parameter.</param>
-    /// <returns>An <see cref="Outcome{T}"/>.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if the action delegate is null.</exception>
-    public Outcome<T> OnFail(Action<IProblem> action)
-    {
-        if (action is null) throw new ArgumentNullException(nameof(action));
-
-        if (_problem is not null)
-            action(_problem);
-
-        return this;
-    }
-
-    /// <summary>
-    /// Produces a new Outcome in a composition chain.
+    /// Produces a new Outcome in a composition chain, from a function that returns a value.
     /// </summary>
     /// <remarks>
     /// If the Outcome holds a problem, this Outcome is returned.
@@ -96,9 +109,9 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     /// <param name="selector">A transform function to apply to the outcome value.</param>
     /// <returns>An <see cref="Outcome{T}"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the selector function is null.</exception>
-    public Outcome<TResult> Map<TResult>(Func<T, TResult> selector)
+    public Outcome<TResult> Then<TResult>(Func<T, TResult> selector)
     {
-        if (selector == null) throw new ArgumentNullException(nameof(selector));
+        ArgumentNullException.ThrowIfNull(selector);
 
         return _problem switch
         {
@@ -108,7 +121,7 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     }
 
     /// <summary>
-    /// Produces a new Outcome in a composition chain.
+    /// Produces a new Outcome in a composition chain, from a function that returns an Outcome.
     /// </summary>
     /// <remarks>
     /// If the Outcome holds a problem, this Outcome is returned.
@@ -118,66 +131,13 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     /// <param name="selector">A transform function to apply to the outcome value.</param>
     /// <returns>An <see cref="Outcome{T}"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the selector function is null.</exception>
-    public Outcome<TResult> Bind<TResult>(Func<T, Outcome<TResult>> selector)
+    public Outcome<TResult> Then<TResult>(Func<T, Outcome<TResult>> selector)
     {
-        if (selector == null) throw new ArgumentNullException(nameof(selector));
-
+        ArgumentNullException.ThrowIfNull(selector);
         return _problem switch
         {
             not null => new Outcome<TResult>(_problem),
             null => selector(_value)
-        };
-    }
-
-    /// <summary>
-    /// Ensures that an Outcome{T} holds an expected value.
-    /// </summary>
-    /// <remarks>
-    /// If the outcome holds a problem, this outcome is returned.
-    /// If the outcome holds a value, then the <param name="predicate"/> is invoked with the outcome value.
-    /// If the predicate returns false, the <param name="factory"/> is invoked with the outcome value
-    /// to produce a problem outcome.
-    /// </remarks>
-    /// <typeparam name="T">The type of the outcome value.</typeparam>
-    /// <param name="predicate">A predicate delegate to test the outcome value.</param>
-    /// <param name="factory">A problem factory delegate to produce a problem if the predicate test fails.</param>
-    /// <returns>An <see cref="Outcome{T}"/>.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if either of the <param name="predicate"/> or <param name="factory"/> parameters are null.</exception>
-    public Outcome<T> Ensure(Predicate<T> predicate, Func<T, IProblem> factory)
-    {
-        if (predicate is null) throw new ArgumentNullException(nameof(predicate));
-        if (factory is null) throw new ArgumentNullException(nameof(factory));
-
-        return this switch
-        {
-            { _problem: null } when !predicate(_value) => factory(_value).ToOutcome<T>(),
-            _ => this
-        };
-    }
-
-    /// <summary>
-    /// Helper method that can handle a known problem and return a corrected outcome.
-    /// </summary>
-    /// <remarks>
-    /// If the outcome holds a value, this outcome is returned.
-    /// If the outcome holds a problem, then the <param name="predicate"/> is invoked with the outcome problem.
-    /// If the predicate returns true, the <param name="factory"/> is invoked with the outcome problem
-    /// to produce a new successful outcome.
-    /// </remarks>
-    /// <typeparam name="T">The type of the outcome value.</typeparam>
-    /// <param name="predicate">A predicate delegate to test the outcome problem.</param>
-    /// <param name="factory">A factory delegate to produce a value if the predicate test succeeds.</param>
-    /// <returns>An <see cref="Outcome{T}"/>.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if either of the <param name="predicate"/> or <param name="factory"/> parameters are null.</exception>
-    public Outcome<T> Rescue(Predicate<IProblem> predicate, Func<IProblem, T> factory)
-    {
-        if (predicate is null) throw new ArgumentNullException(nameof(predicate));
-        if (factory is null) throw new ArgumentNullException(nameof(factory));
-
-        return this switch
-        {
-            { _problem: not null } when predicate(_problem) => new Outcome<T>(factory(_problem)),
-            _ => this
         };
     }
 

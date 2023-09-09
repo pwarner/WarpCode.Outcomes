@@ -8,19 +8,25 @@ public class OutcomeCreationTests
     [Fact]
     public void Should_CreateSuccessOutcome_Implicitly()
     {
-        Assert.Equal(new Outcome<string>(TestValue), TestValue);
-    }
-
-    [Fact]
-    public void Should_CreateSuccessOutcome_FromEntryHelper()
-    {
-        Assert.Equal(new Outcome<string>(), Outcome.Ok());
+        Assert.Equal(new Outcome<int>(10), 10);
     }
 
     [Fact]
     public void Should_CreateSuccessOutcome_FromStrongTypedEntryHelper()
     {
-        Assert.Equal(new Outcome<string>(TestValue), Outcome.Ok(TestValue));
+        Assert.Equal(new Outcome<int>(10), Outcome.Ok(10));
+    }
+
+    [Fact]
+    public void Should_CreateSuccessOutcome_FromEntryHelper()
+    {
+        Assert.Equal(new Outcome<None>(), Outcome.Ok());
+    }
+
+    [Fact]
+    public void Should_CreateStronglyTypedSuccessOutcome_FromEntryHelper()
+    {
+        Assert.Equal(new Outcome<int>(), Outcome.Ok());
     }
 
     [Fact]
@@ -30,14 +36,8 @@ public class OutcomeCreationTests
     }
 
     [Fact]
-    public void Should_CreateProblemOutcome_FromToOutcomeExtension()
+    public void Should_CreateProblemOutcome_FromEntryHelper()
     {
-        Assert.Equal(new Outcome<int>(TestProblem), TestProblem.ToOutcome());
-    }
-
-    [Fact]
-    public void Should_CreateProblemOutcome_FromStrongTypedToOutcomeExtension()
-    {
-        Assert.Equal(new Outcome<int>(TestProblem), TestProblem.ToOutcome<int>());
+        Assert.Equal(new Outcome<None>(TestProblem), Outcome.Problem(TestProblem));
     }
 }

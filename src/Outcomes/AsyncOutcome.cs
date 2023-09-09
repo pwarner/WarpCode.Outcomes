@@ -43,16 +43,16 @@ public readonly struct AsyncOutcome<T>
     public ValueTaskAwaiter<Outcome<T>> GetAwaiter() =>
         _outcomeTask.GetAwaiter();
 
-    internal AsyncOutcome<TResult> Bind<TResult>(Func<T, AsyncOutcome<TResult>> selector) =>
+    internal AsyncOutcome<TResult> Then<TResult>(Func<T, AsyncOutcome<TResult>> selector) =>
         new(Unwrap(selector));
 
     private async ValueTask<Outcome<TResult>> Unwrap<TResult>(Func<T, AsyncOutcome<TResult>> selector)
     {
-        Outcome<T> outcome = await this;
+        Outcome<T> outcome = await _outcomeTask.ConfigureAwait(false);
 
         return await outcome.Match<ValueTask<Outcome<TResult>>>(
             value => selector(value),
-            problem => new AsyncOutcome<TResult>(problem.ToOutcome<TResult>())
+            problem => new AsyncOutcome<TResult>(problem.ToOutcome())
         );
     }
 

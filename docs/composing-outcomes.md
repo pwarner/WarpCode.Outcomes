@@ -7,23 +7,14 @@ In these examples, we want to transform the `System.DateTime` value potentially 
 
 ```csharp
 Outcome<string> FormatDate(Outcome<DateTime> input) =>
-    input.Then<string>(dt=> dt.ToString("yyyy/MM/dd"));
+    input.Then(dt=> dt.ToString("yyyy/MM/dd"));
 ```
-The parameter for `Then` is a function that takes the value of type T1 in an `Outcome<T1>` and returns a new `Outcome<T2>`. 
+The parameter for `Then` is a transformation function that takes the value of an outcome and returns a new value. 
 
 It wll only be invoked if the Outcome on which it is called does not hold a problem value.
 But if the Outome holds a problem value, a `new Outcome<T2>(problem)` will be returned.
 
-The code above specifies the generic type `string` in the signature so it can benefit from implict conversion to return an `Outcome<string>`. It's functionally equivalent to this:
-
-```csharp
-Outcome<string> FormatDate(Outcome<DateTime> input) =>
-    input.Then(dt=> Outcome.Ok(dt.ToString("yyyy/MM/dd")));
-```
-
-Composing with `Then` has some limitations.
-- The scope is limited to the value of the previous Outcome and any variables in scope (unless you want to create complicated Tuples)
-- You can't use `Then` with asynchronouse outcomes.
+Composing with `Then` has the advantage of simplicity, but you can't use `Then` with asynchronouse outcomes.
 
 For more flexibility, use the LINQ comprehension style explained next.
 
@@ -36,7 +27,7 @@ Outcome<string> FormatDate(Outcome<DateTime> input) =>
 ```
 
 A line in the form `from x in y` means:
-> `x` is the value contained in an Outcome (or something that can be converted to an Outcome) returned by the expression `y`.
+> `x` is the value contained in an Outcome returned by the expression `y`.
 
 ## Important
 If any Outcome in a composition (the `y` in `from x in y`) holds an `IProblem`, *none* of the subsequent Outcome expressions (the `from` or `select` clauses) are evaluated. 

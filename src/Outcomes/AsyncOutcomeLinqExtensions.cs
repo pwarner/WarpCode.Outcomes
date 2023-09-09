@@ -20,7 +20,7 @@ public static class AsyncOutcomeLinqExtensions
     {
         if (selector is null) throw new ArgumentNullException(nameof(selector));
 
-        return self.Bind(x => new AsyncOutcome<TResult>(selector(x)));
+        return self.Then(x => new AsyncOutcome<TResult>(selector(x)));
     }
 
     /// <summary>
@@ -221,7 +221,7 @@ public static class AsyncOutcomeLinqExtensions
         this in AsyncOutcome<TSource> self,
         Func<TSource, AsyncOutcome<TNext>> selector,
         Func<TSource, TNext, TResult> projector) =>
-        self.Bind(source =>
+        self.Then(source =>
             from next in selector(source)
             select projector(source, next));
 }

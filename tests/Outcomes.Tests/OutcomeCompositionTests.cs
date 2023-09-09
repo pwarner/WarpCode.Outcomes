@@ -11,8 +11,8 @@ public class OutcomeCompositionTests
     {
         Outcome<string> testable =
             CreateOutcome(code == 'A', "A")
-                .Bind(a => CreateOutcome(code == 'B', $"{a}B"))
-                .Bind(ab => CreateOutcome(code == 'C', $"{ab}C"));
+                .Then(a => CreateOutcome(code == 'B', $"{a}B"))
+                .Then(ab => CreateOutcome(code == 'C', $"{ab}C"));
 
         string result = testable.Match(
             value => value,
