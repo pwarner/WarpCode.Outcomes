@@ -1,4 +1,4 @@
-# Adapting to Outcomes
+# Outcome Extensions
 
 ### Index
 - [Why Outcomes?](../readme.md)
@@ -8,6 +8,6 @@
 - [Resolving Outcomes](resolving-outcomes.md)
 
 ### further reading / miscellaneous
-- [Outcome Extensions](outcome-extensions.md)
-- this: Adapting to Outcomes
+- this: Outcome Extensions
+- [Adapting to Outcomes](outcome-adaptation.md)
 - [Outcomes as Monads](outcomes-as-monads.md)

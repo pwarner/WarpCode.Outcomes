@@ -1,22 +1,9 @@
 # Composing Outcomes
 
-You can compose (or chain) operations on Outcomes together either directly using the `Then` method for simple scenarios, else via a LINQ comprehension style.
+You can compose (or chain) expressions that return Outcomes (and Tasks of Outcomes and ValueTasks of Outcomes)
+together with the LINQ comprehension known as the natutal query style.
 
 In these examples, we want to transform the `System.DateTime` value potentially held by the input outcome, to a formatted string.
-## Transform an `Outcome<T>` with `Then`
-
-```csharp
-Outcome<string> FormatDate(Outcome<DateTime> input) =>
-    input.Then(dt=> dt.ToString("yyyy/MM/dd"));
-```
-The parameter for `Then` is a transformation function that takes the value of an outcome and returns a new value. 
-
-It wll only be invoked if the Outcome on which it is called does not hold a problem value.
-But if the Outome holds a problem value, a `new Outcome<T2>(problem)` will be returned.
-
-Composing with `Then` has the advantage of simplicity, but you can't use `Then` with asynchronouse outcomes.
-
-For more flexibility, use the LINQ comprehension style explained next.
 
 ## Transform an `Outcome<T>` with `from` and `select`
 
@@ -27,7 +14,7 @@ Outcome<string> FormatDate(Outcome<DateTime> input) =>
 ```
 
 A line in the form `from x in y` means:
-> `x` is the value contained in an Outcome returned by the expression `y`.
+> `x` represents the value contained in an Outcome returned by the expression `y`.
 
 ## Important
 If any Outcome in a composition (the `y` in `from x in y`) holds an `IProblem`, *none* of the subsequent Outcome expressions (the `from` or `select` clauses) are evaluated. 
@@ -39,34 +26,41 @@ In the example above, if the `input` Outcome holds an instance of `IProblem` ins
 
 ```csharp
 Task<Outcome<GetProductResult>> GetProduct(GetProductRequest request) =>
-    from validRequest in _validator.Validate(request)
-    from product in _repository.GetByIdAsync(validRequest.ProductId)
+    from _ in _validator.Validate(request)
+    from maybeProduct in _dbContext.Products
+            .FindAsync(request.ProductId).ToOutcome()
+    from product in EnsureProductExists(maybeProduct)
     select new GetProductResult(product);
 ```
 Let's unpick what's going on here:
 
-- First, notice the return type is `Task<Outcome<GetProductRequest>>` because we compose an async expression. (`ValueTask<Outcome<GetProductRequest>>` is also supported.)
+First, notice the return type is `Task<Outcome<GetProductRequest>>` because we compose an async expression. (`ValueTask<Outcome<GetProductRequest>>` is also supported.)
 
-- `validator.Validate()` is a method that validates the incoming request and returns an `Outcome<GetProductRequest>`. If the request was invalid, this will hold a problem representing all of the validation errors. 
+- `validator.Validate()` is a method that validates the incoming request and returns an `Outcome<None>`. 
+
+If the request was invalid, this will hold a problem representing all of the validation errors. 
+
 The rest of the composition will not be evaluated and will immediately return an outcome holding this problem.
 
-- next, the repository is invoked asychronously to return an `ValueTask<Outcome<Product>>`.
+- An Entity Framework DBContext is invoked asychronously to return an `Task<Product?>`.
 
-- The variable `validRequest` from the first line is in scope here, and used to supply the productId parameter for invocation. 
-With each successive line in composition, all previous variables (and any input parameters of course) are in scope.
+This is obviously not a Task that resolves to an Outcome, but we can easily adapt it using the `ToOutcome()` 
+extension availble (see [Adapting to Outcomes](outcome-adaptation.md) )
 
-- If there was no product with this ID, the Outcome returned by `GetByIdAsync` will hold some kind of `EntityNotFoundProblem`. The composition will halt immediately, and this problem is used to create the return value.
+- If there was no product with this ID, the Outcome returned by `EnsureProductExists` will hold some kind of `EntityNotFoundProblem`. 
+The composition will halt immediately, and this problem is used to create the return value.
 
-- If a product was fetched, the final `select` clause is evaluated, and a DTO is created to hold relevant properties of the product. This becomes the value held by the final Outcome.
+- If a product was successfully fetched, the final `select` clause is evaluated, and a DTO is created to hold relevant properties of the product. 
+This becomes the value held by the final Outcome.
 
-## Outcome-compatble expressions
+## Outcome-compatible expressions
 With `from value in expression` syntax, you can compose with expressions that evaluate to any of the following:
 
 - `Outcome<T>`
 - `Task<Outcome<T>>`
 - `ValueTask<Outcome<T>>`
 
-Additionally, the following types are also available thanks to [Outcome Adaptation](outcome-adaptation.md).
+Additionally, the following types are also available thanks to Outcome adaptation.
 
 - `Task<T>`(adapts to `Task<Outcome<T>>`)
 - `ValueTask<T>` (adapts to `ValueTask<Outcome<T>>`)
@@ -78,8 +72,9 @@ Additionally, the following types are also available thanks to [Outcome Adaptati
 - [What is a Problem?](what-is-a-problem.md)
 - [Creating Outcomes](creating-outcomes.md)
 - this: Composing Outcomes
-- [Adapting to Outcomes](outcome-adaptation.md)
 - [Resolving Outcomes](resolving-outcomes.md)
 
 ### further reading / miscellaneous
-- [Outcomes as Monads](./docs/outcomes-as-monads.md)
+- [Outcome Extensions](outcome-extensions.md)
+- [Adapting to Outcomes](outcome-adaptation.md)
+- [Outcomes as Monads](outcomes-as-monads.md)

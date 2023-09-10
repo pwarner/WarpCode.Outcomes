@@ -25,7 +25,7 @@ public class Problem : IProblem, IEquatable<IProblem>
         {
             null => false,
             _ when ReferenceEquals(this, other) => true,
-            _ => string.Equals(Detail, other.Detail)
+            _ => string.Equals(Detail, other.Detail, StringComparison.InvariantCulture)
         };
 
     /// <inheritdoc />

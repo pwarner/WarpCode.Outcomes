@@ -61,12 +61,14 @@ throw new ArgumentOutOfRange(nameof(date), "The date is not in range");
 ```
 
 ### Index
+### Index
 - [Why Outcomes?](../readme.md)
 - this: What is a Problem?
 - [Creating Outcomes](creating-outcomes.md)
 - [Composing Outcomes](composing-outcomes.md)
-- [Adapting to Outcomes](outcome-adaptation.md)
 - [Resolving Outcomes](resolving-outcomes.md)
 
 ### further reading / miscellaneous
-- [Outcomes as Monads](./docs/outcomes-as-monads.md)
+- [Outcome Extensions](outcome-extensions.md)
+- [Adapting to Outcomes](outcome-adaptation.md)
+- [Outcomes as Monads](outcomes-as-monads.md)

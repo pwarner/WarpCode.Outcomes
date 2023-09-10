@@ -34,7 +34,7 @@ public sealed class ProblemAggregate : Problem, IEquatable<ProblemAggregate>
 
     /// <inheritdoc />
     public override int GetHashCode() =>
-        HashCode.Combine(base.GetHashCode(), Problems);
+        Problems.Aggregate(base.GetHashCode(), HashCode.Combine);
 
     /// <summary>
     /// Override of the equality operator.

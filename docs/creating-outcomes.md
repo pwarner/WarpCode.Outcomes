@@ -46,17 +46,13 @@ By implicit coversion
 Outcome<string> outcome = new SomeProblem();
 ```
 
-With `ToOutcome<T> extensions`
-```csharp
-Outcome<string> outcome = new SomeProblem().ToOutcome<Customer>();
-```
-
-Create value-less Outcomes with `ToOutcome()`
+With the `ToOutcome() extension`
 ```csharp
 Outcome<None> outcome = new SomeProblem().ToOutcome();
 ```
 
-Again, since `Outcome<None>` implicitly converts to other `Outcome<T>` types, you can write:
+Again, since `Outcome<None>` implicitly converts to other `Outcome<T>` types, 
+you can create problem-outcomes of any type with `ToOutcome()`
 ```csharp
 Outcome<bool> outcome = new SomeProblem().ToOutcome();
 ```
@@ -66,8 +62,9 @@ Outcome<bool> outcome = new SomeProblem().ToOutcome();
 - [What is a Problem?](what-is-a-problem.md)
 - this: Creating Outcomes
 - [Composing Outcomes](composing-outcomes.md)
-- [Adapting to Outcomes](outcome-adaptation.md)
 - [Resolving Outcomes](resolving-outcomes.md)
 
 ### further reading / miscellaneous
-- [Outcomes as Monads](./docs/outcomes-as-monads.md)
+- [Outcome Extensions](outcome-extensions.md)
+- [Adapting to Outcomes](outcome-adaptation.md)
+- [Outcomes as Monads](outcomes-as-monads.md)

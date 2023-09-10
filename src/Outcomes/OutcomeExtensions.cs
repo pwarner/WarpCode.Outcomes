@@ -6,9 +6,33 @@
 public static class OutcomeExtensions
 {
     /// <summary>
-    /// Extension method version of <see cref="Outcome.Problem"/>
+    /// Creates an <see cref="Outcome{None}"/> from a problem.
     /// </summary>
-    public static Outcome<None> ToOutcome(this IProblem problem) => Outcome.Problem(problem);
+    /// <remarks>An Outcome{None} implicitly converts to any Outcome type.</remarks>
+    public static Outcome<None> ToOutcome(this IProblem problem) => new(problem);
+
+    /// <summary>
+    /// Exit function that resolves an Outcome to a final value.
+    /// </summary>
+    /// <typeparam name="T">The type of the outcome value.</typeparam>
+    /// <typeparam name="TFinal">Type of the final value.</typeparam>
+    /// <param name="self">Subject outcome.</param>
+    /// <param name="onSuccess">Factory function that will be called if the Outcome holds a value.</param>
+    /// <param name="onProblem">Factory function that will be called if the Outcome holds a problem.</param>
+    /// <returns>A final value resulting from calling one of the factory functions.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if either of the parameters are null.</exception>
+    public static async Task<TFinal> MatchAsync<T, TFinal>(
+        this Task<Outcome<T>> self,
+        Func<T, TFinal> onSuccess,
+        Func<IProblem, TFinal> onProblem) =>
+        (await self.ConfigureAwait(false)).Match(onSuccess, onProblem);
+
+    /// <inheritdoc cref="MatchAsync{T,TFinal}(Task{Outcome{T}},Func{T,TFinal},Func{IProblem,TFinal})"/>
+    public static async Task<TFinal> MatchAsync<T, TFinal>(
+        this ValueTask<Outcome<T>> self,
+        Func<T, TFinal> onSuccess,
+        Func<IProblem, TFinal> onProblem) =>
+        (await self.ConfigureAwait(false)).Match(onSuccess, onProblem);
 
     /// <summary>
     /// Calls the action delegate if the Outcome does not hold a problem.

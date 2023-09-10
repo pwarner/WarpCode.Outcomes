@@ -26,7 +26,26 @@ public async Task<IResult> GetOrderDetail(OrderDetailRequest request)
     );
 }
 ```
-In the example above, a switch expression is used to handle multiple problems defined in our application.
+
+There is a `MatchAsync()` extension that allows you to resolve an asynchronous Outcome without `await`ing it first.
+
+Using this, the GetOrderDetail method above can be simplified a little:
+
+```csharp
+
+public Task<IResult> GetOrderDetail(OrderDetailRequest request) =>
+    outcome.MatchAsync(
+        value=> Results.Ok(value),
+        problem => problem switch
+        {
+            NotFoundProblem notFound => Results.NotFound(),
+            ValidationProblem invalid => Results.ValidationProblem(invalid.Message)
+            _ => Results.Error(problem.Detail)
+        }
+    );
+```
+
+In the examples above, a switch expression is used to handle multiple problems defined in our application.
 
 Most likely, you'll want to create a single function that resolves multiple problem cases to appropriate response types,
 that can be used anywhere you resolve an outcome. If you write this as an extension method, outcome resolution looks much simpler.
@@ -59,8 +78,9 @@ public static class OutcomeResolverExtensions
 - [What is a Problem?](what-is-a-problem.md)
 - [Creating Outcomes](creating-outcomes.md)
 - [Composing Outcomes](composing-outcomes.md)
-- [Adapting to Outcomes](outcome-adaptation.md)
 - this: Resolving Outcomes
 
 ### further reading / miscellaneous
-- [Outcomes as Monads](./docs/outcomes-as-monads.md)
+- [Outcome Extensions](outcome-extensions.md)
+- [Adapting to Outcomes](outcome-adaptation.md)
+- [Outcomes as Monads](outcomes-as-monads.md)

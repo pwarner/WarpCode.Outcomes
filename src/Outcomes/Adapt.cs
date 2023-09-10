@@ -54,30 +54,72 @@ public static class Adapt
         }, map);
 
     /// <summary>
+    /// Extension method that adapts a <see cref="Task{T}"/>.
+    /// </summary>
+    /// <param name="task">The <see cref="Task{T}"/> to adapt.</param>
+    /// <param name="map">Optional <see cref="ExceptionMap"/> function.</param>
+    /// <returns>An <see cref="Task{T}"/> that yields an <see cref="Outcome{T}"/>.</returns>
+    /// <exception cref="Exception">Re-throws any unmapped exceptions.</exception>
+    public static async Task<Outcome<T>> ToOutcome<T>(
+        this Task<T> task,
+        ExceptionMap? map = null)
+    {
+        try
+        {
+            return await task.ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            IProblem? problem = (map ?? MapExceptions)?.Invoke(e);
+            if (problem is null) throw;
+            return problem.ToOutcome();
+        }
+    }
+
+    /// <summary>
+    /// Extension method that adapts a <see cref="Task"/>.
+    /// </summary>
+    /// <param name="task">The <see cref="Task"/> to adapt.</param>
+    /// <param name="map">Optional <see cref="ExceptionMap"/> function.</param>
+    /// <returns>An <see cref="Task{T}"/> that yields an <see cref="Outcome{None}"/>.</returns>
+    /// <exception cref="Exception">Re-throws any unmapped exceptions.</exception>
+    public static async Task<Outcome<None>> ToOutcome(
+        this Task task,
+        ExceptionMap? map = null)
+    {
+        try
+        {
+            await task.ConfigureAwait(false);
+            return Outcome.Ok();
+        }
+        catch (Exception e)
+        {
+            IProblem? problem = (map ?? MapExceptions)?.Invoke(e);
+            if (problem is null) throw;
+            return problem.ToOutcome();
+        }
+    }
+
+    /// <summary>
     /// Extension method that adapts a <see cref="ValueTask{T}"/>.
     /// </summary>
     /// <param name="task">The <see cref="ValueTask{T}"/> to adapt.</param>
     /// <param name="map">Optional <see cref="ExceptionMap"/> function.</param>
-    /// <returns>An <see cref="AsyncOutcome{T}"/> that yields a value if the task completes successfully, or a <see cref="Problem"/>.</returns>
+    /// <returns>An <see cref="Task{T}"/> that yields an <see cref="Outcome{T}"/>.</returns>
     /// <exception cref="Exception">Re-throws any unmapped exceptions.</exception>
-    public static AsyncOutcome<T> ToOutcome<T>(
+    public static async Task<Outcome<T>> ToOutcome<T>(
         this ValueTask<T> task,
         ExceptionMap? map = null)
     {
-        return new AsyncOutcome<T>(Wrap());
-
-        async ValueTask<Outcome<T>> Wrap()
+        try
         {
-            try
-            {
-                return await task.ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                IProblem? problem = (map ?? MapExceptions)?.Invoke(e);
-                if (problem is null) throw;
-                return problem.ToOutcome();
-            }
+            return await task.ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            IProblem? problem = (map ?? MapExceptions)?.Invoke(e);
+            if (problem is null) throw;
+            return problem.ToOutcome();
         }
     }
 
@@ -86,53 +128,22 @@ public static class Adapt
     /// </summary>
     /// <param name="task">The <see cref="ValueTask"/> to adapt.</param>
     /// <param name="map">Optional <see cref="ExceptionMap"/> function.</param>
-    /// <returns>An <see cref="AsyncOutcome{None}"/> with no value that holds a <see cref="Problem"/>
-    /// if the task completes with an error that could be mapped.</returns>
+    /// <returns>An <see cref="Task{T}"/> that yields an <see cref="Outcome{None}"/>.</returns>
     /// <exception cref="Exception">Re-throws any unmapped exceptions.</exception>
-    public static AsyncOutcome<None> ToOutcome(
+    public static async Task<Outcome<None>> ToOutcome(
         this ValueTask task,
         ExceptionMap? map = null)
     {
-        return new AsyncOutcome<None>(Wrap());
-
-        async ValueTask<Outcome<None>> Wrap()
+        try
         {
-            try
-            {
-                await task.ConfigureAwait(false);
-                return default;
-            }
-            catch (Exception e)
-            {
-                IProblem? problem = (map ?? MapExceptions)?.Invoke(e);
-                if (problem is null) throw;
-                return problem.ToOutcome();
-            }
+            await task.ConfigureAwait(false);
+            return Outcome.Ok();
+        }
+        catch (Exception e)
+        {
+            IProblem? problem = (map ?? MapExceptions)?.Invoke(e);
+            if (problem is null) throw;
+            return problem.ToOutcome();
         }
     }
-
-    /// <summary>
-    /// Extension method that adapts a <see cref="Task{T}"/>.
-    /// </summary>
-    /// <param name="task">The <see cref="Task{T}"/> to adapt.</param>
-    /// <param name="map">Optional <see cref="ExceptionMap"/> function.</param>
-    /// <returns>An <see cref="AsyncOutcome{T}"/> that yields a value if the task completes successfully, or a <see cref="Problem"/>.</returns>
-    /// <exception cref="Exception">Re-throws any unmapped exceptions.</exception>
-    public static AsyncOutcome<T> ToOutcome<T>(
-        this Task<T> task,
-        ExceptionMap? map = null) =>
-        new ValueTask<T>(task).ToOutcome(map);
-
-    /// <summary>
-    /// Extension method that adapts a <see cref="Task"/>.
-    /// </summary>
-    /// <param name="task">The <see cref="Task"/> to adapt.</param>
-    /// <param name="map">Optional <see cref="ExceptionMap"/> function.</param>
-    /// <returns>An <see cref="AsyncOutcome{None}"/> with no value that holds a <see cref="Problem"/>
-    /// if the task completes with an error that could be mapped.</returns>
-    /// <exception cref="Exception">Re-throws any unmapped exceptions.</exception>
-    public static AsyncOutcome<None> ToOutcome(
-        this Task task,
-        ExceptionMap? map = null) =>
-        new ValueTask(task).ToOutcome(map);
 }

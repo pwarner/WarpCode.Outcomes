@@ -1,8 +1,38 @@
 ﻿namespace Outcomes.Tests;
 
-public class OutcomeExtensionTests
+public class OutcomeTests
 {
     private static readonly Problem TestProblem = new(nameof(TestProblem));
+
+    [Fact]
+    public void Should_CreateOutcome_FromValueImplicitly()
+    {
+        Assert.Equal(new Outcome<int>(10), 10);
+    }
+
+    [Fact]
+    public void Should_CreateOutcome_FromOkEntryhelper()
+    {
+        Assert.Equal(new Outcome<int>(10), Outcome.Ok(10));
+    }
+
+    [Fact]
+    public void Should_CreateValuelessOutcome_FromOkEntryHelper()
+    {
+        Assert.Equal(new Outcome<None>(), Outcome.Ok());
+    }
+
+    [Fact]
+    public void Should_CreateStronglyTypedOutcome_FromOkEntryHelper()
+    {
+        Assert.Equal(new Outcome<int>(), Outcome.Ok());
+    }
+
+    [Fact]
+    public void Should_CreateProblemOutcome_Implicitly()
+    {
+        Assert.Equal(new Outcome<None>(TestProblem), TestProblem);
+    }
 
     [Fact]
     public void Should_CreateProblemOutcome_FromToOutcomeExtension()
@@ -11,9 +41,21 @@ public class OutcomeExtensionTests
     }
 
     [Fact]
-    public void Should_CreateStronglyTypesProblemOutcome_FromOutcomeExtension()
+    public void Should_CreateStronglyTypedProblemOutcome_FromToOutcomeExtension()
     {
         Assert.Equal(new Outcome<int>(TestProblem), TestProblem.ToOutcome());
+    }
+
+    [Fact]
+    public void Match_ShouldResolveWithOnSuccessFunction_WhenNoProblem()
+    {
+        Assert.True(Outcome.Ok().Match(_ => true, _ => false));
+    }
+
+    [Fact]
+    public void Match_ShouldResolveWithOnProblemFunction_WhenProblem()
+    {
+        Assert.True(new Outcome<None>(TestProblem).Match(_ => false, _ => true));
     }
 
     [Fact]
@@ -31,7 +73,7 @@ public class OutcomeExtensionTests
     {
         bool invoked = false;
 
-        TestProblem.ToOutcome().OnSuccess(_ => invoked = true);
+        new Outcome<None>(TestProblem).OnSuccess(_ => invoked = true);
 
         Assert.False(invoked);
     }
@@ -41,7 +83,7 @@ public class OutcomeExtensionTests
     {
         bool invoked = false;
 
-        TestProblem.ToOutcome().OnProblem(_ => invoked = true);
+        new Outcome<None>(TestProblem).OnProblem(_ => invoked = true);
 
         Assert.True(invoked);
     }
@@ -61,7 +103,7 @@ public class OutcomeExtensionTests
     {
         Outcome<None> actual = Outcome.Ok().Ensure(_ => false, _ => TestProblem);
 
-        Assert.Equal(TestProblem.ToOutcome(), actual);
+        Assert.Equal(new Outcome<None>(TestProblem), actual);
     }
 
     [Fact]
@@ -87,7 +129,7 @@ public class OutcomeExtensionTests
     {
         Outcome<int> actual = new Outcome<int>(TestProblem).Rescue(_ => false, _ => 0);
 
-        Assert.Equal(TestProblem.ToOutcome(), actual);
+        Assert.Equal(new Outcome<None>(TestProblem), actual);
     }
 
     [Fact]
@@ -109,7 +151,7 @@ public class OutcomeExtensionTests
     {
         Outcome<None> actual = ProblemOutcomes(3, 1).Aggregate(bailEarly: true);
 
-        Assert.Equal(TestProblem.ToOutcome(), actual);
+        Assert.Equal(new Outcome<None>(TestProblem), actual);
     }
 
     [Fact]
@@ -145,6 +187,6 @@ public class OutcomeExtensionTests
             .Select(i =>
                 i < totalOk
                     ? Outcome.Ok()
-                    : TestProblem.ToOutcome()
+                    : new Outcome<None>(TestProblem)
             );
 }

@@ -54,11 +54,12 @@ So `Outcome<T>` too fulfils its monadic contract with `Select` and `SelectMany` 
 
 ### Index
 - [Why Outcomes?](../readme.md)
-- [What is a Problem?](./docs/what-is-a-problem.md)
-- [Creating Outcomes](./docs/creating-outcomes.md)
-- [Composing Outcomes](./docs/composing-outcomes.md)
-- [Adapting to Outcomes](./docs/outcome-adaptation.md)
-- [Resolving Outcomes](./docs/resolving-outcomes.md)
+- [What is a Problem?](what-is-a-problem.md)
+- [Creating Outcomes](creating-outcomes.md)
+- [Composing Outcomes](composing-outcomes.md)
+- [Resolving Outcomes](resolving-outcomes.md)
 
 ### further reading / miscellaneous
+- [Outcome Extensions](outcome-extensions.md)
+- [Adapting to Outcomes](outcome-adaptation.md)
 - this: Outcomes as Monads
