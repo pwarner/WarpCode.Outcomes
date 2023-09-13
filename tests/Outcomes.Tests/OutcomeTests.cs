@@ -157,11 +157,11 @@ public class OutcomeTests
     [Fact]
     public void Aggregate_ShouldCreateOutcomeOfListOfValuesWhenNoProblems()
     {
-        Outcome<List<int>?> actual = IntProblemOutcomes(3, 3).Aggregate();
+        Outcome<List<int>> actual = IntProblemOutcomes(3, 3).Aggregate();
 
         var expected = new List<int>(3) { 0, 1, 2 };
 
-        List<int>? actualList = actual.Match(v => v, _ => null);
+        List<int>? actualList = actual.Match(v => v, _ => null!);
 
         Assert.Equal(expected, actualList);
     }

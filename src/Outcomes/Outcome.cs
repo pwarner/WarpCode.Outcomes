@@ -27,6 +27,12 @@ public static class Outcome
     /// <param name="value">The value with which to produce an outcome.</param>
     /// <returns>An <see cref="Outcome{T}"/> representing this value.</returns>
     public static Outcome<T> Ok<T>(T value) => new(value);
+
+    /// <summary>
+    /// Creates an <see cref="Outcome{None}"/> from a problem.
+    /// </summary>
+    /// <remarks>An Outcome{None} implicitly converts to any Outcome type.</remarks>
+    public static Outcome<None> ToOutcome(this IProblem problem) => new(problem);
 }
 
 /// <summary>

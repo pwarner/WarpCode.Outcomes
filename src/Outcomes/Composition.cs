@@ -8,7 +8,7 @@ public static class Composition
     /// Produces an outcome by evaulating the select expression, if the previous outcome did not contain a problem.
     /// Otherwise the expression is never evaulated and a new problem-outcome is produced to carry the problem forward.
     /// </summary>
-    public static Outcome<TNext> Select<T, TNext>(
+    public static Outcome<TNext> Map<T, TNext>(
         this Outcome<T> self,
         Func<T, TNext> selector) =>
         self.Match(
@@ -20,109 +20,94 @@ public static class Composition
     /// Produces an outcome by evaluating the expression to the right of the "in" keyword, if the previous outcome did not contain a problem.
     /// Otherwise the expression is never evaluated and a new problem-outcome is produced to carry the problem forward.
     /// </summary>
-    public static Outcome<TResult> SelectMany<T, TNext, TResult>(
+    public static Outcome<TNext> Bind<T, TNext>(
         this Outcome<T> self,
-        Func<T, Outcome<TNext>> selector,
-        Func<T, TNext, TResult> projector)
-    {
-        return self.Match(
-            value => from next in selector(value) select projector(value, next),
-            problem => new Outcome<TResult>(problem)
-        );
-    }
-
-    /// <inheritdoc cref="SelectMany{T,TNext,TResult}(Outcome{T},Func{T,Outcome{TNext}},Func{T,TNext,TResult})"/>
-    public static Task<Outcome<TResult>> SelectMany<T, TNext, TResult>(
-        this Outcome<T> self,
-        Func<T, Task<Outcome<TNext>>> selector,
-        Func<T, TNext, TResult> projector) =>
+        Func<T, Outcome<TNext>> selector) =>
         self.Match(
-            async value =>
-                from next in await selector(value).ConfigureAwait(false)
-                select projector(value, next),
-            problem => Task.FromResult(new Outcome<TResult>(problem))
+            selector,
+            problem => new Outcome<TNext>(problem)
         );
 
-    /// <inheritdoc cref="SelectMany{T,TNext,TResult}(Outcome{T},Func{T,Outcome{TNext}},Func{T,TNext,TResult})"/>
-    public static Task<Outcome<TResult>> SelectMany<T, TNext, TResult>(
+    /// <inheritdoc cref="Bind{T,TNext}"/>
+    public static Task<Outcome<TNext>> BindAsync<T, TNext>(
         this Outcome<T> self,
-        Func<T, ValueTask<Outcome<TNext>>> selector,
-        Func<T, TNext, TResult> projector) =>
+        Func<T, Task<Outcome<TNext>>> selector) =>
         self.Match(
-            async value =>
-                from next in await selector(value).ConfigureAwait(false)
-                select projector(value, next),
-            problem => Task.FromResult(new Outcome<TResult>(problem))
+            selector,
+            problem => Task.FromResult(new Outcome<TNext>(problem))
+        );
+
+    /// <inheritdoc cref="Bind{T,TNext}"/>
+    public static ValueTask<Outcome<TNext>> BindAsync<T, TNext>(
+        this Outcome<T> self,
+        Func<T, ValueTask<Outcome<TNext>>> selector) =>
+        self.Match(
+            selector,
+            problem => ValueTask.FromResult(new Outcome<TNext>(problem))
         );
 
     #endregion
 
     #region Extensions on Task<Outcome<T>>
 
-    /// <inheritdoc cref="Select{T,TNext}(Outcome{T},Func{T,TNext})"/>
-    public static async Task<Outcome<TNext>> Select<T, TNext>(
+    /// <inheritdoc cref="Map{T,TNext}"/>
+    public static async Task<Outcome<TNext>> MapAsync<T, TNext>(
         this Task<Outcome<T>> self,
         Func<T, TNext> selector) =>
-        (await self.ConfigureAwait(false)).Select(selector);
+        (await self.ConfigureAwait(false)).Map(selector);
 
-    /// <inheritdoc cref="SelectMany{T,TNext,TResult}(Outcome{T},Func{T,Outcome{TNext}},Func{T,TNext,TResult})"/>
-    public static async Task<Outcome<TResult>> SelectMany<T, TNext, TResult>(
+    /// <inheritdoc cref="Bind{T,TNext}"/>
+    public static async Task<Outcome<TNext>> BindAsync<T, TNext>(
         this Task<Outcome<T>> self,
-        Func<T, Outcome<TNext>> selector,
-        Func<T, TNext, TResult> projector) =>
-        (await self.ConfigureAwait(false)).SelectMany(selector, projector);
+        Func<T, Outcome<TNext>> selector) =>
+        (await self.ConfigureAwait(false)).Bind(selector);
 
-    /// <inheritdoc cref="SelectMany{T,TNext,TResult}(Outcome{T},Func{T,Outcome{TNext}},Func{T,TNext,TResult})"/>
-    public static async Task<Outcome<TResult>> SelectMany<T, TNext, TResult>(
+    /// <inheritdoc cref="Bind{T,TNext}"/>
+    public static async Task<Outcome<TNext>> BindAsync<T, TNext>(
         this Task<Outcome<T>> self,
-        Func<T, Task<Outcome<TNext>>> selector,
-        Func<T, TNext, TResult> projector) =>
+        Func<T, Task<Outcome<TNext>>> selector) =>
         await (await self.ConfigureAwait(false))
-            .SelectMany(selector, projector)
+            .BindAsync(selector)
             .ConfigureAwait(false);
 
-    /// <inheritdoc cref="SelectMany{T,TNext,TResult}(Outcome{T},Func{T,Outcome{TNext}},Func{T,TNext,TResult})"/>
-    public static async Task<Outcome<TResult>> SelectMany<T, TNext, TResult>(
+    /// <inheritdoc cref="Bind{T,TNext}"/>
+    public static async Task<Outcome<TNext>> BindAsync<T, TNext>(
         this Task<Outcome<T>> self,
-        Func<T, ValueTask<Outcome<TNext>>> selector,
-        Func<T, TNext, TResult> projector) =>
+        Func<T, ValueTask<Outcome<TNext>>> selector) =>
         await (await self.ConfigureAwait(false))
-            .SelectMany(selector, projector)
+            .BindAsync(selector)
             .ConfigureAwait(false);
 
     #endregion
 
     #region Extensions on ValueTask<Outcome<T>>
 
-    /// <inheritdoc cref="Select{T,TNext}(Outcome{T},Func{T,TNext})"/>
-    public static async Task<Outcome<TNext>> Select<T, TNext>(
+    /// <inheritdoc cref="Map{T,TNext}"/>
+    public static async Task<Outcome<TNext>> MapAsync<T, TNext>(
         this ValueTask<Outcome<T>> self,
         Func<T, TNext> selector) =>
-        (await self.ConfigureAwait(false)).Select(selector);
+        (await self.ConfigureAwait(false)).Map(selector);
 
-    /// <inheritdoc cref="SelectMany{T,TNext,TResult}(Outcome{T},Func{T,Outcome{TNext}},Func{T,TNext,TResult})"/>
-    public static async Task<Outcome<TResult>> SelectMany<T, TNext, TResult>(
+    /// <inheritdoc cref="Bind{T,TNext}"/>
+    public static async Task<Outcome<TNext>> BindAsync<T, TNext>(
         this ValueTask<Outcome<T>> self,
-        Func<T, Outcome<TNext>> selector,
-        Func<T, TNext, TResult> projector) =>
-        (await self.ConfigureAwait(false)).SelectMany(selector, projector);
+        Func<T, Outcome<TNext>> selector) =>
+        (await self.ConfigureAwait(false)).Bind(selector);
 
-    /// <inheritdoc cref="SelectMany{T,TNext,TResult}(Outcome{T},Func{T,Outcome{TNext}},Func{T,TNext,TResult})"/>
-    public static async Task<Outcome<TResult>> SelectMany<T, TNext, TResult>(
+    /// <inheritdoc cref="Bind{T,TNext}"/>
+    public static async Task<Outcome<TNext>> BindAsync<T, TNext>(
         this ValueTask<Outcome<T>> self,
-        Func<T, Task<Outcome<TNext>>> selector,
-        Func<T, TNext, TResult> projector) =>
+        Func<T, Task<Outcome<TNext>>> selector) =>
         await (await self.ConfigureAwait(false))
-            .SelectMany(selector, projector)
+            .BindAsync(selector)
             .ConfigureAwait(false);
 
-    /// <inheritdoc cref="SelectMany{T,TNext,TResult}(Outcome{T},Func{T,Outcome{TNext}},Func{T,TNext,TResult})"/>
-    public static async Task<Outcome<TResult>> SelectMany<T, TNext, TResult>(
+    /// <inheritdoc cref="Bind{T,TNext}"/>
+    public static async Task<Outcome<TNext>> BindAsync<T, TNext>(
         this ValueTask<Outcome<T>> self,
-        Func<T, ValueTask<Outcome<TNext>>> selector,
-        Func<T, TNext, TResult> projector) =>
+        Func<T, ValueTask<Outcome<TNext>>> selector) =>
         await (await self.ConfigureAwait(false))
-            .SelectMany(selector, projector)
+            .BindAsync(selector)
             .ConfigureAwait(false);
 
     #endregion

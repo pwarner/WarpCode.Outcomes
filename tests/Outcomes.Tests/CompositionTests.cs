@@ -1,71 +1,157 @@
 ﻿namespace Outcomes.Tests;
 
-public class CompositionTests
+public class CompositionTests : CompositionTestBase
 {
-    private const string Success = "success";
-    private int _invocations;
-
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
-    [InlineData(2)]
-    [InlineData(3)]
-    public async Task Should_ComposeStartingWithOutcome(int value)
+    public void Map_ShouldMapOutcome(int failValue)
     {
-        Task<Outcome<int>> composition =
-            from x in OutcomeFactory(value, 1)
-            from y in Task.FromResult(OutcomeFactory(x, 2))
-            from z in ValueTask.FromResult(OutcomeFactory(y, 3))
-            select z;
+        Outcome<string> composition =
+            OutcomeFactory(failValue, 1)
+                .Map(_ => Success);
 
-        await AssertExpectedComposition(value, composition);
+        AssertExpectedMap(failValue, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
-    [InlineData(2)]
-    [InlineData(3)]
-    public async Task Should_ComposeStartingWithTaskOfOutcome(int value)
+    public async Task Map_ShouldMapOutcomeTask(int failValue)
     {
-        Task<Outcome<int>> composition =
-            from x in Task.FromResult(OutcomeFactory(value, 1))
-            from y in ValueTask.FromResult(OutcomeFactory(x, 2))
-            from z in OutcomeFactory(y, 3)
-            select z;
+        Task<Outcome<string>> composition =
+            Task.FromResult(OutcomeFactory(failValue, 1))
+                .MapAsync(_ => Success);
 
-        await AssertExpectedComposition(value, composition);
+        AssertExpectedMap(failValue, await composition);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    public async Task Map_ShouldMapOutcomeValueTask(int failValue)
+    {
+        Task<Outcome<string>> composition =
+            ValueTask.FromResult(OutcomeFactory(failValue, 1))
+                .MapAsync(_ => Success);
+
+        AssertExpectedMap(failValue, await composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    [InlineData(3)]
-    public async Task Should_ComposeStartingWithValueTaskOfOutcome(int value)
+    public void Bind_ShouldComposeOutcomeAndOutcome(int failValue)
     {
-        Task<Outcome<int>> composition =
-            from x in ValueTask.FromResult(OutcomeFactory(value, 1))
-            from y in OutcomeFactory(x, 2)
-            from z in Task.FromResult(OutcomeFactory(y, 3))
-            select z;
+        Outcome<None> composition =
+            OutcomeFactory(failValue, 1)
+                .Bind(_ => OutcomeFactory(failValue, 2));
 
-        await AssertExpectedComposition(value, composition);
+        AssertExpectedBind(failValue, composition);
     }
 
-    private async Task AssertExpectedComposition(int value, Task<Outcome<int>> composition)
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task Bind_ShouldComposeOutcomeAndOutcomeTask(int failValue)
     {
-        string actual = await composition.MatchAsync(_ => Success, p => p.Detail);
-        string expected = value == 0 ? Success : $"Problem{value}";
-        Assert.Equal(expected, actual);
+        Task<Outcome<None>> composition =
+            OutcomeFactory(failValue, 1)
+                .BindAsync(_ => Task.FromResult(OutcomeFactory(failValue, 2)));
 
-        int expectedInvocations = value == 0 ? 3 : value;
-        Assert.Equal(expectedInvocations, _invocations);
+        AssertExpectedBind(failValue, await composition);
     }
 
-    private Outcome<int> OutcomeFactory(int value, int problemValue)
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task Bind_ShouldComposeOutcomeAndOutcomeValueTask(int failValue)
     {
-        _invocations++;
-        return value == problemValue ? new Problem($"Problem{value}") : value;
+        ValueTask<Outcome<None>> composition =
+            OutcomeFactory(failValue, 1)
+                .BindAsync(_ => ValueTask.FromResult(OutcomeFactory(failValue, 2)));
+
+        AssertExpectedBind(failValue, await composition);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task Bind_ShouldComposeOutcomeTaskAndOutcome(int failValue)
+    {
+        Task<Outcome<None>> composition =
+            Task.FromResult(OutcomeFactory(failValue, 1))
+                .BindAsync(_ => OutcomeFactory(failValue, 2));
+
+        AssertExpectedBind(failValue, await composition);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task Bind_ShouldComposeOutcomeTaskAndOutcomeTask(int failValue)
+    {
+        Task<Outcome<None>> composition =
+            Task.FromResult(OutcomeFactory(failValue, 1))
+                .BindAsync(_ => Task.FromResult(OutcomeFactory(failValue, 2)));
+
+        AssertExpectedBind(failValue, await composition);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task Bind_ShouldComposeOutcomeTaskAndOutcomeValueTask(int failValue)
+    {
+        Task<Outcome<None>> composition =
+            Task.FromResult(OutcomeFactory(failValue, 1))
+                .BindAsync(_ => ValueTask.FromResult(OutcomeFactory(failValue, 2)));
+
+        AssertExpectedBind(failValue, await composition);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task Bind_ShouldComposeOutcomeValueTaskAndOutcome(int failValue)
+    {
+        Task<Outcome<None>> composition =
+            ValueTask.FromResult(OutcomeFactory(failValue, 1))
+                .BindAsync(_ => OutcomeFactory(failValue, 2));
+
+        AssertExpectedBind(failValue, await composition);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task Bind_ShouldComposeOutcomeValueTaskAndOutcomeTask(int failValue)
+    {
+        Task<Outcome<None>> composition =
+            ValueTask.FromResult(OutcomeFactory(failValue, 1))
+                .BindAsync(_ => Task.FromResult(OutcomeFactory(failValue, 2)));
+
+        AssertExpectedBind(failValue, await composition);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task Bind_ShouldComposeOutcomeValueTaskAndOutcomeValueTask(int failValue)
+    {
+        Task<Outcome<None>> composition =
+            ValueTask.FromResult(OutcomeFactory(failValue, 1))
+                .BindAsync(_ => ValueTask.FromResult(OutcomeFactory(failValue, 2)));
+
+        AssertExpectedBind(failValue, await composition);
     }
 }

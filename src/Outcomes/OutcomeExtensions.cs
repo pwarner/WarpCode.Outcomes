@@ -6,12 +6,6 @@
 public static class OutcomeExtensions
 {
     /// <summary>
-    /// Creates an <see cref="Outcome{None}"/> from a problem.
-    /// </summary>
-    /// <remarks>An Outcome{None} implicitly converts to any Outcome type.</remarks>
-    public static Outcome<None> ToOutcome(this IProblem problem) => new(problem);
-
-    /// <summary>
     /// Exit function that resolves an Outcome to a final value.
     /// </summary>
     /// <typeparam name="T">The type of the outcome value.</typeparam>
@@ -132,7 +126,7 @@ public static class OutcomeExtensions
     /// <param name="outcomes">A sequence of Outcome{T} values.</param>
     /// <param name="bailEarly">Whether to return the first problem discovered, or collect all problems.</param>
     /// <returns>An Outcome of type <see cref="List{T}"/>.</returns>
-    public static Outcome<List<T>?> Aggregate<T>(this IEnumerable<Outcome<T>> outcomes, bool bailEarly = false)
+    public static Outcome<List<T>> Aggregate<T>(this IEnumerable<Outcome<T>> outcomes, bool bailEarly = false)
     {
         List<T>? list = null;
         List<IProblem>? problems = null;
@@ -150,7 +144,7 @@ public static class OutcomeExtensions
         return problems switch
         {
             not null => new ProblemAggregate(problems),
-            null => list
+            null => list!
         };
     }
 
