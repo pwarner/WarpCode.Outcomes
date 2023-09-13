@@ -40,12 +40,4 @@ public abstract class CompositionTestBase
         _steps++;
         return Outcome.Ok();
     }
-
-    private (int expectedSteps, string? expectedFinal) GetExpectations(int failValue) =>
-        failValue switch
-        {
-            1 => (0, "Problem1"),
-            2 => (1, "Problem2"),
-            _ => (2, Success)
-        };
 }
