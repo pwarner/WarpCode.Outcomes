@@ -5,162 +5,172 @@ public class CompositionWithLinqTests : CompositionTestBase
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
-    public void Select_ShouldMapOutcome(int failValue)
+    public void Select_ShouldMapOutcome(int value)
     {
         Outcome<string> composition =
-            from _ in OutcomeFactory(failValue, 1)
-            select Success;
+            from first in FirstOutcome(value)
+            select first;
 
-        AssertExpectedMap(failValue, composition);
+        AssertExpectedMapOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
-    public async Task Select_ShouldMapOutcomeTask(int failValue)
+    public async Task Select_ShouldMapOutcomeTask(int value)
     {
-        Task<Outcome<string>> composition =
-            from _ in Task.FromResult(OutcomeFactory(failValue, 1))
-            select Success;
+        Outcome<string> composition = await (
+            from first in Task.FromResult(FirstOutcome(value))
+            select first
+        );
 
-        AssertExpectedMap(failValue, await composition);
+        AssertExpectedMapOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
-    public async Task Select_ShouldMapOutcomeValueTask(int failValue)
+    public async Task Select_ShouldMapOutcomeValueTask(int value)
     {
-        Task<Outcome<string>> composition =
-            from _ in ValueTask.FromResult(OutcomeFactory(failValue, 1))
-            select Success;
+        Outcome<string> composition = await (
+            from first in ValueTask.FromResult(FirstOutcome(value))
+            select first
+        );
 
-        AssertExpectedMap(failValue, await composition);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public void SelectMany_ShouldComposeOutcomeAndOutcome(int failValue)
-    {
-        Outcome<None> composition =
-            from first in OutcomeFactory(failValue, 1)
-            from next in OutcomeFactory(failValue, 2)
-            select next;
-
-        AssertExpectedBind(failValue, composition);
+        AssertExpectedMapOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public async Task SelectMany_ShouldComposeOutcomeAndOutcomeTask(int failValue)
+    public void SelectMany_ShouldComposeOutcomeAndOutcome(int value)
     {
-        Task<Outcome<None>> composition =
-            from first in OutcomeFactory(failValue, 1)
-            from next in Task.FromResult(OutcomeFactory(failValue, 2))
-            select next;
+        Outcome<string> composition =
+            from first in FirstOutcome(value)
+            from _ in NextOutcome(value)
+            select first;
 
-        AssertExpectedBind(failValue, await composition);
+        AssertExpectedOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public async Task SelectMany_ShouldComposeOutcomeAndOutcomeValueTask(int failValue)
+    public async Task SelectMany_ShouldComposeOutcomeAndOutcomeTask(int value)
     {
-        Task<Outcome<None>> composition =
-            from first in OutcomeFactory(failValue, 1)
-            from next in ValueTask.FromResult(OutcomeFactory(failValue, 2))
-            select next;
+        Outcome<string> composition = await (
+            from first in FirstOutcome(value)
+            from _ in Task.FromResult(NextOutcome(value))
+            select first
+        );
 
-        AssertExpectedBind(failValue, await composition);
+        AssertExpectedOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public async Task SelectMany_ShouldComposeOutcomeTaskAndOutcome(int failValue)
+    public async Task SelectMany_ShouldComposeOutcomeAndOutcomeValueTask(int value)
     {
-        Task<Outcome<None>> composition =
-            from first in Task.FromResult(OutcomeFactory(failValue, 1))
-            from next in OutcomeFactory(failValue, 2)
-            select next;
+        Outcome<string> composition = await (
+            from first in FirstOutcome(value)
+            from _ in ValueTask.FromResult(NextOutcome(value))
+            select first
+        );
 
-        AssertExpectedBind(failValue, await composition);
+        AssertExpectedOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public async Task SelectMany_ShouldComposeOutcomeTaskAndOutcomeTask(int failValue)
+    public async Task SelectMany_ShouldComposeOutcomeTaskAndOutcome(int value)
     {
-        Task<Outcome<None>> composition =
-            from first in Task.FromResult(OutcomeFactory(failValue, 1))
-            from next in Task.FromResult(OutcomeFactory(failValue, 2))
-            select next;
+        Outcome<string> composition = await (
+            from first in Task.FromResult(FirstOutcome(value))
+            from _ in NextOutcome(value)
+            select first
+        );
 
-        AssertExpectedBind(failValue, await composition);
+        AssertExpectedOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public async Task SelectMany_ShouldComposeOutcomeTaskAndOutcomeValueTask(int failValue)
+    public async Task SelectMany_ShouldComposeOutcomeTaskAndOutcomeTask(int value)
     {
-        Task<Outcome<None>> composition =
-            from first in Task.FromResult(OutcomeFactory(failValue, 1))
-            from next in ValueTask.FromResult(OutcomeFactory(failValue, 2))
-            select next;
+        Outcome<string> composition = await (
+            from first in Task.FromResult(FirstOutcome(value))
+            from _ in Task.FromResult(NextOutcome(value))
+            select first
+        );
 
-        AssertExpectedBind(failValue, await composition);
+        AssertExpectedOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public async Task SelectMany_ShouldComposeOutcomeValueTaskAndOutcome(int failValue)
+    public async Task SelectMany_ShouldComposeOutcomeTaskAndOutcomeValueTask(int value)
     {
-        Task<Outcome<None>> composition =
-            from first in ValueTask.FromResult(OutcomeFactory(failValue, 1))
-            from next in OutcomeFactory(failValue, 2)
-            select next;
+        Outcome<string> composition = await (
+            from first in Task.FromResult(FirstOutcome(value))
+            from _ in ValueTask.FromResult(NextOutcome(value))
+            select first
+        );
 
-        AssertExpectedBind(failValue, await composition);
+        AssertExpectedOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public async Task SelectMany_ShouldComposeOutcomeValueTaskAndOutcomeTask(int failValue)
+    public async Task SelectMany_ShouldComposeOutcomeValueTaskAndOutcome(int value)
     {
-        Task<Outcome<None>> composition =
-            from first in ValueTask.FromResult(OutcomeFactory(failValue, 1))
-            from next in Task.FromResult(OutcomeFactory(failValue, 2))
-            select next;
+        Outcome<string> composition = await (
+            from first in ValueTask.FromResult(FirstOutcome(value))
+            from _ in NextOutcome(value)
+            select first
+        );
 
-        AssertExpectedBind(failValue, await composition);
+        AssertExpectedOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public async Task SelectMany_ShouldComposeOutcomeValueTaskAndOutcomeValueTask(int failValue)
+    public async Task SelectMany_ShouldComposeOutcomeValueTaskAndOutcomeTask(int value)
     {
-        Task<Outcome<None>> composition =
-            from first in ValueTask.FromResult(OutcomeFactory(failValue, 1))
-            from next in ValueTask.FromResult(OutcomeFactory(failValue, 2))
-            select next;
+        Outcome<string> composition = await (
+            from first in ValueTask.FromResult(FirstOutcome(value))
+            from _ in Task.FromResult(NextOutcome(value))
+            select first
+        );
 
-        AssertExpectedBind(failValue, await composition);
+        AssertExpectedOutcome(value, composition);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task SelectMany_ShouldComposeOutcomeValueTaskAndOutcomeValueTask(int value)
+    {
+        Outcome<string> composition = await (
+            from first in ValueTask.FromResult(FirstOutcome(value))
+            from _ in ValueTask.FromResult(NextOutcome(value))
+            select first
+        );
+
+        AssertExpectedOutcome(value, composition);
     }
 }

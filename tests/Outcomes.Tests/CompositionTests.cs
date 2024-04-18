@@ -5,153 +5,153 @@ public class CompositionTests : CompositionTestBase
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
-    public void Map_ShouldMapOutcome(int failValue)
+    public void ShouldMapOutcome(int value)
     {
         Outcome<string> composition =
-            OutcomeFactory(failValue, 1)
-                .Map(_ => Success);
+            FirstOutcome(value)
+                .Then(first => first);
 
-        AssertExpectedMap(failValue, composition);
+        AssertExpectedMapOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
-    public async Task Map_ShouldMapOutcomeTask(int failValue)
+    public async Task ShouldMapOutcomeTask(int value)
     {
         Task<Outcome<string>> composition =
-            Task.FromResult(OutcomeFactory(failValue, 1))
-                .MapAsync(_ => Success);
+            Task.FromResult(FirstOutcome(value))
+                .ThenAsync(first => first);
 
-        AssertExpectedMap(failValue, await composition);
+        AssertExpectedMapOutcome(value, await composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
-    public async Task Map_ShouldMapOutcomeValueTask(int failValue)
+    public async Task ShouldMapOutcomeValueTask(int value)
     {
-        Task<Outcome<string>> composition =
-            ValueTask.FromResult(OutcomeFactory(failValue, 1))
-                .MapAsync(_ => Success);
+        Outcome<string> composition = await
+            ValueTask.FromResult(FirstOutcome(value))
+                .ThenAsync(first => first);
 
-        AssertExpectedMap(failValue, await composition);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public void Bind_ShouldComposeOutcomeAndOutcome(int failValue)
-    {
-        Outcome<None> composition =
-            OutcomeFactory(failValue, 1)
-                .Bind(_ => OutcomeFactory(failValue, 2));
-
-        AssertExpectedBind(failValue, composition);
+        AssertExpectedMapOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public async Task Bind_ShouldComposeOutcomeAndOutcomeTask(int failValue)
+    public void ShouldComposeOutcomeAndOutcome(int value)
     {
-        Task<Outcome<None>> composition =
-            OutcomeFactory(failValue, 1)
-                .BindAsync(_ => Task.FromResult(OutcomeFactory(failValue, 2)));
+        Outcome<string> composition =
+            FirstOutcome(value)
+                .Then(_ => NextOutcome(value));
 
-        AssertExpectedBind(failValue, await composition);
+        AssertExpectedOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public async Task Bind_ShouldComposeOutcomeAndOutcomeValueTask(int failValue)
+    public async Task ShouldComposeOutcomeAndOutcomeTask(int value)
     {
-        ValueTask<Outcome<None>> composition =
-            OutcomeFactory(failValue, 1)
-                .BindAsync(_ => ValueTask.FromResult(OutcomeFactory(failValue, 2)));
+        Outcome<string> composition = await
+            FirstOutcome(value)
+                .ThenAsync(first => Task.FromResult(NextOutcome(value)).ThenAsync(_ => first));
 
-        AssertExpectedBind(failValue, await composition);
+        AssertExpectedOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public async Task Bind_ShouldComposeOutcomeTaskAndOutcome(int failValue)
+    public async Task ShouldComposeOutcomeAndOutcomeValueTask(int value)
     {
-        Task<Outcome<None>> composition =
-            Task.FromResult(OutcomeFactory(failValue, 1))
-                .BindAsync(_ => OutcomeFactory(failValue, 2));
+        Outcome<string> composition = await
+            FirstOutcome(value)
+                .ThenAsync(first => ValueTask.FromResult(NextOutcome(value)).ThenAsync(_ => first));
 
-        AssertExpectedBind(failValue, await composition);
+        AssertExpectedOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public async Task Bind_ShouldComposeOutcomeTaskAndOutcomeTask(int failValue)
+    public async Task ShouldComposeOutcomeTaskAndOutcome(int value)
     {
-        Task<Outcome<None>> composition =
-            Task.FromResult(OutcomeFactory(failValue, 1))
-                .BindAsync(_ => Task.FromResult(OutcomeFactory(failValue, 2)));
+        Outcome<string> composition = await
+            Task.FromResult(FirstOutcome(value))
+                .ThenAsync(first => NextOutcome(value).Then(_ => first));
 
-        AssertExpectedBind(failValue, await composition);
+        AssertExpectedOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public async Task Bind_ShouldComposeOutcomeTaskAndOutcomeValueTask(int failValue)
+    public async Task ShouldComposeOutcomeTaskAndOutcomeTask(int value)
     {
-        Task<Outcome<None>> composition =
-            Task.FromResult(OutcomeFactory(failValue, 1))
-                .BindAsync(_ => ValueTask.FromResult(OutcomeFactory(failValue, 2)));
+        Outcome<string> composition = await
+            Task.FromResult(FirstOutcome(value))
+                .ThenAsync(first => Task.FromResult(NextOutcome(value)).ThenAsync(_ => first));
 
-        AssertExpectedBind(failValue, await composition);
+        AssertExpectedOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public async Task Bind_ShouldComposeOutcomeValueTaskAndOutcome(int failValue)
+    public async Task ShouldComposeOutcomeTaskAndOutcomeValueTask(int value)
     {
-        Task<Outcome<None>> composition =
-            ValueTask.FromResult(OutcomeFactory(failValue, 1))
-                .BindAsync(_ => OutcomeFactory(failValue, 2));
+        Outcome<string> composition = await
+            Task.FromResult(FirstOutcome(value))
+                .ThenAsync(first => ValueTask.FromResult(NextOutcome(value)).ThenAsync(_ => first));
 
-        AssertExpectedBind(failValue, await composition);
+        AssertExpectedOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public async Task Bind_ShouldComposeOutcomeValueTaskAndOutcomeTask(int failValue)
+    public async Task ShouldComposeOutcomeValueTaskAndOutcome(int value)
     {
-        Task<Outcome<None>> composition =
-            ValueTask.FromResult(OutcomeFactory(failValue, 1))
-                .BindAsync(_ => Task.FromResult(OutcomeFactory(failValue, 2)));
+        Outcome<string> composition = await
+            ValueTask.FromResult(FirstOutcome(value))
+                .ThenAsync(first => NextOutcome(value).Then(_ => first));
 
-        AssertExpectedBind(failValue, await composition);
+        AssertExpectedOutcome(value, composition);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public async Task Bind_ShouldComposeOutcomeValueTaskAndOutcomeValueTask(int failValue)
+    public async Task ShouldComposeOutcomeValueTaskAndOutcomeTask(int value)
     {
-        Task<Outcome<None>> composition =
-            ValueTask.FromResult(OutcomeFactory(failValue, 1))
-                .BindAsync(_ => ValueTask.FromResult(OutcomeFactory(failValue, 2)));
+        Outcome<string> composition = await
+            ValueTask.FromResult(FirstOutcome(value))
+                .ThenAsync(first => Task.FromResult(NextOutcome(value)).ThenAsync(_ => first));
 
-        AssertExpectedBind(failValue, await composition);
+        AssertExpectedOutcome(value, composition);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task ShouldComposeOutcomeValueTaskAndOutcomeValueTask(int value)
+    {
+        Outcome<string> composition = await
+            ValueTask.FromResult(FirstOutcome(value))
+                .ThenAsync(first => ValueTask.FromResult(NextOutcome(value)).ThenAsync(_ => first));
+
+        AssertExpectedOutcome(value, composition);
     }
 }

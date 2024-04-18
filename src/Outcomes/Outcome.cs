@@ -45,14 +45,15 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     private readonly T _value;
     private readonly IProblem? _problem;
 
+    private Outcome(T value, IProblem? problem) =>
+        (_value, _problem) = (value, problem);
+
     /// <summary>
     /// Creates a new outcome that represents a value.
     /// </summary>
     /// <param name="value">Value that this outcome represents.</param>
-    public Outcome(T value)
+    public Outcome(T value) : this(value, null)
     {
-        _value = value;
-        _problem = default;
     }
 
     /// <summary>
@@ -60,11 +61,8 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     /// </summary>
     /// <param name="problem">The problem that this outcome represents.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public Outcome(IProblem problem)
-    {
-        _problem = problem ?? throw new ArgumentNullException(nameof(problem));
-        _value = default!;
-    }
+    public Outcome(IProblem problem) : this(default!, problem) =>
+        ArgumentNullException.ThrowIfNull(problem);
 
     /// <summary>
     /// Exit function that resolves an Outcome to a final value.
@@ -100,6 +98,7 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
 
     public static bool operator ==(Outcome<T> left, Outcome<T> right) => left.Equals(right);
     public static bool operator !=(Outcome<T> left, Outcome<T> right) => !(left == right);
+
     public static implicit operator Outcome<T>(T value) => new(value);
     public static implicit operator Outcome<T>(Problem problem) => new(problem);
 

@@ -34,15 +34,16 @@ Using this, the GetOrderDetail method above can be simplified a little:
 ```csharp
 
 public Task<IResult> GetOrderDetail(OrderDetailRequest request) =>
-    outcome.MatchAsync(
-        value=> Results.Ok(value),
-        problem => problem switch
-        {
-            NotFoundProblem notFound => Results.NotFound(),
-            ValidationProblem invalid => Results.ValidationProblem(invalid.Message)
-            _ => Results.Error(problem.Detail)
-        }
-    );
+    Pipeline(request)
+        .MatchAsync(
+            value=> Results.Ok(value),
+            problem => problem switch
+            {
+                NotFoundProblem notFound => Results.NotFound(),
+                ValidationProblem invalid => Results.ValidationProblem(invalid.Message)
+                _ => Results.Error(problem.Detail)
+            }
+        );
 ```
 
 In the examples above, a switch expression is used to handle multiple problems defined in our application.

@@ -35,15 +35,19 @@ public static class OutcomeExtensions
     /// <param name="action">The action delegate to execute, which will be passed the outcome value as a parameter.</param>
     /// <returns>An <see cref="Outcome{T}"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the action delegate is null.</exception>
-    public static Outcome<T> OnSuccess<T>(this Outcome<T> self, Action<T> action) =>
-        self.Match(
+    public static Outcome<T> OnSuccess<T>(this Outcome<T> self, Action<T> action)
+    {
+        ArgumentNullException.ThrowIfNull(action);
+
+        return self.Match(
             value =>
             {
                 action(value);
-                return new Outcome<T>(value);
+                return self;
             },
-            problem => new Outcome<T>(problem)
+            problem => self
         );
+    }
 
     /// <summary>
     /// Calls the action delegate if the Outcome holds a problem.
@@ -52,15 +56,19 @@ public static class OutcomeExtensions
     /// <param name="action">The action delegate to execute, which will be passed the outcome problem as a parameter.</param>
     /// <returns>An <see cref="Outcome{T}"/>.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the action delegate is null.</exception>
-    public static Outcome<T> OnProblem<T>(this Outcome<T> self, Action<IProblem> action) =>
-        self.Match(
-            value => new Outcome<T>(value),
+    public static Outcome<T> OnProblem<T>(this Outcome<T> self, Action<IProblem> action)
+    {
+        ArgumentNullException.ThrowIfNull(action);
+
+        return self.Match(
+            _ => self,
             problem =>
             {
                 action(problem);
-                return new Outcome<T>(problem);
+                return self;
             }
         );
+    }
 
     /// <summary>
     /// Ensures that an Outcome{T} holds an expected value.
@@ -81,9 +89,10 @@ public static class OutcomeExtensions
     {
         ArgumentNullException.ThrowIfNull(predicate);
         ArgumentNullException.ThrowIfNull(factory);
+
         return self.Match(
             value => predicate(value) ? self : new Outcome<T>(factory(value)),
-            problem => new Outcome<T>(problem)
+            problem => self
         );
     }
 
@@ -106,8 +115,9 @@ public static class OutcomeExtensions
     {
         ArgumentNullException.ThrowIfNull(predicate);
         ArgumentNullException.ThrowIfNull(factory);
+
         return self.Match(
-            value => new Outcome<T>(value),
+            value => self,
             problem => predicate(problem) ? factory(problem) : new Outcome<T>(problem)
         );
     }
@@ -134,8 +144,8 @@ public static class OutcomeExtensions
         foreach (Outcome<T> outcome in outcomes)
         {
             outcome
-                .OnSuccess(x => (list ??= new List<T>()).Add(x))
-                .OnProblem(x => (problems ??= new List<IProblem>()).Add(x));
+                .OnSuccess(x => (list ??= []).Add(x))
+                .OnProblem(x => (problems ??= []).Add(x));
 
             if (problems is not null && bailEarly)
                 return problems[0].ToOutcome();
@@ -167,7 +177,7 @@ public static class OutcomeExtensions
 
         foreach (Outcome<None> outcome in outcomes)
         {
-            _ = outcome.OnProblem(x => (problems ??= new List<IProblem>()).Add(x));
+            outcome.OnProblem(x => (problems ??= []).Add(x));
 
             if (problems is not null && bailEarly)
                 return problems[0].ToOutcome();

@@ -5,44 +5,50 @@ public static class Composition
     #region Extensions on Outcome<T>
 
     /// <summary>
-    /// Produces an outcome by evaulating the select expression, if the previous outcome did not contain a problem.
-    /// Otherwise the expression is never evaulated and a new problem-outcome is produced to carry the problem forward.
+    /// Produces an outcome from a map function.
+    /// <remarks>
+    /// The map function is invoked if the outcome does not contain a problem.
+    /// Otherwise the function is never invoked and a new outcome is produced to carry the problem forward.
+    /// </remarks>
     /// </summary>
-    public static Outcome<TNext> Map<T, TNext>(
+    public static Outcome<TNext> Then<T, TNext>(
         this Outcome<T> self,
-        Func<T, TNext> selector) =>
+        Func<T, TNext> map) =>
         self.Match(
-            value => Outcome.Ok(selector(value)),
+            value => new Outcome<TNext>(map(value)),
             problem => new Outcome<TNext>(problem)
         );
 
     /// <summary>
-    /// Produces an outcome by evaluating the expression to the right of the "in" keyword, if the previous outcome did not contain a problem.
-    /// Otherwise the expression is never evaluated and a new problem-outcome is produced to carry the problem forward.
+    /// Produces an outcome from a factory function.
+    /// <remarks>
+    /// The factory function is invoked if the outcome does not contain a problem.
+    /// Otherwise the function is never invoked and a new outcome is produced to carry the problem forward.
+    /// </remarks>
     /// </summary>
-    public static Outcome<TNext> Bind<T, TNext>(
+    public static Outcome<TNext> Then<T, TNext>(
         this Outcome<T> self,
-        Func<T, Outcome<TNext>> selector) =>
+        Func<T, Outcome<TNext>> factory) =>
         self.Match(
-            selector,
+            factory,
             problem => new Outcome<TNext>(problem)
         );
 
-    /// <inheritdoc cref="Bind{T,TNext}"/>
-    public static Task<Outcome<TNext>> BindAsync<T, TNext>(
+    /// <inheritdoc cref="Then{T,TNext}(Outcome{T},Func{T,Outcome{TNext}})"/>
+    public static Task<Outcome<TNext>> ThenAsync<T, TNext>(
         this Outcome<T> self,
-        Func<T, Task<Outcome<TNext>>> selector) =>
+        Func<T, Task<Outcome<TNext>>> factory) =>
         self.Match(
-            selector,
+            factory,
             problem => Task.FromResult(new Outcome<TNext>(problem))
         );
 
-    /// <inheritdoc cref="Bind{T,TNext}"/>
-    public static ValueTask<Outcome<TNext>> BindAsync<T, TNext>(
+    /// <inheritdoc cref="Then{T,TNext}(Outcome{T},Func{T,Outcome{TNext}})"/>
+    public static async Task<Outcome<TNext>> ThenAsync<T, TNext>(
         this Outcome<T> self,
-        Func<T, ValueTask<Outcome<TNext>>> selector) =>
-        self.Match(
-            selector,
+        Func<T, ValueTask<Outcome<TNext>>> factory) =>
+        await self.Match(
+            factory,
             problem => ValueTask.FromResult(new Outcome<TNext>(problem))
         );
 
@@ -50,64 +56,64 @@ public static class Composition
 
     #region Extensions on Task<Outcome<T>>
 
-    /// <inheritdoc cref="Map{T,TNext}"/>
-    public static async Task<Outcome<TNext>> MapAsync<T, TNext>(
+    /// <inheritdoc cref="Then{T,TNext}(Outcome{T},Func{T,TNext})"/>
+    public static async Task<Outcome<TNext>> ThenAsync<T, TNext>(
         this Task<Outcome<T>> self,
-        Func<T, TNext> selector) =>
-        (await self.ConfigureAwait(false)).Map(selector);
+        Func<T, TNext> map) =>
+        (await self.ConfigureAwait(false)).Then(map);
 
-    /// <inheritdoc cref="Bind{T,TNext}"/>
-    public static async Task<Outcome<TNext>> BindAsync<T, TNext>(
+    /// <inheritdoc cref="Then{T,TNext}(Outcome{T},Func{T,Outcome{TNext}})"/>
+    public static async Task<Outcome<TNext>> ThenAsync<T, TNext>(
         this Task<Outcome<T>> self,
-        Func<T, Outcome<TNext>> selector) =>
-        (await self.ConfigureAwait(false)).Bind(selector);
+        Func<T, Outcome<TNext>> factory) =>
+        (await self.ConfigureAwait(false)).Then(factory);
 
-    /// <inheritdoc cref="Bind{T,TNext}"/>
-    public static async Task<Outcome<TNext>> BindAsync<T, TNext>(
+    /// <inheritdoc cref="Then{T,TNext}(Outcome{T},Func{T,Outcome{TNext}})"/>
+    public static async Task<Outcome<TNext>> ThenAsync<T, TNext>(
         this Task<Outcome<T>> self,
-        Func<T, Task<Outcome<TNext>>> selector) =>
+        Func<T, Task<Outcome<TNext>>> factory) =>
         await (await self.ConfigureAwait(false))
-            .BindAsync(selector)
+            .ThenAsync(factory)
             .ConfigureAwait(false);
 
-    /// <inheritdoc cref="Bind{T,TNext}"/>
-    public static async Task<Outcome<TNext>> BindAsync<T, TNext>(
+    /// <inheritdoc cref="Then{T,TNext}(Outcome{T},Func{T,Outcome{TNext}})"/>
+    public static async Task<Outcome<TNext>> ThenAsync<T, TNext>(
         this Task<Outcome<T>> self,
-        Func<T, ValueTask<Outcome<TNext>>> selector) =>
+        Func<T, ValueTask<Outcome<TNext>>> factory) =>
         await (await self.ConfigureAwait(false))
-            .BindAsync(selector)
+            .ThenAsync(factory)
             .ConfigureAwait(false);
 
     #endregion
 
     #region Extensions on ValueTask<Outcome<T>>
 
-    /// <inheritdoc cref="Map{T,TNext}"/>
-    public static async Task<Outcome<TNext>> MapAsync<T, TNext>(
+    /// <inheritdoc cref="Then{T,TNext}(Outcome{T},Func{T,TNext})"/>
+    public static async Task<Outcome<TNext>> ThenAsync<T, TNext>(
         this ValueTask<Outcome<T>> self,
-        Func<T, TNext> selector) =>
-        (await self.ConfigureAwait(false)).Map(selector);
+        Func<T, TNext> map) =>
+        (await self.ConfigureAwait(false)).Then(map);
 
-    /// <inheritdoc cref="Bind{T,TNext}"/>
-    public static async Task<Outcome<TNext>> BindAsync<T, TNext>(
+    /// <inheritdoc cref="Then{T,TNext}(Outcome{T},Func{T,Outcome{TNext}})"/>
+    public static async Task<Outcome<TNext>> ThenAsync<T, TNext>(
         this ValueTask<Outcome<T>> self,
-        Func<T, Outcome<TNext>> selector) =>
-        (await self.ConfigureAwait(false)).Bind(selector);
+        Func<T, Outcome<TNext>> factory) =>
+        (await self.ConfigureAwait(false)).Then(factory);
 
-    /// <inheritdoc cref="Bind{T,TNext}"/>
-    public static async Task<Outcome<TNext>> BindAsync<T, TNext>(
+    /// <inheritdoc cref="Then{T,TNext}(Outcome{T},Func{T,Outcome{TNext}})"/>
+    public static async Task<Outcome<TNext>> ThenAsync<T, TNext>(
         this ValueTask<Outcome<T>> self,
-        Func<T, Task<Outcome<TNext>>> selector) =>
+        Func<T, Task<Outcome<TNext>>> factory) =>
         await (await self.ConfigureAwait(false))
-            .BindAsync(selector)
+            .ThenAsync(factory)
             .ConfigureAwait(false);
 
-    /// <inheritdoc cref="Bind{T,TNext}"/>
-    public static async Task<Outcome<TNext>> BindAsync<T, TNext>(
+    /// <inheritdoc cref="Then{T,TNext}(Outcome{T},Func{T,Outcome{TNext}})"/>
+    public static async Task<Outcome<TNext>> ThenAsync<T, TNext>(
         this ValueTask<Outcome<T>> self,
-        Func<T, ValueTask<Outcome<TNext>>> selector) =>
+        Func<T, ValueTask<Outcome<TNext>>> factory) =>
         await (await self.ConfigureAwait(false))
-            .BindAsync(selector)
+            .ThenAsync(factory)
             .ConfigureAwait(false);
 
     #endregion

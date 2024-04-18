@@ -5,41 +5,47 @@ public static class LinqComposition
     #region Extensions on Outcome<T>
 
     /// <summary>
-    /// Produces an outcome by evaulating the select expression, if the previous outcome did not contain a problem.
-    /// Otherwise the expression is never evaulated and a new problem-outcome is produced to carry the problem forward.
+    /// Produces an outcome from a map function.
+    /// <remarks>
+    /// The map function is invoked if the outcome does not contain a problem.
+    /// Otherwise the function is never invoked and a new outcome is produced to carry the problem forward.
+    /// </remarks>
     /// </summary>
     public static Outcome<TNext> Select<T, TNext>(
         this Outcome<T> self,
-        Func<T, TNext> selector) => self.Map(selector);
+        Func<T, TNext> map) => self.Then(map);
 
     /// <summary>
-    /// Produces an outcome by evaluating the expression to the right of the "in" keyword, if the previous outcome did not contain a problem.
-    /// Otherwise the expression is never evaluated and a new problem-outcome is produced to carry the problem forward.
+    /// Produces an outcome from a factory function.
+    /// <remarks>
+    /// The factory function is invoked if the outcome does not contain a problem.
+    /// Otherwise the function is never invoked and a new outcome is produced to carry the problem forward.
+    /// </remarks>
     /// </summary>
     public static Outcome<TResult> SelectMany<T, TNext, TResult>(
         this Outcome<T> self,
-        Func<T, Outcome<TNext>> selector,
+        Func<T, Outcome<TNext>> factory,
         Func<T, TNext, TResult> projector) =>
-        self.Bind(value => selector(value)
-            .Map(next => projector(value, next))
+        self.Then(value => factory(value)
+            .Then(next => projector(value, next))
         );
 
     /// <inheritdoc cref="SelectMany{T,TNext,TResult}(Outcome{T},Func{T,Outcome{TNext}},Func{T,TNext,TResult})"/>
     public static Task<Outcome<TResult>> SelectMany<T, TNext, TResult>(
         this Outcome<T> self,
-        Func<T, Task<Outcome<TNext>>> selector,
+        Func<T, Task<Outcome<TNext>>> factory,
         Func<T, TNext, TResult> projector) =>
-        self.BindAsync(value => selector(value)
-            .MapAsync(next => projector(value, next))
+        self.ThenAsync(value => factory(value)
+            .ThenAsync(next => projector(value, next))
         );
 
     /// <inheritdoc cref="SelectMany{T,TNext,TResult}(Outcome{T},Func{T,Outcome{TNext}},Func{T,TNext,TResult})"/>
     public static Task<Outcome<TResult>> SelectMany<T, TNext, TResult>(
         this Outcome<T> self,
-        Func<T, ValueTask<Outcome<TNext>>> selector,
+        Func<T, ValueTask<Outcome<TNext>>> factory,
         Func<T, TNext, TResult> projector) =>
-        self.BindAsync(value => selector(value)
-            .MapAsync(next => projector(value, next))
+        self.ThenAsync(value => factory(value)
+            .ThenAsync(next => projector(value, next))
         );
 
     #endregion
@@ -49,32 +55,32 @@ public static class LinqComposition
     /// <inheritdoc cref="Select{T,TNext}(Outcome{T},Func{T,TNext})"/>
     public static async Task<Outcome<TNext>> Select<T, TNext>(
         this Task<Outcome<T>> self,
-        Func<T, TNext> selector) =>
-        (await self.ConfigureAwait(false)).Select(selector);
+        Func<T, TNext> map) =>
+        (await self.ConfigureAwait(false)).Select(map);
 
     /// <inheritdoc cref="SelectMany{T,TNext,TResult}(Outcome{T},Func{T,Outcome{TNext}},Func{T,TNext,TResult})"/>
     public static async Task<Outcome<TResult>> SelectMany<T, TNext, TResult>(
         this Task<Outcome<T>> self,
-        Func<T, Outcome<TNext>> selector,
+        Func<T, Outcome<TNext>> factory,
         Func<T, TNext, TResult> projector) =>
-        (await self.ConfigureAwait(false)).SelectMany(selector, projector);
+        (await self.ConfigureAwait(false)).SelectMany(factory, projector);
 
     /// <inheritdoc cref="SelectMany{T,TNext,TResult}(Outcome{T},Func{T,Outcome{TNext}},Func{T,TNext,TResult})"/>
     public static async Task<Outcome<TResult>> SelectMany<T, TNext, TResult>(
         this Task<Outcome<T>> self,
-        Func<T, Task<Outcome<TNext>>> selector,
+        Func<T, Task<Outcome<TNext>>> factory,
         Func<T, TNext, TResult> projector) =>
         await (await self.ConfigureAwait(false))
-            .SelectMany(selector, projector)
+            .SelectMany(factory, projector)
             .ConfigureAwait(false);
 
     /// <inheritdoc cref="SelectMany{T,TNext,TResult}(Outcome{T},Func{T,Outcome{TNext}},Func{T,TNext,TResult})"/>
     public static async Task<Outcome<TResult>> SelectMany<T, TNext, TResult>(
         this Task<Outcome<T>> self,
-        Func<T, ValueTask<Outcome<TNext>>> selector,
+        Func<T, ValueTask<Outcome<TNext>>> factory,
         Func<T, TNext, TResult> projector) =>
         await (await self.ConfigureAwait(false))
-            .SelectMany(selector, projector)
+            .SelectMany(factory, projector)
             .ConfigureAwait(false);
 
     #endregion

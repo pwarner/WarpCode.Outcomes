@@ -5,7 +5,7 @@ public abstract class CompositionTestBase
     protected const string Success = "success";
     private int _steps;
 
-    protected void AssertExpectedBind(int failValue, Outcome<None> composition)
+    protected void AssertExpectedOutcome(int failValue, Outcome<string> composition)
     {
         (int expectedSteps, string? expectedFinal) = failValue switch
         {
@@ -19,7 +19,7 @@ public abstract class CompositionTestBase
         Assert.Equal(expectedSteps, _steps);
     }
 
-    protected void AssertExpectedMap(int failValue, Outcome<string> composition)
+    protected void AssertExpectedMapOutcome(int failValue, Outcome<string> composition)
     {
         (int expectedSteps, string? expectedFinal) = failValue switch
         {
@@ -32,10 +32,19 @@ public abstract class CompositionTestBase
         Assert.Equal(expectedSteps, _steps);
     }
 
-    protected Outcome<None> OutcomeFactory(int failValue, int step)
+    protected Outcome<string> FirstOutcome(int value)
     {
-        if (failValue == step)
-            return new Problem($"Problem{failValue}");
+        if (value == 1)
+            return new Problem("Problem1");
+
+        _steps++;
+        return Success;
+    }
+
+    protected Outcome<None> NextOutcome(int value)
+    {
+        if (value == 2)
+            return new Problem("Problem2");
 
         _steps++;
         return Outcome.Ok();
