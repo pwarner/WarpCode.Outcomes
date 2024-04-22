@@ -148,7 +148,7 @@ public static class OutcomeExtensions
                 .OnProblem(x => (problems ??= []).Add(x));
 
             if (problems is not null && bailEarly)
-                return problems[0].ToOutcome();
+                return problems[0].ToOutcome<List<T>>();
         }
 
         return problems switch
@@ -186,7 +186,7 @@ public static class OutcomeExtensions
         return problems switch
         {
             not null => new ProblemAggregate(problems),
-            null => Outcome.Ok()
+            null => Outcome.Ok
         };
     }
 }

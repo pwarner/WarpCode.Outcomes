@@ -3,50 +3,25 @@
 public abstract class CompositionTestBase
 {
     protected const string Success = "success";
-    private int _steps;
+    protected static readonly Problem TestProblem1 = new("ruh roh!");
+    protected static readonly Problem TestProblem2 = new("dammit!");
 
-    protected void AssertExpectedOutcome(int failValue, Outcome<string> composition)
+    protected static void AssertExpectedOutcome(ProblemStep step, Outcome<string> composition)
     {
-        (int expectedSteps, string? expectedFinal) = failValue switch
-        {
-            1 => (0, "Problem1"),
-            2 => (1, "Problem2"),
-            _ => (2, Success)
-        };
-
-        string actual = composition.Match(_ => Success, p => p.Detail);
-        Assert.Equal(expectedFinal, actual);
-        Assert.Equal(expectedSteps, _steps);
-    }
-
-    protected void AssertExpectedMapOutcome(int failValue, Outcome<string> composition)
-    {
-        (int expectedSteps, string? expectedFinal) = failValue switch
-        {
-            1 => (0, "Problem1"),
-            _ => (1, Success)
-        };
-
         string actual = composition.Match(value => value, p => p.Detail);
-        Assert.Equal(expectedFinal, actual);
-        Assert.Equal(expectedSteps, _steps);
+        string expected = step switch
+        {
+            ProblemStep.First => TestProblem1.Detail,
+            ProblemStep.Second => TestProblem2.Detail,
+            _ => Success
+        };
+
+        Assert.Equal(expected, actual);
     }
 
-    protected Outcome<string> FirstOutcome(int value)
-    {
-        if (value == 1)
-            return new Problem("Problem1");
+    protected static Outcome<None> FirstOutcome(ProblemStep step) =>
+        step is ProblemStep.First ? TestProblem1 : Outcome.Ok;
 
-        _steps++;
-        return Success;
-    }
-
-    protected Outcome<None> NextOutcome(int value)
-    {
-        if (value == 2)
-            return new Problem("Problem2");
-
-        _steps++;
-        return Outcome.Ok();
-    }
+    protected static Outcome<string> NextOutcome(ProblemStep step) =>
+        step is ProblemStep.Second ? TestProblem2 : Success;
 }

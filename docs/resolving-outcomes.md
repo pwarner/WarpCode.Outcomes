@@ -16,7 +16,7 @@ public async Task<IResult> GetOrderDetail(OrderDetailRequest request)
     Outcome<OrderDetailDto> outcome = await Pipline(request);
 
     return outcome.Match(
-        value=> Results.Ok(value),
+        value=> Results.Of(value),
         problem => problem switch
         {
             NotFoundProblem notFound => Results.NotFound(),
@@ -36,7 +36,7 @@ Using this, the GetOrderDetail method above can be simplified a little:
 public Task<IResult> GetOrderDetail(OrderDetailRequest request) =>
     Pipeline(request)
         .MatchAsync(
-            value=> Results.Ok(value),
+            value=> Results.Of(value),
             problem => problem switch
             {
                 NotFoundProblem notFound => Results.NotFound(),
@@ -62,7 +62,7 @@ public static class OutcomeResolverExtensions
         outcome.Match(DefaultValueResolver<T>, ProblemResolver);
 
     private static IResult DefaultValueResolver<T>(T value) => 
-        Results.Ok(value);
+        Results.Of(value);
 
     private static IResult ProblemResolver(IProblem problem) =>
         problem switch 

@@ -13,11 +13,11 @@ var outcomeInt = new Outcome<int>(13);
 
 With `Outcome.Ok`
 ```csharp
-Outcome<string> outcomeStr = Outcome.Ok("success!");
-Outcome<int> outcomeInt = Outcome.Ok(13);
+Outcome<string> outcomeStr = Outcome.Of("success!");
+Outcome<int> outcomeInt = Outcome.Of(13);
 
 // create value-less Outcome
-Outcome<None> outcomeVoid = Outcome.Ok();
+Outcome<None> outcomeVoid = Outcome.Ok;
 ```
 
 By implicit coversion
@@ -29,8 +29,8 @@ Outcome<None> outcomeVoid = default;
 
 `Outcome<None>` also implicitly converts to other `Outcome<T>` types, so you can write:
 ```csharp
-Outcome<string> outcome = Outcome.Ok(); // value is default(string), or null
-Outcome<int> outcome = Outcome.Ok(); // value is default(int), or 0
+Outcome<string> outcome = Outcome.Ok; // value is default(string), or null
+Outcome<int> outcome = Outcome.Ok; // value is default(int), or 0
 ```
 
 ## Creating Problem Outcomes

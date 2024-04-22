@@ -3,174 +3,174 @@
 public class CompositionWithLinqTests : CompositionTestBase
 {
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    public void Select_ShouldMapOutcome(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.None)]
+    public void Select_ShouldMapOutcome(ProblemStep step)
     {
         Outcome<string> composition =
-            from first in FirstOutcome(value)
-            select first;
+            from _ in FirstOutcome(step)
+            select Success;
 
-        AssertExpectedMapOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    public async Task Select_ShouldMapOutcomeTask(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.None)]
+    public async Task Select_ShouldMapOutcomeTask(ProblemStep step)
     {
         Outcome<string> composition = await (
-            from first in Task.FromResult(FirstOutcome(value))
-            select first
+            from _ in Task.FromResult(FirstOutcome(step))
+            select Success
         );
 
-        AssertExpectedMapOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    public async Task Select_ShouldMapOutcomeValueTask(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.None)]
+    public async Task Select_ShouldMapOutcomeValueTask(ProblemStep step)
     {
         Outcome<string> composition = await (
-            from first in ValueTask.FromResult(FirstOutcome(value))
-            select first
+            from _ in ValueTask.FromResult(FirstOutcome(step))
+            select Success
         );
 
-        AssertExpectedMapOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public void SelectMany_ShouldComposeOutcomeAndOutcome(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.Second)]
+    [InlineData(ProblemStep.None)]
+    public void SelectMany_ShouldComposeOutcomeAndOutcome(ProblemStep step)
     {
         Outcome<string> composition =
-            from first in FirstOutcome(value)
-            from _ in NextOutcome(value)
-            select first;
+            from _ in FirstOutcome(step)
+            from next in NextOutcome(step)
+            select next;
 
-        AssertExpectedOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public async Task SelectMany_ShouldComposeOutcomeAndOutcomeTask(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.Second)]
+    [InlineData(ProblemStep.None)]
+    public async Task SelectMany_ShouldComposeOutcomeAndOutcomeTask(ProblemStep step)
     {
         Outcome<string> composition = await (
-            from first in FirstOutcome(value)
-            from _ in Task.FromResult(NextOutcome(value))
-            select first
+            from _ in FirstOutcome(step)
+            from next in Task.FromResult(NextOutcome(step))
+            select next
         );
 
-        AssertExpectedOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public async Task SelectMany_ShouldComposeOutcomeAndOutcomeValueTask(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.Second)]
+    [InlineData(ProblemStep.None)]
+    public async Task SelectMany_ShouldComposeOutcomeAndOutcomeValueTask(ProblemStep step)
     {
         Outcome<string> composition = await (
-            from first in FirstOutcome(value)
-            from _ in ValueTask.FromResult(NextOutcome(value))
-            select first
+            from _ in FirstOutcome(step)
+            from next in ValueTask.FromResult(NextOutcome(step))
+            select next
         );
 
-        AssertExpectedOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public async Task SelectMany_ShouldComposeOutcomeTaskAndOutcome(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.Second)]
+    [InlineData(ProblemStep.None)]
+    public async Task SelectMany_ShouldComposeOutcomeTaskAndOutcome(ProblemStep step)
     {
         Outcome<string> composition = await (
-            from first in Task.FromResult(FirstOutcome(value))
-            from _ in NextOutcome(value)
-            select first
+            from _ in Task.FromResult(FirstOutcome(step))
+            from next in NextOutcome(step)
+            select next
         );
 
-        AssertExpectedOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public async Task SelectMany_ShouldComposeOutcomeTaskAndOutcomeTask(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.Second)]
+    [InlineData(ProblemStep.None)]
+    public async Task SelectMany_ShouldComposeOutcomeTaskAndOutcomeTask(ProblemStep step)
     {
         Outcome<string> composition = await (
-            from first in Task.FromResult(FirstOutcome(value))
-            from _ in Task.FromResult(NextOutcome(value))
-            select first
+            from _ in Task.FromResult(FirstOutcome(step))
+            from next in Task.FromResult(NextOutcome(step))
+            select next
         );
 
-        AssertExpectedOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public async Task SelectMany_ShouldComposeOutcomeTaskAndOutcomeValueTask(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.Second)]
+    [InlineData(ProblemStep.None)]
+    public async Task SelectMany_ShouldComposeOutcomeTaskAndOutcomeValueTask(ProblemStep step)
     {
         Outcome<string> composition = await (
-            from first in Task.FromResult(FirstOutcome(value))
-            from _ in ValueTask.FromResult(NextOutcome(value))
-            select first
+            from _ in Task.FromResult(FirstOutcome(step))
+            from next in ValueTask.FromResult(NextOutcome(step))
+            select next
         );
 
-        AssertExpectedOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public async Task SelectMany_ShouldComposeOutcomeValueTaskAndOutcome(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.Second)]
+    [InlineData(ProblemStep.None)]
+    public async Task SelectMany_ShouldComposeOutcomeValueTaskAndOutcome(ProblemStep step)
     {
         Outcome<string> composition = await (
-            from first in ValueTask.FromResult(FirstOutcome(value))
-            from _ in NextOutcome(value)
-            select first
+            from _ in ValueTask.FromResult(FirstOutcome(step))
+            from next in NextOutcome(step)
+            select next
         );
 
-        AssertExpectedOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public async Task SelectMany_ShouldComposeOutcomeValueTaskAndOutcomeTask(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.Second)]
+    [InlineData(ProblemStep.None)]
+    public async Task SelectMany_ShouldComposeOutcomeValueTaskAndOutcomeTask(ProblemStep step)
     {
         Outcome<string> composition = await (
-            from first in ValueTask.FromResult(FirstOutcome(value))
-            from _ in Task.FromResult(NextOutcome(value))
-            select first
+            from _ in ValueTask.FromResult(FirstOutcome(step))
+            from next in Task.FromResult(NextOutcome(step))
+            select next
         );
 
-        AssertExpectedOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public async Task SelectMany_ShouldComposeOutcomeValueTaskAndOutcomeValueTask(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.Second)]
+    [InlineData(ProblemStep.None)]
+    public async Task SelectMany_ShouldComposeOutcomeValueTaskAndOutcomeValueTask(ProblemStep step)
     {
         Outcome<string> composition = await (
-            from first in ValueTask.FromResult(FirstOutcome(value))
-            from _ in ValueTask.FromResult(NextOutcome(value))
-            select first
+            from _ in ValueTask.FromResult(FirstOutcome(step))
+            from next in ValueTask.FromResult(NextOutcome(step))
+            select next
         );
 
-        AssertExpectedOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 }

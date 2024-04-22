@@ -24,7 +24,7 @@ public class AdaptationTests
 
         Outcome<int> actual = Adapt.ToOutcome(Func, TestMap);
 
-        Assert.Equal(Outcome.Ok(13), actual);
+        Assert.Equal(Outcome.Of(13), actual);
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public class AdaptationTests
 
         Outcome<int> actual = Adapt.ToOutcome(Func, TestMap);
 
-        Assert.Equal(new Problem(Message).ToOutcome(), actual);
+        Assert.Equal(new Problem(Message).ToOutcome<int>(), actual);
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public class AdaptationTests
 
         Outcome<int> actual = Adapt.ToOutcome(Func);
 
-        Assert.Equal(new Problem(Message).ToOutcome(), actual);
+        Assert.Equal(new Problem(Message).ToOutcome<int>(), actual);
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public class AdaptationTests
 
         Outcome<None> actual = Adapt.ToOutcome(Action, TestMap);
 
-        Assert.Equal(Outcome.Ok(), actual);
+        Assert.Equal(Outcome.Ok, actual);
     }
 
     [Fact]
@@ -110,7 +110,7 @@ public class AdaptationTests
 
         Outcome<int> actual = await valueTask.ToOutcome();
 
-        Assert.Equal(Outcome.Ok(13), actual);
+        Assert.Equal(Outcome.Of(13), actual);
     }
 
     [Fact]
@@ -120,7 +120,7 @@ public class AdaptationTests
 
         Outcome<int> actual = await valueTask.ToOutcome(TestMap);
 
-        Assert.Equal(new Problem(Message).ToOutcome(), actual);
+        Assert.Equal(new Problem(Message).ToOutcome<int>(), actual);
     }
 
     [Fact]
@@ -132,7 +132,7 @@ public class AdaptationTests
 
         Outcome<int> actual = await valueTask.ToOutcome();
 
-        Assert.Equal(new Problem(Message).ToOutcome(), actual);
+        Assert.Equal(new Problem(Message).ToOutcome<int>(), actual);
     }
 
     [Fact]
@@ -153,7 +153,7 @@ public class AdaptationTests
 
         Outcome<int> actual = await task.ToOutcome();
 
-        Assert.Equal(Outcome.Ok(13), actual);
+        Assert.Equal(Outcome.Of(13), actual);
     }
 
     [Fact]
@@ -163,7 +163,7 @@ public class AdaptationTests
 
         Outcome<int> actual = await task.ToOutcome(TestMap);
 
-        Assert.Equal(new Problem(Message).ToOutcome(), actual);
+        Assert.Equal(new Problem(Message).ToOutcome<int>(), actual);
     }
 
     [Fact]
@@ -175,7 +175,7 @@ public class AdaptationTests
 
         Outcome<int> actual = await task.ToOutcome();
 
-        Assert.Equal(new Problem(Message).ToOutcome(), actual);
+        Assert.Equal(new Problem(Message).ToOutcome<int>(), actual);
     }
 
     [Fact]
@@ -196,7 +196,7 @@ public class AdaptationTests
 
         Outcome<None> actual = await valueTask.ToOutcome();
 
-        Assert.Equal(Outcome.Ok(), actual);
+        Assert.Equal(Outcome.Ok, actual);
     }
 
     [Fact]
@@ -239,7 +239,7 @@ public class AdaptationTests
 
         Outcome<None> actual = await task.ToOutcome();
 
-        Assert.Equal(Outcome.Ok(), actual);
+        Assert.Equal(Outcome.Ok, actual);
     }
 
     [Fact]

@@ -3,155 +3,155 @@
 public class CompositionTests : CompositionTestBase
 {
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    public void ShouldMapOutcome(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.None)]
+    public void ShouldMapOutcome(ProblemStep step)
     {
         Outcome<string> composition =
-            FirstOutcome(value)
-                .Then(first => first);
+            FirstOutcome(step)
+                .Then(_ => Success);
 
-        AssertExpectedMapOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    public async Task ShouldMapOutcomeTask(int value)
-    {
-        Task<Outcome<string>> composition =
-            Task.FromResult(FirstOutcome(value))
-                .ThenAsync(first => first);
-
-        AssertExpectedMapOutcome(value, await composition);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    public async Task ShouldMapOutcomeValueTask(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.None)]
+    public async Task ShouldMapOutcomeTask(ProblemStep step)
     {
         Outcome<string> composition = await
-            ValueTask.FromResult(FirstOutcome(value))
-                .ThenAsync(first => first);
+            Task.FromResult(FirstOutcome(step))
+                .ThenAsync(_ => Success);
 
-        AssertExpectedMapOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public void ShouldComposeOutcomeAndOutcome(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.None)]
+    public async Task ShouldMapOutcomeValueTask(ProblemStep step)
+    {
+        Outcome<string> composition = await
+            ValueTask.FromResult(FirstOutcome(step))
+                .ThenAsync(_ => Success);
+
+        AssertExpectedOutcome(step, composition);
+    }
+
+    [Theory]
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.Second)]
+    [InlineData(ProblemStep.None)]
+    public void ShouldComposeOutcomeAndOutcome(ProblemStep step)
     {
         Outcome<string> composition =
-            FirstOutcome(value)
-                .Then(_ => NextOutcome(value));
+            FirstOutcome(step)
+                .Then(_ => NextOutcome(step));
 
-        AssertExpectedOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public async Task ShouldComposeOutcomeAndOutcomeTask(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.Second)]
+    [InlineData(ProblemStep.None)]
+    public async Task ShouldComposeOutcomeAndOutcomeTask(ProblemStep step)
     {
         Outcome<string> composition = await
-            FirstOutcome(value)
-                .ThenAsync(first => Task.FromResult(NextOutcome(value)).ThenAsync(_ => first));
+            FirstOutcome(step)
+                .ThenAsync(_ => Task.FromResult(NextOutcome(step)));
 
-        AssertExpectedOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public async Task ShouldComposeOutcomeAndOutcomeValueTask(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.Second)]
+    [InlineData(ProblemStep.None)]
+    public async Task ShouldComposeOutcomeAndOutcomeValueTask(ProblemStep step)
     {
         Outcome<string> composition = await
-            FirstOutcome(value)
-                .ThenAsync(first => ValueTask.FromResult(NextOutcome(value)).ThenAsync(_ => first));
+            FirstOutcome(step)
+                .ThenAsync(_ => ValueTask.FromResult(NextOutcome(step)));
 
-        AssertExpectedOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public async Task ShouldComposeOutcomeTaskAndOutcome(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.Second)]
+    [InlineData(ProblemStep.None)]
+    public async Task ShouldComposeOutcomeTaskAndOutcome(ProblemStep step)
     {
         Outcome<string> composition = await
-            Task.FromResult(FirstOutcome(value))
-                .ThenAsync(first => NextOutcome(value).Then(_ => first));
+            Task.FromResult(FirstOutcome(step))
+                .ThenAsync(_ => NextOutcome(step));
 
-        AssertExpectedOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public async Task ShouldComposeOutcomeTaskAndOutcomeTask(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.Second)]
+    [InlineData(ProblemStep.None)]
+    public async Task ShouldComposeOutcomeTaskAndOutcomeTask(ProblemStep step)
     {
         Outcome<string> composition = await
-            Task.FromResult(FirstOutcome(value))
-                .ThenAsync(first => Task.FromResult(NextOutcome(value)).ThenAsync(_ => first));
+            Task.FromResult(FirstOutcome(step))
+                .ThenAsync(_ => Task.FromResult(NextOutcome(step)));
 
-        AssertExpectedOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public async Task ShouldComposeOutcomeTaskAndOutcomeValueTask(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.Second)]
+    [InlineData(ProblemStep.None)]
+    public async Task ShouldComposeOutcomeTaskAndOutcomeValueTask(ProblemStep step)
     {
         Outcome<string> composition = await
-            Task.FromResult(FirstOutcome(value))
-                .ThenAsync(first => ValueTask.FromResult(NextOutcome(value)).ThenAsync(_ => first));
+            Task.FromResult(FirstOutcome(step))
+                .ThenAsync(_ => ValueTask.FromResult(NextOutcome(step)));
 
-        AssertExpectedOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public async Task ShouldComposeOutcomeValueTaskAndOutcome(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.Second)]
+    [InlineData(ProblemStep.None)]
+    public async Task ShouldComposeOutcomeValueTaskAndOutcome(ProblemStep step)
     {
         Outcome<string> composition = await
-            ValueTask.FromResult(FirstOutcome(value))
-                .ThenAsync(first => NextOutcome(value).Then(_ => first));
+            ValueTask.FromResult(FirstOutcome(step))
+                .ThenAsync(_ => NextOutcome(step));
 
-        AssertExpectedOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public async Task ShouldComposeOutcomeValueTaskAndOutcomeTask(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.Second)]
+    [InlineData(ProblemStep.None)]
+    public async Task ShouldComposeOutcomeValueTaskAndOutcomeTask(ProblemStep step)
     {
         Outcome<string> composition = await
-            ValueTask.FromResult(FirstOutcome(value))
-                .ThenAsync(first => Task.FromResult(NextOutcome(value)).ThenAsync(_ => first));
+            ValueTask.FromResult(FirstOutcome(step))
+                .ThenAsync(_ => Task.FromResult(NextOutcome(step)));
 
-        AssertExpectedOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public async Task ShouldComposeOutcomeValueTaskAndOutcomeValueTask(int value)
+    [InlineData(ProblemStep.First)]
+    [InlineData(ProblemStep.Second)]
+    [InlineData(ProblemStep.None)]
+    public async Task ShouldComposeOutcomeValueTaskAndOutcomeValueTask(ProblemStep step)
     {
         Outcome<string> composition = await
-            ValueTask.FromResult(FirstOutcome(value))
-                .ThenAsync(first => ValueTask.FromResult(NextOutcome(value)).ThenAsync(_ => first));
+            ValueTask.FromResult(FirstOutcome(step))
+                .ThenAsync(_ => ValueTask.FromResult(NextOutcome(step)));
 
-        AssertExpectedOutcome(value, composition);
+        AssertExpectedOutcome(step, composition);
     }
 }

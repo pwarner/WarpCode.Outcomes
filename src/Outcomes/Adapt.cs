@@ -35,7 +35,7 @@ public static class Adapt
         {
             IProblem? problem = (map ?? MapExceptions)?.Invoke(e);
             if (problem is null) throw;
-            return problem.ToOutcome();
+            return problem.ToOutcome<T>();
         }
     }
 
@@ -72,7 +72,7 @@ public static class Adapt
         {
             IProblem? problem = (map ?? MapExceptions)?.Invoke(e);
             if (problem is null) throw;
-            return problem.ToOutcome();
+            return problem.ToOutcome<T>();
         }
     }
 
@@ -90,7 +90,7 @@ public static class Adapt
         try
         {
             await task.ConfigureAwait(false);
-            return Outcome.Ok();
+            return Outcome.Ok;
         }
         catch (Exception e)
         {
@@ -119,7 +119,7 @@ public static class Adapt
         {
             IProblem? problem = (map ?? MapExceptions)?.Invoke(e);
             if (problem is null) throw;
-            return problem.ToOutcome();
+            return problem.ToOutcome<T>();
         }
     }
 
@@ -137,7 +137,7 @@ public static class Adapt
         try
         {
             await task.ConfigureAwait(false);
-            return Outcome.Ok();
+            return Outcome.Ok;
         }
         catch (Exception e)
         {

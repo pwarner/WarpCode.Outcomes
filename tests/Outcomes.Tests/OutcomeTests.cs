@@ -13,19 +13,13 @@ public class OutcomeTests
     [Fact]
     public void Should_CreateOutcome_FromOkEntryhelper()
     {
-        Assert.Equal(new Outcome<int>(10), Outcome.Ok(10));
+        Assert.Equal(new Outcome<int>(10), Outcome.Of(10));
     }
 
     [Fact]
     public void Should_CreateValuelessOutcome_FromOkEntryHelper()
     {
-        Assert.Equal(new Outcome<None>(), Outcome.Ok());
-    }
-
-    [Fact]
-    public void Should_CreateStronglyTypedOutcome_FromOkEntryHelper()
-    {
-        Assert.Equal(new Outcome<int>(), Outcome.Ok());
+        Assert.Equal(new Outcome<None>(default(None)), Outcome.Ok);
     }
 
     [Fact]
@@ -43,13 +37,13 @@ public class OutcomeTests
     [Fact]
     public void Should_CreateStronglyTypedProblemOutcome_FromToOutcomeExtension()
     {
-        Assert.Equal(new Outcome<int>(TestProblem), TestProblem.ToOutcome());
+        Assert.Equal(new Outcome<int>(TestProblem), TestProblem.ToOutcome<int>());
     }
 
     [Fact]
     public void Match_ShouldResolveWithOnSuccessFunction_WhenNoProblem()
     {
-        Assert.True(Outcome.Ok().Match(_ => true, _ => false));
+        Assert.True(Outcome.Ok.Match(_ => true, _ => false));
     }
 
     [Fact]
@@ -63,7 +57,7 @@ public class OutcomeTests
     {
         bool invoked = false;
 
-        Outcome.Ok().OnSuccess(_ => invoked = true);
+        Outcome.Ok.OnSuccess(_ => invoked = true);
 
         Assert.True(invoked);
     }
@@ -93,7 +87,7 @@ public class OutcomeTests
     {
         bool invoked = false;
 
-        Outcome.Ok().OnProblem(_ => invoked = true);
+        Outcome.Ok.OnProblem(_ => invoked = true);
 
         Assert.False(invoked);
     }
@@ -101,7 +95,7 @@ public class OutcomeTests
     [Fact]
     public void Ensure_ShouldCreateProblemOutcomeIfPredicateIsFalse()
     {
-        Outcome<None> actual = Outcome.Ok().Ensure(_ => false, _ => TestProblem);
+        Outcome<None> actual = Outcome.Ok.Ensure(_ => false, _ => TestProblem);
 
         Assert.Equal(new Outcome<None>(TestProblem), actual);
     }
@@ -109,9 +103,9 @@ public class OutcomeTests
     [Fact]
     public void Ensure_ShouldNotAffectOutcomeIfPredicateIsTrue()
     {
-        Outcome<None> actual = Outcome.Ok().Ensure(_ => true, _ => TestProblem);
+        Outcome<None> actual = Outcome.Ok.Ensure(_ => true, _ => TestProblem);
 
-        Assert.Equal(Outcome.Ok(), actual);
+        Assert.Equal(Outcome.Ok, actual);
     }
 
     [Fact]
@@ -121,7 +115,7 @@ public class OutcomeTests
 
         Outcome<int> actual = new Outcome<int>(TestProblem).Rescue(_ => true, _ => expected);
 
-        Assert.Equal(Outcome.Ok(expected), actual);
+        Assert.Equal(Outcome.Of(expected), actual);
     }
 
     [Fact]
@@ -129,7 +123,7 @@ public class OutcomeTests
     {
         Outcome<int> actual = new Outcome<int>(TestProblem).Rescue(_ => false, _ => 0);
 
-        Assert.Equal(new Outcome<None>(TestProblem), actual);
+        Assert.Equal(new Outcome<int>(TestProblem), actual);
     }
 
     [Fact]
@@ -171,7 +165,7 @@ public class OutcomeTests
     {
         Outcome<None> actual = ProblemOutcomes(3, 3).Aggregate();
 
-        Assert.Equal(Outcome.Ok(), actual);
+        Assert.Equal(Outcome.Ok, actual);
     }
 
     private static IEnumerable<Outcome<int>> IntProblemOutcomes(int total, int totalOk) =>
@@ -186,7 +180,7 @@ public class OutcomeTests
         Enumerable.Range(0, total)
             .Select(i =>
                 i < totalOk
-                    ? Outcome.Ok()
+                    ? Outcome.Ok
                     : new Outcome<None>(TestProblem)
             );
 }

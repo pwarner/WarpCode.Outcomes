@@ -10,15 +10,8 @@ public static class Outcome
     /// <summary>
     /// Returns A successful <see cref="Outcome{T}"/> with the no-value type <see cref="None"/>, which acts in place of <see cref="Void"/>.
     /// </summary>
-    /// <remarks>
-    /// This outcome implicitly casts to any <see cref="Outcome{T}"/> where the internal value will be the default for type T.
-    /// <code>
-    /// Outcome{string} okStringOutcome = Outcome.Ok(); // value: NULL, problem: NULL
-    /// Outcome{int} okIntegerOutcome = Outcome.Ok(); // value: 0, problem: NULL
-    /// </code>
-    /// </remarks>
     /// <returns>A successful <see cref="Outcome{None}"/>.</returns>
-    public static Outcome<None> Ok() => default;
+    public static Outcome<None> Ok => default;
 
     /// <summary>
     /// Creates a new <see cref="Outcome{T}"/> that represents a value of type T.
@@ -26,13 +19,17 @@ public static class Outcome
     /// <typeparam name="T">The type of the outcome value.</typeparam>
     /// <param name="value">The value with which to produce an outcome.</param>
     /// <returns>An <see cref="Outcome{T}"/> representing this value.</returns>
-    public static Outcome<T> Ok<T>(T value) => new(value);
+    public static Outcome<T> Of<T>(T value) => new(value);
 
     /// <summary>
     /// Creates an <see cref="Outcome{None}"/> from a problem.
     /// </summary>
-    /// <remarks>An Outcome{None} implicitly converts to any Outcome type.</remarks>
     public static Outcome<None> ToOutcome(this IProblem problem) => new(problem);
+
+    /// <summary>
+    /// Creates an <see cref="Outcome{T}"/> from a problem.
+    /// </summary>
+    public static Outcome<T> ToOutcome<T>(this IProblem problem) => new(problem);
 }
 
 /// <summary>
@@ -45,15 +42,21 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     private readonly T _value;
     private readonly IProblem? _problem;
 
-    private Outcome(T value, IProblem? problem) =>
-        (_value, _problem) = (value, problem);
+    public Outcome()
+    {
+        throw new InvalidOperationException(
+            "Creating an Outcome with the default parameterless constructor is forbidden."
+        );
+    }
 
     /// <summary>
     /// Creates a new outcome that represents a value.
     /// </summary>
     /// <param name="value">Value that this outcome represents.</param>
-    public Outcome(T value) : this(value, null)
+    public Outcome(T value)
     {
+        _value = value;
+        _problem = null;
     }
 
     /// <summary>
@@ -61,8 +64,13 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     /// </summary>
     /// <param name="problem">The problem that this outcome represents.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public Outcome(IProblem problem) : this(default!, problem) =>
+    public Outcome(IProblem problem)
+    {
         ArgumentNullException.ThrowIfNull(problem);
+
+        _problem = problem;
+        _value = default!;
+    }
 
     /// <summary>
     /// Exit function that resolves an Outcome to a final value.
@@ -101,11 +109,4 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
 
     public static implicit operator Outcome<T>(T value) => new(value);
     public static implicit operator Outcome<T>(Problem problem) => new(problem);
-
-    public static implicit operator Outcome<T>(Outcome<None> o) =>
-        o._problem switch
-        {
-            null => default,
-            not null => new Outcome<T>(o._problem)
-        };
 }
