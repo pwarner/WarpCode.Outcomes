@@ -19,9 +19,9 @@ public abstract class CompositionTestBase
         Assert.Equal(expected, actual);
     }
 
-    protected static Outcome<None> FirstOutcome(ProblemStep step) =>
+    protected static Outcome<None> EmptyOutcome(ProblemStep step) =>
         step is ProblemStep.First ? TestProblem1 : Outcome.Ok;
 
-    protected static Outcome<string> NextOutcome(ProblemStep step) =>
+    protected static Outcome<string> StringOutcome(ProblemStep step) =>
         step is ProblemStep.Second ? TestProblem2 : Success;
 }

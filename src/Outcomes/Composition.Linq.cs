@@ -40,7 +40,7 @@ public static class LinqComposition
         );
 
     /// <inheritdoc cref="SelectMany{T,TNext,TResult}(Outcome{T},Func{T,Outcome{TNext}},Func{T,TNext,TResult})"/>
-    public static Task<Outcome<TResult>> SelectMany<T, TNext, TResult>(
+    public static ValueTask<Outcome<TResult>> SelectMany<T, TNext, TResult>(
         this Outcome<T> self,
         Func<T, ValueTask<Outcome<TNext>>> factory,
         Func<T, TNext, TResult> projector) =>
@@ -75,7 +75,7 @@ public static class LinqComposition
             .ConfigureAwait(false);
 
     /// <inheritdoc cref="SelectMany{T,TNext,TResult}(Outcome{T},Func{T,Outcome{TNext}},Func{T,TNext,TResult})"/>
-    public static async Task<Outcome<TResult>> SelectMany<T, TNext, TResult>(
+    public static async ValueTask<Outcome<TResult>> SelectMany<T, TNext, TResult>(
         this Task<Outcome<T>> self,
         Func<T, ValueTask<Outcome<TNext>>> factory,
         Func<T, TNext, TResult> projector) =>
@@ -88,13 +88,13 @@ public static class LinqComposition
     #region Extensions on ValueTask<Outcome<T>>
 
     /// <inheritdoc cref="Select{T,TNext}(Outcome{T},Func{T,TNext})"/>
-    public static async Task<Outcome<TNext>> Select<T, TNext>(
+    public static async ValueTask<Outcome<TNext>> Select<T, TNext>(
         this ValueTask<Outcome<T>> self,
         Func<T, TNext> selector) =>
         (await self.ConfigureAwait(false)).Select(selector);
 
     /// <inheritdoc cref="SelectMany{T,TNext,TResult}(Outcome{T},Func{T,Outcome{TNext}},Func{T,TNext,TResult})"/>
-    public static async Task<Outcome<TResult>> SelectMany<T, TNext, TResult>(
+    public static async ValueTask<Outcome<TResult>> SelectMany<T, TNext, TResult>(
         this ValueTask<Outcome<T>> self,
         Func<T, Outcome<TNext>> selector,
         Func<T, TNext, TResult> projector) =>
@@ -110,7 +110,7 @@ public static class LinqComposition
             .ConfigureAwait(false);
 
     /// <inheritdoc cref="SelectMany{T,TNext,TResult}(Outcome{T},Func{T,Outcome{TNext}},Func{T,TNext,TResult})"/>
-    public static async Task<Outcome<TResult>> SelectMany<T, TNext, TResult>(
+    public static async ValueTask<Outcome<TResult>> SelectMany<T, TNext, TResult>(
         this ValueTask<Outcome<T>> self,
         Func<T, ValueTask<Outcome<TNext>>> selector,
         Func<T, TNext, TResult> projector) =>

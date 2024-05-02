@@ -8,7 +8,7 @@ public static class Composition
     /// Produces an outcome from a map function.
     /// <remarks>
     /// The map function is invoked if the outcome does not contain a problem.
-    /// Otherwise the function is never invoked and a new outcome is produced to carry the problem forward.
+    /// Otherwise the function is never invoked and an outcome returned that carries the problem.
     /// </remarks>
     /// </summary>
     public static Outcome<TNext> Then<T, TNext>(
@@ -23,7 +23,7 @@ public static class Composition
     /// Produces an outcome from a factory function.
     /// <remarks>
     /// The factory function is invoked if the outcome does not contain a problem.
-    /// Otherwise the function is never invoked and a new outcome is produced to carry the problem forward.
+    /// Otherwise the function is never invoked and an outcome returned that carries the problem.
     /// </remarks>
     /// </summary>
     public static Outcome<TNext> Then<T, TNext>(
@@ -44,10 +44,10 @@ public static class Composition
         );
 
     /// <inheritdoc cref="Then{T,TNext}(Outcome{T},Func{T,Outcome{TNext}})"/>
-    public static async Task<Outcome<TNext>> ThenAsync<T, TNext>(
+    public static ValueTask<Outcome<TNext>> ThenAsync<T, TNext>(
         this Outcome<T> self,
         Func<T, ValueTask<Outcome<TNext>>> factory) =>
-        await self.Match(
+        self.Match(
             factory,
             problem => ValueTask.FromResult(new Outcome<TNext>(problem))
         );
@@ -77,7 +77,7 @@ public static class Composition
             .ConfigureAwait(false);
 
     /// <inheritdoc cref="Then{T,TNext}(Outcome{T},Func{T,Outcome{TNext}})"/>
-    public static async Task<Outcome<TNext>> ThenAsync<T, TNext>(
+    public static async ValueTask<Outcome<TNext>> ThenAsync<T, TNext>(
         this Task<Outcome<T>> self,
         Func<T, ValueTask<Outcome<TNext>>> factory) =>
         await (await self.ConfigureAwait(false))
@@ -89,13 +89,13 @@ public static class Composition
     #region Extensions on ValueTask<Outcome<T>>
 
     /// <inheritdoc cref="Then{T,TNext}(Outcome{T},Func{T,TNext})"/>
-    public static async Task<Outcome<TNext>> ThenAsync<T, TNext>(
+    public static async ValueTask<Outcome<TNext>> ThenAsync<T, TNext>(
         this ValueTask<Outcome<T>> self,
         Func<T, TNext> map) =>
         (await self.ConfigureAwait(false)).Then(map);
 
     /// <inheritdoc cref="Then{T,TNext}(Outcome{T},Func{T,Outcome{TNext}})"/>
-    public static async Task<Outcome<TNext>> ThenAsync<T, TNext>(
+    public static async ValueTask<Outcome<TNext>> ThenAsync<T, TNext>(
         this ValueTask<Outcome<T>> self,
         Func<T, Outcome<TNext>> factory) =>
         (await self.ConfigureAwait(false)).Then(factory);
@@ -109,7 +109,7 @@ public static class Composition
             .ConfigureAwait(false);
 
     /// <inheritdoc cref="Then{T,TNext}(Outcome{T},Func{T,Outcome{TNext}})"/>
-    public static async Task<Outcome<TNext>> ThenAsync<T, TNext>(
+    public static async ValueTask<Outcome<TNext>> ThenAsync<T, TNext>(
         this ValueTask<Outcome<T>> self,
         Func<T, ValueTask<Outcome<TNext>>> factory) =>
         await (await self.ConfigureAwait(false))

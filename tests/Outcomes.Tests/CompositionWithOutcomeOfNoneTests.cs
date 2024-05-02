@@ -1,43 +1,7 @@
 ﻿namespace Outcomes.Tests;
 
-public class CompositionTests : CompositionTestBase
+public class CompositionWithOutcomeOfNoneTests : CompositionTestBase
 {
-    [Theory]
-    [InlineData(ProblemStep.First)]
-    [InlineData(ProblemStep.None)]
-    public void Then_ShouldMapOutcome(ProblemStep step)
-    {
-        Outcome<string> composition =
-            EmptyOutcome(step)
-                .Then(_ => Success);
-
-        AssertExpectedOutcome(step, composition);
-    }
-
-    [Theory]
-    [InlineData(ProblemStep.First)]
-    [InlineData(ProblemStep.None)]
-    public async Task ThenAsync_ShouldMapOutcomeTask(ProblemStep step)
-    {
-        Outcome<string> composition = await
-            Task.FromResult(EmptyOutcome(step))
-                .ThenAsync(_ => Success);
-
-        AssertExpectedOutcome(step, composition);
-    }
-
-    [Theory]
-    [InlineData(ProblemStep.First)]
-    [InlineData(ProblemStep.None)]
-    public async Task ThenAsync_ShouldMapOutcomeValueTask(ProblemStep step)
-    {
-        Outcome<string> composition = await
-            ValueTask.FromResult(EmptyOutcome(step))
-                .ThenAsync(_ => Success);
-
-        AssertExpectedOutcome(step, composition);
-    }
-
     [Theory]
     [InlineData(ProblemStep.First)]
     [InlineData(ProblemStep.Second)]
@@ -45,8 +9,8 @@ public class CompositionTests : CompositionTestBase
     public void Then_ShouldComposeOutcomeAndOutcome(ProblemStep step)
     {
         Outcome<string> composition =
-            EmptyOutcome(step)
-                .Then(_ => StringOutcome(step));
+            StringOutcome(step)
+                .Then(_ => EmptyOutcome(step));
 
         AssertExpectedOutcome(step, composition);
     }
@@ -58,8 +22,8 @@ public class CompositionTests : CompositionTestBase
     public async Task ThenAsync_ShouldComposeOutcomeAndOutcomeTask(ProblemStep step)
     {
         Outcome<string> composition = await
-            EmptyOutcome(step)
-                .ThenAsync(_ => Task.FromResult(StringOutcome(step)));
+            StringOutcome(step)
+                .ThenAsync(_ => Task.FromResult(EmptyOutcome(step)));
 
         AssertExpectedOutcome(step, composition);
     }
@@ -71,8 +35,8 @@ public class CompositionTests : CompositionTestBase
     public async Task ThenAsync_ShouldComposeOutcomeAndOutcomeValueTask(ProblemStep step)
     {
         Outcome<string> composition = await
-            EmptyOutcome(step)
-                .ThenAsync(_ => ValueTask.FromResult(StringOutcome(step)));
+            StringOutcome(step)
+                .ThenAsync(_ => ValueTask.FromResult(EmptyOutcome(step)));
 
         AssertExpectedOutcome(step, composition);
     }
@@ -84,8 +48,8 @@ public class CompositionTests : CompositionTestBase
     public async Task ThenAsync_ShouldComposeOutcomeTaskAndOutcome(ProblemStep step)
     {
         Outcome<string> composition = await
-            Task.FromResult(EmptyOutcome(step))
-                .ThenAsync(_ => StringOutcome(step));
+            Task.FromResult(StringOutcome(step))
+                .ThenAsync(_ => EmptyOutcome(step));
 
         AssertExpectedOutcome(step, composition);
     }
@@ -97,8 +61,8 @@ public class CompositionTests : CompositionTestBase
     public async Task ThenAsync_ShouldComposeOutcomeTaskAndOutcomeTask(ProblemStep step)
     {
         Outcome<string> composition = await
-            Task.FromResult(EmptyOutcome(step))
-                .ThenAsync(_ => Task.FromResult(StringOutcome(step)));
+            Task.FromResult(StringOutcome(step))
+                .ThenAsync(_ => Task.FromResult(EmptyOutcome(step)));
 
         AssertExpectedOutcome(step, composition);
     }
@@ -110,8 +74,8 @@ public class CompositionTests : CompositionTestBase
     public async Task ThenAsync_ShouldComposeOutcomeTaskAndOutcomeValueTask(ProblemStep step)
     {
         Outcome<string> composition = await
-            Task.FromResult(EmptyOutcome(step))
-                .ThenAsync(_ => ValueTask.FromResult(StringOutcome(step)));
+            Task.FromResult(StringOutcome(step))
+                .ThenAsync(_ => ValueTask.FromResult(EmptyOutcome(step)));
 
         AssertExpectedOutcome(step, composition);
     }
@@ -123,8 +87,8 @@ public class CompositionTests : CompositionTestBase
     public async Task ThenAsync_ShouldComposeOutcomeValueTaskAndOutcome(ProblemStep step)
     {
         Outcome<string> composition = await
-            ValueTask.FromResult(EmptyOutcome(step))
-                .ThenAsync(_ => StringOutcome(step));
+            ValueTask.FromResult(StringOutcome(step))
+                .ThenAsync(_ => EmptyOutcome(step));
 
         AssertExpectedOutcome(step, composition);
     }
@@ -136,8 +100,8 @@ public class CompositionTests : CompositionTestBase
     public async Task ThenAsync_ShouldComposeOutcomeValueTaskAndOutcomeTask(ProblemStep step)
     {
         Outcome<string> composition = await
-            ValueTask.FromResult(EmptyOutcome(step))
-                .ThenAsync(_ => Task.FromResult(StringOutcome(step)));
+            ValueTask.FromResult(StringOutcome(step))
+                .ThenAsync(_ => Task.FromResult(EmptyOutcome(step)));
 
         AssertExpectedOutcome(step, composition);
     }
@@ -149,8 +113,8 @@ public class CompositionTests : CompositionTestBase
     public async Task ThenAsync_ShouldComposeOutcomeValueTaskAndOutcomeValueTask(ProblemStep step)
     {
         Outcome<string> composition = await
-            ValueTask.FromResult(EmptyOutcome(step))
-                .ThenAsync(_ => ValueTask.FromResult(StringOutcome(step)));
+            ValueTask.FromResult(StringOutcome(step))
+                .ThenAsync(_ => ValueTask.FromResult(EmptyOutcome(step)));
 
         AssertExpectedOutcome(step, composition);
     }
