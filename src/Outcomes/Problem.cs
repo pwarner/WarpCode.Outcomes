@@ -3,24 +3,21 @@
 /// <summary>
 /// Default implementation of <see cref="IProblem"/>.
 /// </summary>
-public class Problem : IProblem, IEquatable<IProblem>
+/// <remarks>
+/// Creates a new problem with the provided detail.
+/// </remarks>
+/// <param name="detail"><see cref="Detail"/> parameter.</param>
+public class Problem(string detail) : IProblem, IEquatable<Problem>
 {
-    /// <summary>
-    /// Creates a new problem with the provided detail.
-    /// </summary>
-    /// <param name="detail"><see cref="Detail"/> parameter.</param>
-    public Problem(string detail) =>
-        Detail = detail ?? throw new ArgumentNullException(nameof(detail));
-
     /// <inheritdoc />
-    public string Detail { get; }
+    public string Detail { get; } = detail ?? throw new ArgumentNullException(nameof(detail));
 
     /// <inheritdoc />
     public override string ToString() =>
         $"Problem: {GetType().FullName}, Detail: {Detail}";
 
     /// <inheritdoc />
-    public virtual bool Equals(IProblem? other) =>
+    public virtual bool Equals(Problem? other) =>
         other switch
         {
             null => false,
@@ -30,7 +27,7 @@ public class Problem : IProblem, IEquatable<IProblem>
 
     /// <inheritdoc />
     public override bool Equals(object? obj) =>
-        obj is IProblem other && Equals(other);
+        obj is Problem other && Equals(other);
 
     /// <inheritdoc />
     public override int GetHashCode() => Detail.GetHashCode();

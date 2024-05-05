@@ -3,17 +3,17 @@
 /// <summary>
 /// A Problem used in outcome aggregation that holds an array of multiple problems.
 /// </summary>
-public sealed class ProblemAggregate : Problem, IEquatable<ProblemAggregate>
+public sealed class ProblemAggregate(IReadOnlyList<IProblem> problems)
+    : Problem(Message), IEquatable<ProblemAggregate>
 {
-    public ProblemAggregate(IReadOnlyList<IProblem> problems) :
-        base("More than one problem occurred. " +
-             "Please see the Problems property for individual problem details.") =>
-        Problems = problems;
+    private const string Message =
+        "More than one problem occurred. " +
+        "Please see the Problems property for individual problem details.";
 
     /// <summary>
     /// The set of problems that this aggregate holds.
     /// </summary>
-    public IReadOnlyList<IProblem> Problems { get; }
+    public IReadOnlyList<IProblem> Problems { get; } = problems;
 
     /// <inheritdoc />
     public bool Equals(ProblemAggregate? other) =>
@@ -25,7 +25,7 @@ public sealed class ProblemAggregate : Problem, IEquatable<ProblemAggregate>
         };
 
     /// <inheritdoc />
-    public override bool Equals(IProblem? other) =>
+    public override bool Equals(Problem? other) =>
         other is ProblemAggregate p && Equals(p);
 
     /// <inheritdoc />

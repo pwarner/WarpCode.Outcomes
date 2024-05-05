@@ -2,7 +2,7 @@
 
 /// <summary>
 /// A function called when exceptions are thrown by code instead of returning outcomes.
-/// If the function returns a <see cref="IProblem"/> then a new <see cref="Outcome{T}"/> or <see cref="AsyncOutcome{T}"/>
+/// If the function returns a <see cref="IProblem"/> then a new <see cref="Outcome{T}"/>
 /// will be returned by the adaptive methods. If null is returned, the exception will be re-thrown.
 /// </summary>
 /// <param name="exception">A caught <see cref="Exception"/> instance to try to map to a <see cref="IProblem"/>.</param>

@@ -11,7 +11,7 @@ public class OutcomeTests
     }
 
     [Fact]
-    public void Should_CreateOutcome_FromOkEntryhelper()
+    public void Should_CreateOutcome_FromOfEntryHelper()
     {
         Assert.Equal(new Outcome<int>(10), Outcome.Of(10));
     }
@@ -53,134 +53,203 @@ public class OutcomeTests
     }
 
     [Fact]
-    public void OnSuccess_ShouldBeInvokedWhenThereIsNoProblem()
+    public async Task MatchAsync_ShouldResolveWithOnSuccessFunction_WhenNoProblem()
     {
-        bool invoked = false;
+        Assert.True(await Task.FromResult(Outcome.Ok).MatchAsync(_ => true, _ => false));
+        Assert.True(await ValueTask.FromResult(Outcome.Ok).MatchAsync(_ => true, _ => false));
+    }
 
+    [Fact]
+    public async Task MatchAsync_ShouldResolveWithOnProblemFunction_WhenProblem()
+    {
+        Outcome<None> outcome = TestProblem.ToOutcome();
+        Assert.True(await Task.FromResult(outcome).MatchAsync(_ => false, _ => true));
+        Assert.True(await ValueTask.FromResult(outcome).MatchAsync(_ => false, _ => true));
+    }
+
+    [Fact]
+    public void OnSuccess_ShouldBeInvoked_WhenThereIsNoProblem()
+    {
+        var invoked = false;
         Outcome.Ok.OnSuccess(_ => invoked = true);
-
         Assert.True(invoked);
     }
 
     [Fact]
-    public void OnSuccess_ShouldNotBeInvokedWhenThereIsAProblem()
+    public void OnSuccess_ShouldNotBeInvoked_WhenThereIsAProblem()
     {
-        bool invoked = false;
-
+        var invoked = false;
         new Outcome<None>(TestProblem).OnSuccess(_ => invoked = true);
-
         Assert.False(invoked);
     }
 
     [Fact]
-    public void OnProblem_ShouldBeInvokedWhenThereIsAProblem()
+    public async Task OnSuccessAsync_ShouldBeInvoked_WhenThereIsNoProblem()
     {
-        bool invoked = false;
+        var invoked = false;
+        await Task.FromResult(Outcome.Ok).OnSuccessAsync(_ => invoked = true);
+        Assert.True(invoked);
 
-        new Outcome<None>(TestProblem).OnProblem(_ => invoked = true);
-
+        invoked = false;
+        await ValueTask.FromResult(Outcome.Ok).OnSuccessAsync(_ => invoked = true);
         Assert.True(invoked);
     }
 
     [Fact]
-    public void OnProblem_ShouldNotBeInvokedWhenThereIsNoProblem()
+    public async Task OnSuccessAsync_ShouldNotBeInvoked_WhenThereIsAProblem()
     {
-        bool invoked = false;
+        Outcome<None> problem = TestProblem.ToOutcome();
+        var invoked = false;
+        await Task.FromResult(problem).OnSuccessAsync(_ => invoked = true);
+        Assert.False(invoked);
 
-        Outcome.Ok.OnProblem(_ => invoked = true);
-
+        await ValueTask.FromResult(problem).OnSuccessAsync(_ => invoked = true);
         Assert.False(invoked);
     }
 
     [Fact]
-    public void Ensure_ShouldCreateProblemOutcomeIfPredicateIsFalse()
+    public void OnProblem_ShouldBeInvoked_WhenThereIsAProblem()
     {
+        var invoked = false;
+        new Outcome<None>(TestProblem).OnProblem(_ => invoked = true);
+        Assert.True(invoked);
+    }
+
+    [Fact]
+    public void OnProblem_ShouldNotBeInvoked_WhenThereIsNoProblem()
+    {
+        var invoked = false;
+        Outcome.Ok.OnProblem(_ => invoked = true);
+        Assert.False(invoked);
+    }
+
+    [Fact]
+    public async Task OnProblemAsync_ShouldBeInvoked_WhenThereIsAProblem()
+    {
+        Outcome<None> problem = TestProblem.ToOutcome();
+        var invoked = false;
+        await Task.FromResult(problem).OnProblemAsync(_ => invoked = true);
+        Assert.True(invoked);
+
+        invoked = false;
+        await ValueTask.FromResult(problem).OnProblemAsync(_ => invoked = true);
+        Assert.True(invoked);
+    }
+
+    [Fact]
+    public async Task OnProblemAsync_ShouldNotBeInvoked_WhenThereIsNoProblem()
+    {
+        var invoked = false;
+        await Task.FromResult(Outcome.Ok).OnProblemAsync(_ => invoked = true);
+        Assert.False(invoked);
+
+        await ValueTask.FromResult(Outcome.Ok).OnProblemAsync(_ => invoked = true);
+        Assert.False(invoked);
+    }
+
+    [Fact]
+    public void Ensure_ShouldCreateProblemOutcome_WhenPredicateIsFalse()
+    {
+        Outcome<None> expected = TestProblem.ToOutcome();
+
         Outcome<None> actual = Outcome.Ok.Ensure(_ => false, _ => TestProblem);
-
-        Assert.Equal(new Outcome<None>(TestProblem), actual);
-    }
-
-    [Fact]
-    public void Ensure_ShouldNotAffectOutcomeIfPredicateIsTrue()
-    {
-        Outcome<None> actual = Outcome.Ok.Ensure(_ => true, _ => TestProblem);
-
-        Assert.Equal(Outcome.Ok, actual);
-    }
-
-    [Fact]
-    public void Rescue_ShouldCreateSuccessOutcomeIfPredicateIsTrue()
-    {
-        const int expected = 13;
-
-        Outcome<int> actual = new Outcome<int>(TestProblem).Rescue(_ => true, _ => expected);
-
-        Assert.Equal(Outcome.Of(expected), actual);
-    }
-
-    [Fact]
-    public void Rescue_ShouldNotAffectOutcomeIfPredicateIsFalse()
-    {
-        Outcome<int> actual = new Outcome<int>(TestProblem).Rescue(_ => false, _ => 0);
-
-        Assert.Equal(new Outcome<int>(TestProblem), actual);
-    }
-
-    [Fact]
-    public void Aggregate_ShouldCreateProblemAggregateForManyProblems()
-    {
-        Outcome<None> actual = ProblemOutcomes(3, 1).Aggregate();
-
-        var expected = new ProblemAggregate(new List<IProblem>(2)
-        {
-            TestProblem,
-            TestProblem
-        });
 
         Assert.Equal(expected, actual);
     }
 
     [Fact]
-    public void Aggregate_ShouldCreateOutcomeWithFirstOfManyProblemsIfBailEarlyIsTrue()
+    public void Ensure_ShouldNotAffectOutcome_WhenPredicateIsTrue()
     {
-        Outcome<None> actual = ProblemOutcomes(3, 1).Aggregate(bailEarly: true);
+        Outcome<None> expected = Outcome.Ok;
 
-        Assert.Equal(new Outcome<None>(TestProblem), actual);
+        Outcome<None> actual = Outcome.Ok.Ensure(_ => true, _ => TestProblem);
+
+        Assert.Equal(expected, actual);
     }
 
     [Fact]
-    public void Aggregate_ShouldCreateOutcomeOfListOfValuesWhenNoProblems()
+    public async Task EnsureAsync_ShouldCreateProblemOutcome_WhenPredicateIsFalse()
     {
-        Outcome<List<int>> actual = IntProblemOutcomes(3, 3).Aggregate();
+        Outcome<None> expected = TestProblem.ToOutcome();
 
-        var expected = new List<int>(3) { 0, 1, 2 };
+        Outcome<None> actual = await Task.FromResult(Outcome.Ok)
+            .EnsureAsync(_ => false, _ => TestProblem);
 
-        List<int>? actualList = actual.Match(v => v, _ => null!);
+        Assert.Equal(expected, actual);
 
-        Assert.Equal(expected, actualList);
+        actual = await ValueTask.FromResult(Outcome.Ok)
+            .EnsureAsync(_ => false, _ => TestProblem);
+
+        Assert.Equal(expected, actual);
     }
 
     [Fact]
-    public void Aggregate_ShouldCreateSuccessOutcomeWhenNoProblemsAndNoValues()
+    public async Task EnsureAsync_ShouldNotAffectOutcome_WhenPredicateIsTrue()
     {
-        Outcome<None> actual = ProblemOutcomes(3, 3).Aggregate();
+        Outcome<None> expected = Outcome.Ok;
 
-        Assert.Equal(Outcome.Ok, actual);
+        Outcome<None> actual = await Task.FromResult(Outcome.Ok)
+            .EnsureAsync(_ => true, _ => TestProblem);
+
+        Assert.Equal(expected, actual);
+
+        actual = await ValueTask.FromResult(Outcome.Ok)
+            .EnsureAsync(_ => true, _ => TestProblem);
+
+        Assert.Equal(expected, actual);
     }
 
-    private static IEnumerable<Outcome<int>> IntProblemOutcomes(int total, int totalOk) =>
-        Enumerable.Range(0, total)
-            .Select(i =>
-                i < totalOk
-                    ? i
-                    : new Outcome<int>(TestProblem)
-            );
+    [Fact]
+    public void Rescue_ShouldCreateSuccessOutcome_WhenPredicateIsTrue()
+    {
+        const int i = 13;
+        Outcome<int> expected = Outcome.Of(i);
 
-    private static IEnumerable<Outcome<None>> ProblemOutcomes(int total, int totalOk) =>
-        Enumerable.Range(0, total)
-            .Select(i =>
-                i < totalOk
-                    ? Outcome.Ok
-                    : new Outcome<None>(TestProblem)
-            );
+        Outcome<int> actual = TestProblem.ToOutcome<int>().Rescue(_ => true, _ => i);
+
+        Assert.Equal(expected, actual);
+    }
+
+    [Fact]
+    public void Rescue_ShouldNotAffectOutcome_WhenPredicateIsFalse()
+    {
+        Outcome<int> expected = TestProblem.ToOutcome<int>();
+
+        Outcome<int> actual = expected.Rescue(_ => false, _ => 0);
+
+        Assert.Equal(expected, actual);
+    }
+
+    [Fact]
+    public async Task RescueAsync_ShouldCreateSuccessOutcome_WhenPredicateIsTrue()
+    {
+        const int i = 13;
+        Outcome<int> expected = Outcome.Of(i);
+
+        Outcome<int> actual = await Task.FromResult(TestProblem.ToOutcome<int>())
+            .RescueAsync(_ => true, _ => i);
+
+        Assert.Equal(expected, actual);
+
+        actual = await ValueTask.FromResult(TestProblem.ToOutcome<int>())
+            .RescueAsync(_ => true, _ => i);
+
+        Assert.Equal(expected, actual);
+    }
+
+    [Fact]
+    public async Task RescueAsync_ShouldNotAffectOutcome_WhenPredicateIsFalse()
+    {
+        Outcome<int> expected = TestProblem.ToOutcome<int>();
+
+        Outcome<int> actual = await Task.FromResult(expected)
+            .RescueAsync(_ => false, _ => 0);
+
+        Assert.Equal(expected, actual);
+
+        actual = await ValueTask.FromResult(expected)
+            .RescueAsync(_ => false, _ => 0);
+
+        Assert.Equal(expected, actual);
+    }
 }
