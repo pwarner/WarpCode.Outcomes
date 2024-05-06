@@ -1,23 +1,14 @@
 
 # Creating Outcomes
-As mentioned, Outcomes have exactly two states: either they hold a value (Successful Outcomes), or they hold a Problem (Problem Outcomes) 
+As mentioned, Outcomes have exactly two states: either they hold a value (`Success Outcomes`), or they hold a Problem (`Problem Outcomes`).
 
-Successful Outcomes can also hold an absence of value (The `None` type, which is like `System.Void` or `Unit`)
+`Success Outcomes` can also hold an absence of meaningful value. Use `None` as the generic type, which is like `System.Void` or `Unit`
 
 ## Creating Successful Outcomes
 By constructor
 ```csharp
 var outcomeStr = new Outcome<string>("success!");
 var outcomeInt = new Outcome<int>(13);
-```
-
-With `Outcome.Ok`
-```csharp
-Outcome<string> outcomeStr = Outcome.Of("success!");
-Outcome<int> outcomeInt = Outcome.Of(13);
-
-// create value-less Outcome
-Outcome<None> outcomeVoid = Outcome.Ok;
 ```
 
 By implicit coversion
@@ -27,10 +18,15 @@ Outcome<int> outcomeInt = 13;
 Outcome<None> outcomeVoid = default;
 ```
 
-`Outcome<None>` also implicitly converts to other `Outcome<T>` types, so you can write:
+With `Outcome.Of(..)`
 ```csharp
-Outcome<string> outcome = Outcome.Ok; // value is default(string), or null
-Outcome<int> outcome = Outcome.Ok; // value is default(int), or 0
+Outcome<string> outcomeStr = Outcome.Of("success!");
+Outcome<int> outcomeInt = Outcome.Of(13);
+```
+
+Value-less Outcome<None> with `Outcome.Ok`
+```csharp
+Outcome<None> outcomeVoid = Outcome.Ok;
 ```
 
 ## Creating Problem Outcomes
@@ -46,15 +42,14 @@ By implicit coversion
 Outcome<string> outcome = new SomeProblem();
 ```
 
-With the `ToOutcome() extension`
+With the generic `ToOutcome<T>()` extension.
 ```csharp
-Outcome<None> outcome = new SomeProblem().ToOutcome();
+Outcome<string> outcome = new SomeProblem().ToOutcome<string>();
 ```
 
-Again, since `Outcome<None>` implicitly converts to other `Outcome<T>` types, 
-you can create problem-outcomes of any type with `ToOutcome()`
+Value-less problem outcomes with the non-generic `ToOutcome()` extension.
 ```csharp
-Outcome<bool> outcome = new SomeProblem().ToOutcome();
+Outcome<None> outcome = new SomeProblem().ToOutcome();
 ```
 
 ### Index

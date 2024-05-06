@@ -27,13 +27,16 @@ public static class Adapt
     /// <exception cref="Exception">Re-throws any unmapped exceptions.</exception>
     public static Outcome<T> ToOutcome<T>(Func<T> func, ExceptionMap? map = null)
     {
+        map ??= MapExceptions;
+        if (map is null) return func();
+
         try
         {
             return func();
         }
         catch (Exception e)
         {
-            IProblem? problem = (map ?? MapExceptions)?.Invoke(e);
+            IProblem? problem = map.Invoke(e);
             if (problem is null) throw;
             return problem.ToOutcome<T>();
         }
@@ -64,13 +67,16 @@ public static class Adapt
         this Task<T> task,
         ExceptionMap? map = null)
     {
+        map ??= MapExceptions;
+        if (map is null) return await task.ConfigureAwait(false);
+
         try
         {
             return await task.ConfigureAwait(false);
         }
         catch (Exception e)
         {
-            IProblem? problem = (map ?? MapExceptions)?.Invoke(e);
+            IProblem? problem = map.Invoke(e);
             if (problem is null) throw;
             return problem.ToOutcome<T>();
         }
@@ -87,6 +93,13 @@ public static class Adapt
         this Task task,
         ExceptionMap? map = null)
     {
+        map ??= MapExceptions;
+        if (map is null)
+        {
+            await task.ConfigureAwait(false);
+            return Outcome.Ok;
+        }
+
         try
         {
             await task.ConfigureAwait(false);
@@ -94,7 +107,7 @@ public static class Adapt
         }
         catch (Exception e)
         {
-            IProblem? problem = (map ?? MapExceptions)?.Invoke(e);
+            IProblem? problem = map.Invoke(e);
             if (problem is null) throw;
             return problem.ToOutcome();
         }
@@ -107,21 +120,9 @@ public static class Adapt
     /// <param name="map">Optional <see cref="ExceptionMap"/> function.</param>
     /// <returns>An <see cref="Task{T}"/> that yields an <see cref="Outcome{T}"/>.</returns>
     /// <exception cref="Exception">Re-throws any unmapped exceptions.</exception>
-    public static async Task<Outcome<T>> ToOutcome<T>(
+    public static Task<Outcome<T>> ToOutcome<T>(
         this ValueTask<T> task,
-        ExceptionMap? map = null)
-    {
-        try
-        {
-            return await task.ConfigureAwait(false);
-        }
-        catch (Exception e)
-        {
-            IProblem? problem = (map ?? MapExceptions)?.Invoke(e);
-            if (problem is null) throw;
-            return problem.ToOutcome<T>();
-        }
-    }
+        ExceptionMap? map = null) => task.AsTask().ToOutcome(map);
 
     /// <summary>
     /// Extension method that adapts a <see cref="ValueTask"/>.
@@ -130,20 +131,7 @@ public static class Adapt
     /// <param name="map">Optional <see cref="ExceptionMap"/> function.</param>
     /// <returns>An <see cref="Task{T}"/> that yields an <see cref="Outcome{None}"/>.</returns>
     /// <exception cref="Exception">Re-throws any unmapped exceptions.</exception>
-    public static async Task<Outcome<None>> ToOutcome(
+    public static Task<Outcome<None>> ToOutcome(
         this ValueTask task,
-        ExceptionMap? map = null)
-    {
-        try
-        {
-            await task.ConfigureAwait(false);
-            return Outcome.Ok;
-        }
-        catch (Exception e)
-        {
-            IProblem? problem = (map ?? MapExceptions)?.Invoke(e);
-            if (problem is null) throw;
-            return problem.ToOutcome();
-        }
-    }
+        ExceptionMap? map = null) => task.AsTask().ToOutcome(map);
 }

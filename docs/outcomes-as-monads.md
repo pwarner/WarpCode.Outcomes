@@ -50,7 +50,8 @@ var qry = from p in producs
           select new{ ProductName: p.Name, Category: c.Name};
 ```
 The semantic clarity and readability of this language form is valuable and powerful. 
-So `Outcome<T>` too fulfils its monadic contract with `Select` and `SelectMany` extensions, allowing you to compose flow logic in a LINQ comprehension style.
+
+`Outcome<T>` fulfils its monadic contract with `Select` and `SelectMany` extensions, allowing you to compose flow logic in a LINQ comprehension style.
 
 ### Index
 - [Why Outcomes?](../readme.md)

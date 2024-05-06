@@ -1,12 +1,14 @@
 # Why Outcomes?
 
 Throwing exceptions in your code to enforce business logic is:
-- expensive (the call-stack is captured for the exception)
-- incorrect (exceptions should represent unexpected/unwanted states and events, not expected ones)
+- expensive: the entire call-stack is captured for the exception.
+- incorrect: exceptions should represent unexpected/exceptional states and events, not expected ones.
 
-In place of throwing exceptions, we can use Outcomes to control our program flow.
+An Outcome is a `discriminated union` that represents a value or a problem, but not both. 
 
-An Outcome is a type that can represent a value or a problem, but not both.
+It is implemented as a generic immutable value-type.
+
+We can use outcomes to control our logical workflows without resorting to throwing exceptions to halt the flow.
 
 Instead of doing this 👇
 
@@ -24,7 +26,7 @@ public async Task<Customer> FetchCustomerAsync(string customerId)
 }
 ```
 
-we can do this 👇
+we do this 👇
 ```csharp
 public async Task<Outcome<Customer>> FetchCustomerAsync(string customerId)
 {
@@ -42,7 +44,7 @@ By returning a Problem instead of throwing an exception:
 - we retain the convenience of halting execution
 - we skip the need to capture the call-stack
 - we explicitly indicate that a customer without the supplied id is not an exceptional circumstance but one we anticipated.
-- allows us to use composition to compose workflows from logical steps.
+- we can compose workflows from logical steps.
 
 That intriguing last bullet-point means you can write code like this:
 ```csharp

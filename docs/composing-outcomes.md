@@ -5,8 +5,6 @@ together with one of two approaches:
 1. With Then and ThenAsync
 2. With the LINQ comprehension known as the natural query style.
 
-In these examples, we want to transform the `System.DateTime` value potentially held by the input outcome, to a formatted string.
-
 ## Compose an `Outcome<T>` with `Then` and a map function.
 
 The `map` function parameter is a `Func<T,TNext>` delegate that's executed if the outcome **does not** carry a problem.
@@ -15,7 +13,6 @@ The `map` function parameter is a `Func<T,TNext>` delegate that's executed if th
 Outcome<string> FormatDate(Outcome<DateTime> input) =>
     input.Then(dt => dt.ToString("yyyy/MM/dd"));
 ```
-
 
 A map function can also be used with a `Task<Outcome<T>>` or `ValueTask<Outcome<T>>` by using `ThenAsync`.
 
@@ -37,7 +34,7 @@ Outcome<string> FormatDate(Outcome<DateTime> input) =>
 As before, this works in asynchronous scenarios, with both `Task<Outcome<T>>` and `ValueTask<Outcome<T>>`:
 
 ```csharp
-Task<Outcome<string>> FormatDate(Task<Outcome<DateTime>> input) =>
+ValueTask<Outcome<string>> FormatDate(ValueTask<Outcome<DateTime>> input) =>
     from dt in input
     select dt.ToString("yyyy/MM/dd");
 ```
@@ -72,12 +69,12 @@ The `Then` composition accepts a factory delegate that is passed the current val
 Composition with factory functions is the *glue* that allows you to compose multiple logical steps that each return an Outcome.
 
 Here's an entirely contrived example. I know you were hoping for another to-do list, but I'm afraid you're
-going to have to settle for the tried and trusted *Fetch Order from the Database* routine.
+going to have to settle for the traditional *Fetch Order from the Database* routine.
 
 ```csharp
-Task<Outcome<GetOrderResult>> FetchOrderAsync(GetOrderRequest request) =>
+Task<Outcome<GetOrderResult>> FetchOrderAsync(GetOrderRequest request, CancellationToken ct) =>
     _validator.Validate(request)
-    .ThenAsync(_ =>_FetchOrder(request)) // factory
+    .ThenAsync(_ =>_FetchOrderAsync(request, ct)) // factory
     .ThenAsync(EnsureOrderExists) // factory
     .ThenAsync(order => new GetOrderResult(order)); // map
 ```
@@ -93,14 +90,13 @@ The rest of the composition will not be evaluated and will immediately return an
 
 - Next, an Entity Framework DBContext is invoked asychronously to return an `Task<Order?>`. 
 
-The implementation of `FetchOrder` looks like this:
+The implementation of `FetchOrderAsync` looks like this:
 ```csharp
-private Outcome<Order> FetchOrder(GetOrderRequest request) =>
-    _dbContext.Orders.FindAsync(request.OrderId).ToOutcome();
+private async Task<Outcome<Order?>> FetchOrderAsnc(GetOrderRequest request, CancellationToken ct) =>
+    await _dbContext.Orders.FindAsync(request.OrderId, cancellationToken: ct);
 ```
 
-`FindAsync` does not return a Task that resolves to an Outcome, but we can easily adapt it using the `ToOutcome()` 
-extension availble (see [Adapting to Outcomes](outcome-adaptation.md) )
+Although `FindAsync` returns a `Task<Order?>`, thanks to implicit coversion, the awaited `Order?` value becomes an `Outcome<Order?>`.
 
 - Next, if there no order was fetched with this ID, the Outcome returned by `EnsureOrderExists` will hold some kind of `EntityNotFoundProblem`. 
 The composition will halt immediately, and this problem is used to create the return value.
@@ -116,7 +112,7 @@ private static Outcome<Order> EnsureOrderExists(Order? maybeOrder) =>
     };
 ```
 
-- Finally, when an order was successfully fetched, the last `ThenAsync` clause is evaluated with a map function, and a DTO is created to hold relevant properties of the Order. 
+- Finally, and only when an order was successfully fetched, the last `ThenAsync` clause is evaluated with a map function, and a DTO is created to hold relevant properties of the Order. 
 This becomes the value held by the final Outcome.
 
 What does this look like as a LINQ comprehension?
@@ -126,7 +122,7 @@ What does this look like as a LINQ comprehension?
 ```csharp
 Task<Outcome<GetOrderResult>> FetchOrderAsync(GetOrderRequest request) =>
     from _ in _validator.Validate(request)
-    from maybeOrder in FetchOrder(request)
+    from maybeOrder in FetchOrderAsync(request)
     from order in EnsureOrderExists(maybeOrder)
     select new GetOrderResult(order);
 ```
@@ -135,9 +131,49 @@ Task<Outcome<GetOrderResult>> FetchOrderAsync(GetOrderRequest request) =>
 The value of the Outcome in each step is **in scope** to all subsequent clauses. 
 `GetOrderResult` here could take `maybeOrder` as a parameter because it is still in scope, even though it was not on the immediately preceding line.
 
+## Special case: Composing Then/ThenAsync with `Outcome<None>`
+
+```csharp
+var result = Outcome.Of(1).Then(x=> Outcome.Ok);
+```
+What is the generic type of the outcome stored in `result`? 
+
+In the code above, the factory function used in `Then` returns an `Outcome<None>`.
+
+The method signature looks like this:
+
+```csharp
+public static Outcome<TNext> Then<T, TNext>(
+        this Outcome<T> self,
+        Func<T, Outcome<TNext>> factory)
+```
+Without intervention, the generic type `TNext` will be of type `None`, so result will be of type `Outcome<None>`.
+
+That's going to be annoying when composing logic because we've lost the integer type and value that we composed on.
+
+What we really want when we compose with `Outcome<None>` is to pick up any problem it holds, but as it is value-less, 
+we'd like to hold on to the value we start with.
+
+Luckily for us, the library treats `Then/ThenAsync` with a delegate that returns `None` or `Outcome<None>` as a special case thanks to this overload:
+```csharp
+public static Outcome<T> Then<T>(
+        this Outcome<T> self,
+        Func<T, Outcome<None>> factory)
+```
+
+Revealing the answer to the fiendish puzzle above:
+
+```csharp
+Outcome<int> result = Outcome.Of(1).Then(x=> Outcome.Ok);
+```
+The return type is an `Outcome<int>` which will hold 1 because the outcome returned by the factory delegate doesn't hold a problem.
+
+> This special case only applies to `Then/ThenAsync` method of compisition.
+> With `from x in y` LINQ style composition, all values of outcomes in a composition chain are in scope so we never see the case of 'losing' a previous composition value.
+
 
 ## Outcome-compatible expressions
-With `from value in expression` or the `Then`/`ThenAsync` syntax, you can compose with expressions that evaluate to any of the following:
+With `from value in expression` or the `Then`/`ThenAsync` syntax, you can compose expressions that evaluate to any of the following:
 
 - `Outcome<T>`
 - `Task<Outcome<T>>`

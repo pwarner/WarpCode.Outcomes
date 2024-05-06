@@ -5,7 +5,22 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<LangVersion>latest</LangVersion>
+	<Authors>Pete Warner (@pwarner)</Authors>
+	<Title>Outcomes</Title>
+	<Description>Outcome based flow control. Outcomes are a fluent, compositonal discriminated union type representing a result value or a problem.
+Supports composition with async support, LINQ natural query form or direct with Then/ThenAsync.</Description>
+	<Copyright>Peter Warner</Copyright>
+	<PackageProjectUrl>https://github.com/pwarner/Outcomes</PackageProjectUrl>
+	<PackageReadmeFile>readme.md</PackageReadmeFile>
+	<PackageTags>Result;Results;Either;ErrorOr;Monad;Monads;OneOf;ROP;Railway Orientated Programming</PackageTags>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />

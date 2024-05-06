@@ -2,8 +2,9 @@
 
 At the end of a pipeline of operations returning Outomes, you'll need to leave the 'rails' and return a final value that makes sense for your application, for example in a Web API that resolves to an `IActionResult` or `IResult`.
 
-The Match method resolves your outcomes to a final return value. It takes two delegates - one for the success outcome that holds a value,
-and one for the failure outcome when it holds a problem.
+The Match method resolves your outcomes to a final return value. 
+It takes two delegates - one to resolve the `Success Outcome` state,
+and one to resolve the `Problem Outcome` state.
 
 ```csharp
 Task<Outcome<OrderDetailDto>> Pipeline(OrderDetailRequest request) =>
@@ -62,7 +63,7 @@ public static class OutcomeResolverExtensions
         outcome.Match(DefaultValueResolver<T>, ProblemResolver);
 
     private static IResult DefaultValueResolver<T>(T value) => 
-        Results.Of(value);
+        Results.Ok(value);
 
     private static IResult ProblemResolver(IProblem problem) =>
         problem switch 
