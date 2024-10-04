@@ -11,6 +11,12 @@ public class AdaptationTests
             _ => null
         };
 
+    private static Problem StrongTestMap(ApplicationException e) => new(e.Message);
+
+    private static readonly Func<int> ThrowFunc = () => throw new ApplicationException(Message);
+
+    private static readonly Action ThrowAction = () => throw new ApplicationException(Message);
+
     public AdaptationTests()
     {
         // only use global mapping with explicit global mapping tests
@@ -30,9 +36,15 @@ public class AdaptationTests
     [Fact]
     public void Adapt_From_Func_ShouldCreateProblemOutcomeIfErrorMapped()
     {
-        static int Func() => throw new ApplicationException(Message);
+        Outcome<int> actual = ThrowFunc.ToOutcome(TestMap);
 
-        Outcome<int> actual = Adapt.ToOutcome(Func, TestMap);
+        Assert.Equal(new Problem(Message).ToOutcome<int>(), actual);
+    }
+
+    [Fact]
+    public void Adapt_From_Func_ShouldCreateProblemOutcomeIfErrorMapped_Strongly()
+    {
+        Outcome<int> actual = ThrowFunc.ToOutcome<int, ApplicationException>(StrongTestMap);
 
         Assert.Equal(new Problem(Message).ToOutcome<int>(), actual);
     }
@@ -40,11 +52,9 @@ public class AdaptationTests
     [Fact]
     public void Adapt_From_Func_ShouldCreateProblemOutcomeIfErrorMappedGlobally()
     {
-        static int Func() => throw new ApplicationException(Message);
-
         Adapt.MapExceptions = TestMap;
 
-        Outcome<int> actual = Adapt.ToOutcome(Func);
+        Outcome<int> actual = ThrowFunc.ToOutcome();
 
         Assert.Equal(new Problem(Message).ToOutcome<int>(), actual);
     }
@@ -52,9 +62,7 @@ public class AdaptationTests
     [Fact]
     public void Adapt_From_Func_ShouldThrowIfErrorNotMapped()
     {
-        static int Func() => throw new ApplicationException(Message);
-
-        var error = Assert.Throws<ApplicationException>(() => Adapt.ToOutcome(Func));
+        var error = Assert.Throws<ApplicationException>(() => ThrowFunc.ToOutcome());
 
         Assert.Same(Message, error.Message);
     }
@@ -74,9 +82,15 @@ public class AdaptationTests
     [Fact]
     public void Adapt_From_Action_ShouldCreateProblemOutcomeIfErrorMapped()
     {
-        static void Action() => throw new ApplicationException(Message);
+        Outcome<None> actual = ThrowAction.ToOutcome(TestMap);
 
-        Outcome<None> actual = Adapt.ToOutcome(Action, TestMap);
+        Assert.Equal(new Problem(Message).ToOutcome(), actual);
+    }
+
+    [Fact]
+    public void Adapt_From_Action_ShouldCreateProblemOutcomeIfErrorMapped_Strongly()
+    {
+        Outcome<None> actual = ThrowAction.ToOutcome<ApplicationException>(StrongTestMap);
 
         Assert.Equal(new Problem(Message).ToOutcome(), actual);
     }
@@ -84,11 +98,9 @@ public class AdaptationTests
     [Fact]
     public void Adapt_From_Action_ShouldCreateProblemOutcomeIfErrorMappedGlobally()
     {
-        static void Action() => throw new ApplicationException(Message);
-
         Adapt.MapExceptions = TestMap;
 
-        Outcome<None> actual = Adapt.ToOutcome(Action);
+        Outcome<None> actual = ThrowAction.ToOutcome();
 
         Assert.Equal(new Problem(Message).ToOutcome(), actual);
     }
@@ -96,9 +108,7 @@ public class AdaptationTests
     [Fact]
     public void Adapt_From_Action_ShouldThrowIfErrorNotMapped()
     {
-        static void Action() => throw new ApplicationException(Message);
-
-        var error = Assert.Throws<ApplicationException>(() => Adapt.ToOutcome(Action));
+        var error = Assert.Throws<ApplicationException>(() => ThrowAction.ToOutcome());
 
         Assert.Same(Message, error.Message);
     }
@@ -119,6 +129,16 @@ public class AdaptationTests
         ValueTask<int> valueTask = ValueTask.FromException<int>(new ApplicationException(Message));
 
         Outcome<int> actual = await valueTask.ToOutcome(TestMap);
+
+        Assert.Equal(new Problem(Message).ToOutcome<int>(), actual);
+    }
+
+    [Fact]
+    public async Task Adapt_From_ValueTaskOfT_ShouldCreateProblemOutcomeIfErrorMapped_Strongly()
+    {
+        ValueTask<int> valueTask = ValueTask.FromException<int>(new ApplicationException(Message));
+
+        Outcome<int> actual = await valueTask.ToOutcome<int, ApplicationException>(StrongTestMap);
 
         Assert.Equal(new Problem(Message).ToOutcome<int>(), actual);
     }
@@ -167,6 +187,16 @@ public class AdaptationTests
     }
 
     [Fact]
+    public async Task Adapt_From_TaskOfT_ShouldCreateProblemOutcomeIfErrorMapped_Strongly()
+    {
+        Task<int> task = Task.FromException<int>(new ApplicationException(Message));
+
+        Outcome<int> actual = await task.ToOutcome<int, ApplicationException>(StrongTestMap);
+
+        Assert.Equal(new Problem(Message).ToOutcome<int>(), actual);
+    }
+
+    [Fact]
     public async Task Adapt_From_TaskOfT_ShouldCreateProblemOutcomeIfErrorMappedGlobally()
     {
         Task<int> task = Task.FromException<int>(new ApplicationException(Message));
@@ -210,6 +240,16 @@ public class AdaptationTests
     }
 
     [Fact]
+    public async Task Adapt_From_ValueTask_ShouldCreateProblemOutcomeIfErrorMapped_Strongly()
+    {
+        ValueTask valueTask = ValueTask.FromException(new ApplicationException(Message));
+
+        Outcome<None> actual = await valueTask.ToOutcome<ApplicationException>(StrongTestMap);
+
+        Assert.Equal(new Problem(Message).ToOutcome(), actual);
+    }
+
+    [Fact]
     public async Task Adapt_From_ValueTask_ShouldCreateProblemOutcomeIfErrorMappedGlobally()
     {
         ValueTask valueTask = ValueTask.FromException(new ApplicationException(Message));
@@ -248,6 +288,16 @@ public class AdaptationTests
         Task task = Task.FromException(new ApplicationException(Message));
 
         Outcome<None> actual = await task.ToOutcome(TestMap);
+
+        Assert.Equal(new Problem(Message).ToOutcome(), actual);
+    }
+
+    [Fact]
+    public async Task Adapt_From_Task_ShouldCreateProblemOutcomeIfErrorMapped_Strongly()
+    {
+        Task task = Task.FromException(new ApplicationException(Message));
+
+        Outcome<None> actual = await task.ToOutcome<ApplicationException>(StrongTestMap);
 
         Assert.Equal(new Problem(Message).ToOutcome(), actual);
     }

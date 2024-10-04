@@ -60,7 +60,7 @@ throw new ArgumentException("Invalid name", nameof(name));
 throw new ArgumentOutOfRange(nameof(date), "The date is not in range");
 ```
 
-### Index
+---
 ### Index
 - [Why Outcomes?](../readme.md)
 - this: What is a Problem?

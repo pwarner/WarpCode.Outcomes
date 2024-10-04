@@ -53,6 +53,7 @@ The semantic clarity and readability of this language form is valuable and power
 
 `Outcome<T>` fulfils its monadic contract with `Select` and `SelectMany` extensions, allowing you to compose flow logic in a LINQ comprehension style.
 
+---
 ### Index
 - [Why Outcomes?](../readme.md)
 - [What is a Problem?](what-is-a-problem.md)

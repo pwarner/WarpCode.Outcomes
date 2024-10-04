@@ -81,6 +81,7 @@ Outcome<None> tempAggregate = temps.Aggregate();
 
 > `ProblemAggregate` is a type defined in the library that exposes a `Problems` property of type `IReadOnlyList<IProblem>`.
 
+---
 ### Index
 - [Why Outcomes?](../readme.md)
 - [What is a Problem?](what-is-a-problem.md)

@@ -1,0 +1,10 @@
+<Project>
+	<PropertyGroup>
+		<TargetFrameworks>net8.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
+		<Authors>Pete Warner (@pwarner)</Authors>
+		<Copyright>Peter Warner</Copyright>
+	</PropertyGroup>
+</Project>

@@ -75,6 +75,7 @@ public static class OutcomeResolverExtensions
 }
 ```
 
+---
 ### Index
 - [Why Outcomes?](../readme.md)
 - [What is a Problem?](what-is-a-problem.md)

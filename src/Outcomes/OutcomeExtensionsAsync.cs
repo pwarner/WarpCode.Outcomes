@@ -79,7 +79,7 @@ public static class OutcomeExtensionsAsync
 
     #endregion
 
-    #region extensions on IAsyncEnumerable<Outcome<T>>
+    #region Extensions on IAsyncEnumerable<Outcome<T>>
 
     /// <inheritdoc cref="OutcomeExtensions.Aggregate{T}"/>
     public static async Task<Outcome<List<T>>> AggregateAsync<T>(

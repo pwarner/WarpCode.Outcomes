@@ -56,6 +56,7 @@ private Task<Outcome<CustomerUpdateResult>> UpdateCustomerNameFlow(UpdateCustome
     select new CustomerUpdateResult(cmd.Id, modified.Name, result.LastUpdated);
 ```
 
+---
 ### Index
 - this: Why Outcomes?
 - [What is a Problem?](./docs/what-is-a-problem.md)

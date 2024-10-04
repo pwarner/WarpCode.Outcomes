@@ -186,6 +186,7 @@ Additionally, the following types are also available thanks to Outcome adaptatio
 - `Task`(adapts to `Task<Outcome<None>>`)
 - `ValueTask` (adapts to `ValueTask<Outcome<None>>`)
 
+---
 ### Index
 - [Why Outcomes?](../readme.md)
 - [What is a Problem?](what-is-a-problem.md)
