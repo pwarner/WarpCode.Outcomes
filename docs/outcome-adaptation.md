@@ -82,6 +82,19 @@ Adapt.MapExceptions = e =>
 	};
 ```
 
+### What can be adapted?
+The `ToOutcome()` extension method is available for:
+
+|Target type|Adapts to|
+|--|--|
+|`System.Func<T>`|`Outcome<T>`|
+|`System.Action`|`Outcome<None>`|
+| `Task<T>` | `Task<Outcome<T>>` |
+| `Task` | `Task<Outcome<None>>` |
+| `ValueTask<T>` | `ValueTask<Outcome<T>>` |
+| `ValueTask` | `ValueTask<Outcome<None>>` |
+
+
 
 ### Don't map `System.Exception`
 It might be tempting to try and catch all exceptions of type `Exception` and return some catch-all ExceptionWrapper problem.
