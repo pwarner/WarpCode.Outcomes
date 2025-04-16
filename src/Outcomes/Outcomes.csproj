@@ -1,17 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-	<Title>Outcomes</Title>
-	<Description>Result types done properly. 
+    <Title>Outcomes</Title>
+    <Description>Result types done properly. 
 Outcomes are a fluent, compositonal discriminated union type representing a result value or a problem.
 Supports flow control via composition with async support, LINQ natural query form or direct with Then/ThenAsync.
   </Description>
-	<PackageProjectUrl>https://github.com/pwarner/Outcomes</PackageProjectUrl>
-	<PackageReadmeFile>readme.md</PackageReadmeFile>
-	<PackageTags>Result;Results;Either;ErrorOr;Monad;Monads;OneOf;ROP;Railway Orientated Programming</PackageTags>
-	<RepositoryUrl>https://github.com/pwarner/Outcomes</RepositoryUrl>
-	<PackageLicenseFile>license.md</PackageLicenseFile>
-	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageProjectUrl>https://github.com/pwarner/Outcomes</PackageProjectUrl>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <PackageTags>Result;Results;Either;ErrorOr;Monad;Monads;OneOf;ROP;Railway Orientated Programming</PackageTags>
+    <RepositoryUrl>https://github.com/pwarner/Outcomes</RepositoryUrl>
+    <PackageLicenseFile>license.md</PackageLicenseFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +21,10 @@ Supports flow control via composition with async support, LINQ natural query for
     <None Include="..\..\readme.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\docs\*.md">
+      <Pack>True</Pack>
+      <PackagePath>\docs</PackagePath>
     </None>
   </ItemGroup>
 
