@@ -30,6 +30,16 @@ public static class Outcome
     /// Creates an <see cref="Outcome{T}"/> from a problem.
     /// </summary>
     public static Outcome<T> ToOutcome<T>(this IProblem problem) => new(problem);
+
+    /// <summary>
+    /// Creates an <see cref="Outcome{None}"/> from a problem.
+    /// </summary>
+    public static Outcome<None> Problem(IProblem problem) => new(problem);
+
+    /// <summary>
+    /// Creates an <see cref="Outcome{T}"/> from a problem.
+    /// </summary>
+    public static Outcome<T> Problem<T>(this IProblem problem) => new(problem);
 }
 
 /// <summary>

@@ -12,6 +12,7 @@ We can use outcomes to control our logical workflows without resorting to throwi
 
 Instead of doing this 👇
 
+```csharp
 public async Task<Customer> FetchCustomerAsync(string customerId)
 {
     Customer? customer = await _dbContext.Customers.FindAsync(customerId);
@@ -23,8 +24,11 @@ public async Task<Customer> FetchCustomerAsync(string customerId)
 
     return customer;
 }
+```
 
 we do this 👇
+
+```csharp
 
 public async Task<Outcome<Customer>> FetchCustomerAsync(string customerId)
 {
@@ -37,7 +41,7 @@ public async Task<Outcome<Customer>> FetchCustomerAsync(string customerId)
 
     return customer;
 }
-
+```
 By returning a Problem instead of throwing an exception:
 - we retain the convenience of halting execution
 - we skip the need to capture the call-stack
@@ -46,12 +50,14 @@ By returning a Problem instead of throwing an exception:
 
 That intriguing last bullet-point means you can write code like this:
 
+```csharp
 private Task<Outcome<CustomerUpdateResult>> UpdateCustomerNameFlow(UpdateCustomerNameCommand cmd) =>
     from _ in ValidateCommand(cmd)
     from customer in LoadCustomerAync(cmd.CustomerId)
     from modified in customer.UpdateName(cmd.NewName)
     from result in SaveCustomerAsync(modified)
     select new CustomerUpdateResult(cmd.Id, modified.Name, result.LastUpdated);
+```
 
 ---
 

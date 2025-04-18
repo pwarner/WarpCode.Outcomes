@@ -41,6 +41,18 @@ public class OutcomeTests
     }
 
     [Fact]
+    public void Should_CreateProblemOutcome_FromProblemHelper()
+    {
+        Assert.Equal(new Outcome<None>(TestProblem), Outcome.Problem(TestProblem));
+    }
+
+    [Fact]
+    public void Should_CreateStronglyTypedProblemOutcome_ProblemHelper()
+    {
+        Assert.Equal(new Outcome<int>(TestProblem), Outcome.Problem<int>(TestProblem));
+    }
+
+    [Fact]
     public void Match_ShouldResolveWithOnSuccessFunction_WhenNoProblem()
     {
         Assert.True(Outcome.Ok.Match(_ => true, _ => false));

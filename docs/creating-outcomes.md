@@ -52,6 +52,16 @@ Value-less problem outcomes with the non-generic `ToOutcome()` extension.
 Outcome<None> outcome = new SomeProblem().ToOutcome();
 ```
 
+With `Outcome.Problem<T>(..)`
+```csharp
+Outcome<string> outcome = Outcome.Problem<string>(new SomeProblem());
+```
+
+Valueless Problem Outcome with `Outcome.Problem(...)`
+```csharp
+Outcome<None> outcome = Outcome.Problem(new SomeProblem());
+```
+
 ---
 ### Index
 - [Why Outcomes?](../readme.md)
