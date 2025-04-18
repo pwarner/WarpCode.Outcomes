@@ -18,6 +18,9 @@ public delegate IProblem? ExceptionMap(Exception exception);
 /// <returns>A <see cref="IProblem"/> if one could be created from the exception, or null.</returns>>
 public delegate IProblem ExceptionMap<in TException>(TException exception) where TException : Exception;
 
+/// <summary>
+/// static root class for all adaptive extensions.
+/// </summary>
 public static class Adapt
 {
     /// <summary>
@@ -193,7 +196,6 @@ public static class Adapt
     /// <summary>
     /// Adapts a <see cref="ValueTask"/>.
     /// </summary>
-    /// <typeparam name="T">Type that this Task resolves to.</typeparam>
     /// <param name="task">The <see cref="ValueTask"/> to adapt.</param>
     /// <param name="map">Optional <see cref="ExceptionMap"/> function.</param>
     /// <returns>A <see cref="Task{T}"/> that resolves to a <see cref="Outcome{None}"/>.</returns>

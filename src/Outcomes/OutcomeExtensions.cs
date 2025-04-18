@@ -52,8 +52,8 @@ public static class OutcomeExtensions
     /// </summary>
     /// <remarks>
     /// If the outcome holds a problem, this outcome is returned.
-    /// If the outcome holds a value, then the <param name="predicate"/> is invoked with the outcome value.
-    /// If the predicate returns false, the <param name="factory"/> is invoked with the outcome value
+    /// If the outcome holds a value, then the <paramref name="predicate"/> is invoked with the outcome value.
+    /// If the predicate returns false, the <paramref name="factory"/> is invoked with the outcome value
     /// to produce a problem outcome.
     /// </remarks>
     /// <param name="self">Subject outcome.</param>
@@ -61,7 +61,7 @@ public static class OutcomeExtensions
     /// <param name="predicate">A predicate delegate to test the outcome value.</param>
     /// <param name="factory">A problem factory delegate to produce a problem if the predicate test fails.</param>
     /// <returns>An <see cref="Outcome{T}"/>.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if either of the <param name="predicate"/> or <param name="factory"/> parameters are null.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if either of the <paramref name="predicate"/> or <paramref name="factory"/> parameters are null.</exception>
     public static Outcome<T> Ensure<T>(this Outcome<T> self, Predicate<T> predicate, Func<T, IProblem> factory)
     {
         ArgumentNullException.ThrowIfNull(predicate);
@@ -78,8 +78,8 @@ public static class OutcomeExtensions
     /// </summary>
     /// <remarks>
     /// If the outcome holds a value, this outcome is returned.
-    /// If the outcome holds a problem, then the <param name="predicate"/> is invoked with the outcome problem.
-    /// If the predicate returns true, the <param name="factory"/> is invoked with the outcome problem
+    /// If the outcome holds a problem, then the <paramref name="predicate"/> is invoked with the outcome problem.
+    /// If the predicate returns true, the <paramref name="factory"/> is invoked with the outcome problem
     /// to produce a new successful outcome.
     /// </remarks>
     /// <typeparam name="T">The type of the outcome value.</typeparam>
@@ -87,7 +87,7 @@ public static class OutcomeExtensions
     /// <param name="predicate">A predicate delegate to test the outcome problem.</param>
     /// <param name="factory">A factory delegate to produce a value if the predicate test succeeds.</param>
     /// <returns>An <see cref="Outcome{T}"/>.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if either of the <param name="predicate"/> or <param name="factory"/> parameters are null.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if either of the <paramref name="predicate"/> or <paramref name="factory"/> parameters are null.</exception>
     public static Outcome<T> Rescue<T>(this Outcome<T> self, Predicate<IProblem> predicate, Func<IProblem, T> factory)
     {
         ArgumentNullException.ThrowIfNull(predicate);
@@ -105,7 +105,7 @@ public static class OutcomeExtensions
     /// <remarks>
     /// The outcome will contain either:
     /// A <see cref="List{T}"/> value if none of the input outcomes held a problem.
-    /// An outcome of the first problem in the sequence if <param name="bailEarly"/> was true.
+    /// An outcome of the first problem in the sequence if <paramref name="bailEarly"/> was true.
     /// An outcome of a <see cref="ProblemAggregate"/> containing each of the problems found.
     /// </remarks>
     /// <typeparam name="T">The type of the outcome value.</typeparam>
@@ -142,7 +142,7 @@ public static class OutcomeExtensions
     /// <remarks>
     /// The outcome will contain either:
     /// An empty/value-less but successful Outcome if none of the input outcomes held a problem.
-    /// An outcome of the first problem in the sequence if <param name="bailEarly"/> was true.
+    /// An outcome of the first problem in the sequence if <paramref name="bailEarly"/> was true.
     /// An outcome of a <see cref="ProblemAggregate"/> containing each of the problems found.
     /// </remarks>
     /// <param name="outcomes">A sequence of Outcome{None} values.</param>

@@ -12,7 +12,6 @@ We can use outcomes to control our logical workflows without resorting to throwi
 
 Instead of doing this 👇
 
-```csharp
 public async Task<Customer> FetchCustomerAsync(string customerId)
 {
     Customer? customer = await _dbContext.Customers.FindAsync(customerId);
@@ -24,10 +23,9 @@ public async Task<Customer> FetchCustomerAsync(string customerId)
 
     return customer;
 }
-```
 
 we do this 👇
-```csharp
+
 public async Task<Outcome<Customer>> FetchCustomerAsync(string customerId)
 {
     Customer? customer = await _dbContext.Customers.FindAsync(customerId);
@@ -38,7 +36,7 @@ public async Task<Outcome<Customer>> FetchCustomerAsync(string customerId)
             customerId);
 
     return customer;
-```
+}
 
 By returning a Problem instead of throwing an exception:
 - we retain the convenience of halting execution
@@ -47,16 +45,16 @@ By returning a Problem instead of throwing an exception:
 - we can compose workflows from logical steps.
 
 That intriguing last bullet-point means you can write code like this:
-```csharp
+
 private Task<Outcome<CustomerUpdateResult>> UpdateCustomerNameFlow(UpdateCustomerNameCommand cmd) =>
     from _ in ValidateCommand(cmd)
     from customer in LoadCustomerAync(cmd.CustomerId)
     from modified in customer.UpdateName(cmd.NewName)
     from result in SaveCustomerAsync(modified)
     select new CustomerUpdateResult(cmd.Id, modified.Name, result.LastUpdated);
-```
 
 ---
+
 ### Index
 - this: Why Outcomes?
 - [What is a Problem?](./docs/what-is-a-problem.md)
@@ -68,3 +66,7 @@ private Task<Outcome<CustomerUpdateResult>> UpdateCustomerNameFlow(UpdateCustome
 - [Outcome Extensions](./docs/outcome-extensions.md)
 - [Adapting to Outcomes](./docs/outcome-adaptation.md)
 - [Outcomes as Monads](./docs/outcomes-as-monads.md)
+
+
+### Contributing
+- [Contributing Guidelines](./CONTRIBUTING.md)

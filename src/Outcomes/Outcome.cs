@@ -42,6 +42,10 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     private readonly T _value;
     private readonly IProblem? _problem;
 
+    /// <summary>
+    /// Explicit public constructor that throws if used.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Thrown when the constructor is accessed.</exception>
     public Outcome()
     {
         throw new InvalidOperationException(
@@ -104,9 +108,32 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     public override int GetHashCode() =>
         HashCode.Combine(_value, _problem);
 
+    /// <summary>
+    /// Equality operator override. 
+    /// </summary>
+    /// <param name="left">first outcome.</param>
+    /// <param name="right">second outcome.</param>
+    /// <returns>true if the outcomes are equal, false if they are not.</returns>
     public static bool operator ==(Outcome<T> left, Outcome<T> right) => left.Equals(right);
+
+    /// <summary>
+    /// Inequality operator override.
+    /// </summary>
+    /// <param name="left">first outcome.</param>
+    /// <param name="right">second outcome.</param>
+    /// <returns>true if the outcomes are not equal, false if they are.</returns>
     public static bool operator !=(Outcome<T> left, Outcome<T> right) => !(left == right);
 
+    /// <summary>
+    /// Implicit conversion operator to <see cref="Outcome{T}"/> from a value. 
+    /// Produces an Outcome that holds the value and has no problem.
+    /// </summary>
+    /// <param name="value">The value to produce an Outcome from.</param>
     public static implicit operator Outcome<T>(T value) => new(value);
+
+    /// <summary>
+    /// Implicit conversion operator to <see cref="Outcome{T}"/> from a <see cref="Problem"/>.
+    /// </summary>
+    /// <param name="problem">The problem to produce an Outcome from.</param>
     public static implicit operator Outcome<T>(Problem problem) => new(problem);
 }

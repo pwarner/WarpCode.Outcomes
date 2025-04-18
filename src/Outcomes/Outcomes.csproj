@@ -1,16 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Outcomes</Title>
-    <Description>Result types done properly. 
-Outcomes are a fluent, compositonal discriminated union type representing a result value or a problem.
-Supports flow control via composition with async support, LINQ natural query form or direct with Then/ThenAsync.
-  </Description>
+    <Description>
+      Result types done properly.
+      Outcomes are a fluent, compositonal discriminated union type representing a result value or a problem.
+      Supports flow control via composition with async support, LINQ natural query form or direct with Then/ThenAsync.
+    </Description>
     <PackageProjectUrl>https://github.com/pwarner/Outcomes</PackageProjectUrl>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageTags>Result;Results;Either;ErrorOr;Monad;Monads;OneOf;ROP;Railway Orientated Programming</PackageTags>
     <RepositoryUrl>https://github.com/pwarner/Outcomes</RepositoryUrl>
     <PackageLicenseFile>license.md</PackageLicenseFile>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,6 +27,13 @@ Supports flow control via composition with async support, LINQ natural query for
       <Pack>True</Pack>
       <PackagePath>\docs</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MinVer">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>
