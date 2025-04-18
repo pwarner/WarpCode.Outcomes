@@ -1,4 +1,4 @@
-﻿namespace Outcomes;
+﻿namespace WarpCode.Outcomes;
 
 /// <summary>
 /// Default implementation of <see cref="IProblem"/>.

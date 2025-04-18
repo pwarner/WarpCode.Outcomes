@@ -1,4 +1,4 @@
-﻿namespace Outcomes;
+﻿namespace WarpCode.Outcomes;
 
 /// <summary>
 /// A function called when exceptions are thrown by code instead of returning outcomes.

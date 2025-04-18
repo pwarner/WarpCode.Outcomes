@@ -1,4 +1,4 @@
-﻿namespace Outcomes.Tests;
+﻿namespace WarpCode.Outcomes.Tests;
 
 public class OutcomeAggregationTests
 {

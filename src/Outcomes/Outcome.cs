@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Outcomes;
+namespace WarpCode.Outcomes;
 
 /// <summary>
 /// Entry-points for producing outcomes.
@@ -8,7 +8,7 @@ namespace Outcomes;
 public static class Outcome
 {
     /// <summary>
-    /// Returns A successful <see cref="Outcome{T}"/> with the no-value type <see cref="None"/>, which acts in place of <see cref="Void"/>.
+    /// Returns A successful <see cref="Outcome{T}"/> with the no-value type <see cref="None"/>, which acts in place of <see cref="void"/>.
     /// </summary>
     /// <returns>A successful <see cref="Outcome{None}"/>.</returns>
     public static Outcome<None> Ok => default;
@@ -43,7 +43,7 @@ public static class Outcome
 }
 
 /// <summary>
-/// Primitve union type that can hold either a value or a <see cref="Outcomes.Problem"/>, but not both.
+/// Primitve union type that can hold either a value or a <see cref="Problem"/>, but not both.
 /// </summary>
 /// <typeparam name="T">The type of the outcome value.</typeparam>
 [StructLayout(LayoutKind.Auto)]

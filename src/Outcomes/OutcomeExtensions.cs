@@ -1,4 +1,4 @@
-﻿namespace Outcomes;
+﻿namespace WarpCode.Outcomes;
 
 /// <summary>
 /// Helper extensions to extend the capabilities of an Outcome.

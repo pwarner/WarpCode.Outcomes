@@ -1,4 +1,4 @@
-﻿namespace Outcomes;
+﻿namespace WarpCode.Outcomes;
 
 /// <summary>
 /// Extensions to allow composition via `Then`

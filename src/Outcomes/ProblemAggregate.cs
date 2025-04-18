@@ -1,4 +1,6 @@
-﻿namespace Outcomes;
+﻿using WarpCode.Outcomes;
+
+namespace WarpCode.Outcomes;
 
 /// <summary>
 /// A Problem used in outcome aggregation that holds an array of multiple problems.

@@ -1,4 +1,4 @@
-﻿namespace Outcomes;
+﻿namespace WarpCode.Outcomes;
 
 /// <summary>
 /// Copy of OutcomeExtensions but extending Task{Outcome{T}} and ValueTask{Outcome{T}}.

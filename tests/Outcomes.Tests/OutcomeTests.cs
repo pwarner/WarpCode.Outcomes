@@ -1,4 +1,4 @@
-﻿namespace Outcomes.Tests;
+﻿namespace WarpCode.Outcomes.Tests;
 
 public class OutcomeTests
 {
@@ -49,7 +49,7 @@ public class OutcomeTests
     [Fact]
     public void Should_CreateStronglyTypedProblemOutcome_ProblemHelper()
     {
-        Assert.Equal(new Outcome<int>(TestProblem), Outcome.Problem<int>(TestProblem));
+        Assert.Equal(new Outcome<int>(TestProblem), TestProblem.Problem<int>());
     }
 
     [Fact]

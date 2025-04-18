@@ -29,6 +29,8 @@ public async Task<Customer> FetchCustomerAsync(string customerId)
 we do this 👇
 
 ```csharp
+using WarpCode.Outcomes;
+
 
 public async Task<Outcome<Customer>> FetchCustomerAsync(string customerId)
 {
