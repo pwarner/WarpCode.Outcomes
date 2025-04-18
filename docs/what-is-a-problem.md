@@ -62,7 +62,7 @@ throw new ArgumentOutOfRange(nameof(date), "The date is not in range");
 
 ---
 ### Index
-- [Why Outcomes?](../readme.md)
+- [Why Outcomes?](why-outcomes.md)
 - this: What is a Problem?
 - [Creating Outcomes](creating-outcomes.md)
 - [Composing Outcomes](composing-outcomes.md)

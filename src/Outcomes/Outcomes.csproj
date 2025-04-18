@@ -2,9 +2,10 @@
   <PropertyGroup>
     <Title>WarpCode.Outcomes</Title>
     <Description>
-      Result types done properly.
+      A small, monadic Result-type library, targeting .Net 8.x and above.
       Outcomes are a fluent, compositonal discriminated union type representing a result value or a problem.
-      Supports flow control via composition with async support, LINQ natural query form or direct with Then/ThenAsync.
+      Outcomes supports R.O.P. flow control (Railway Orientated Programming) via composition 
+      with async support, LINQ natural query form, or fliuent style with Then/ThenAsync.
     </Description>
     <PackageProjectUrl>https://github.com/pwarner/WarpCode.Outcomes</PackageProjectUrl>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
@@ -14,6 +15,7 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <RootNamespace>WarpCode.Outcomes</RootNamespace>
     <PackageId>WarpCode.Outcomes</PackageId>
+    <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,10 +26,6 @@
     <None Include="..\..\readme.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
-    </None>
-    <None Include="..\docs\*.md">
-      <Pack>True</Pack>
-      <PackagePath>\docs</PackagePath>
     </None>
   </ItemGroup>
 

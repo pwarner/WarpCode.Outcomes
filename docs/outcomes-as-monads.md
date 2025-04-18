@@ -55,7 +55,7 @@ The semantic clarity and readability of this language form is valuable and power
 
 ---
 ### Index
-- [Why Outcomes?](../readme.md)
+- [Why Outcomes?](why-outcomes.md)
 - [What is a Problem?](what-is-a-problem.md)
 - [Creating Outcomes](creating-outcomes.md)
 - [Composing Outcomes](composing-outcomes.md)

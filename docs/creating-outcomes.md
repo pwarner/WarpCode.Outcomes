@@ -64,7 +64,7 @@ Outcome<None> outcome = Outcome.Problem(new SomeProblem());
 
 ---
 ### Index
-- [Why Outcomes?](../readme.md)
+- [Why Outcomes?](why-outcomes.md)
 - [What is a Problem?](what-is-a-problem.md)
 - this: Creating Outcomes
 - [Composing Outcomes](composing-outcomes.md)
