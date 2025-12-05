@@ -8,8 +8,8 @@ public abstract class CompositionTestBase
 
     protected static void AssertExpectedOutcome(ProblemStep step, Outcome<string> composition)
     {
-        string actual = composition.Match(value => value, p => p.Detail);
-        string expected = step switch
+        var actual = composition.Match(value => value, p => p.Detail);
+        var expected = step switch
         {
             ProblemStep.First => TestProblem1.Detail,
             ProblemStep.Second => TestProblem2.Detail,

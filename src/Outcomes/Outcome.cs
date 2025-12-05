@@ -24,22 +24,25 @@ public static class Outcome
     /// <summary>
     /// Creates an <see cref="Outcome{None}"/> from a problem.
     /// </summary>
-    public static Outcome<None> ToOutcome(this IProblem problem) => new(problem);
-
-    /// <summary>
-    /// Creates an <see cref="Outcome{T}"/> from a problem.
-    /// </summary>
-    public static Outcome<T> ToOutcome<T>(this IProblem problem) => new(problem);
-
-    /// <summary>
-    /// Creates an <see cref="Outcome{None}"/> from a problem.
-    /// </summary>
     public static Outcome<None> Problem(IProblem problem) => new(problem);
 
     /// <summary>
     /// Creates an <see cref="Outcome{T}"/> from a problem.
     /// </summary>
     public static Outcome<T> Problem<T>(this IProblem problem) => new(problem);
+
+    extension(IProblem problem)
+    {
+        /// <summary>
+        /// Creates an <see cref="Outcome{None}"/> from a problem.
+        /// </summary>
+        public Outcome<None> ToOutcome() => new(problem);
+
+        /// <summary>
+        /// Creates an <see cref="Outcome{T}"/> from a problem.
+        /// </summary>
+        public Outcome<T> ToOutcome<T>() => new(problem);
+    }
 }
 
 /// <summary>
@@ -56,12 +59,9 @@ public readonly struct Outcome<T> : IEquatable<Outcome<T>>
     /// Explicit public constructor that throws if used.
     /// </summary>
     /// <exception cref="InvalidOperationException">Thrown when the constructor is accessed.</exception>
-    public Outcome()
-    {
-        throw new InvalidOperationException(
+    public Outcome() => throw new InvalidOperationException(
             "Creating an Outcome with the default parameterless constructor is forbidden."
         );
-    }
 
     /// <summary>
     /// Creates a new outcome that represents a value.

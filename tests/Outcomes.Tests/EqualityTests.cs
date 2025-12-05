@@ -34,8 +34,8 @@ public class EqualityTests
     public void Should_BeEqualIfOutcomesContainTheSameProblems()
     {
         var problem = new Problem("test");
-        Outcome<string> x = problem.ToOutcome<string>();
-        Outcome<string> y = problem.ToOutcome<string>();
+        var x = problem.ToOutcome<string>();
+        var y = problem.ToOutcome<string>();
         Assert.True(x.Equals(y));
         Assert.Equal(x.GetHashCode(), y.GetHashCode());
     }
@@ -43,8 +43,8 @@ public class EqualityTests
     [Fact]
     public void Should_BeEqualIfOutcomesContainProblemsThatAreEqual()
     {
-        Outcome<string> x = new Problem("test").ToOutcome<string>();
-        Outcome<string> y = new Problem("test").ToOutcome<string>();
+        var x = new Problem("test").ToOutcome<string>();
+        var y = new Problem("test").ToOutcome<string>();
         Assert.True(x.Equals(y));
         Assert.Equal(x.GetHashCode(), y.GetHashCode());
     }

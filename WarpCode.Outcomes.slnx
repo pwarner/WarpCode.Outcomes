@@ -1,0 +1,22 @@
+<Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/composing-outcomes.md" />
+    <File Path="docs/creating-outcomes.md" />
+    <File Path="docs/outcome-adaptation.md" />
+    <File Path="docs/outcome-extensions.md" />
+    <File Path="docs/outcomes-as-monads.md" />
+    <File Path="docs/resolving-outcomes.md" />
+    <File Path="docs/what-is-a-problem.md" />
+    <File Path="docs/why-outcomes.md" />
+    <File Path="readme.md" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".github/workflows/ci-cd.yml" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="license.md" />
+  </Folder>
+  <Project Path="src/Outcomes/Outcomes.csproj" />
+  <Project Path="tests/Outcomes.Tests/Outcomes.Tests.csproj" />
+</Solution>
