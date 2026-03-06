@@ -1,21 +1,17 @@
-﻿#pragma warning disable CS1591 
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace WarpCode.Outcomes;
 
 /// <summary>
-/// Value-less Result struct that can hold a problem or not.
+/// Entry point helpers for <see cref="Result{T}"/>.
 /// </summary>
-public readonly struct Result
+public static class Result
 {
-    internal readonly Problem? _problem;
-    public Result(Problem problem) => _problem = problem ?? throw new ArgumentNullException(nameof(problem));
-
     /// <summary>
-    /// Returns A successful <see cref="Result{T}"/> with the no-value type <see cref="None"/>, which acts in place of <see cref="void"/>.
+    /// Returns A successful <see cref="Result{T}"/> with the no-value type <see cref="None"/>, which acts in place of <see cref="System.Void"/>.
     /// </summary>
     /// <returns>A successful <see cref="Result{None}"/>.</returns>
-    public static Result Ok => default;
+    public static Result<None> Ok => default;
 
     /// <summary>
     /// Creates a new <see cref="Result{T}"/> that represents a value of type T.
@@ -26,17 +22,16 @@ public readonly struct Result
     public static Result<T> From<T>(T value) => new(value);
 }
 
-
 /// <summary>
-/// Primitve union type that can hold either a value or a <see cref="Problem"/>, but not both.
+/// Primitive union type that can hold either a value or a <see cref="Outcomes.Problem"/>, but not both.
 /// </summary>
 /// <typeparam name="T">The type of the outcome value.</typeparam>
 [StructLayout(LayoutKind.Auto)]
 public readonly struct Result<T>
 {
-    internal readonly T _value;
-    internal readonly Problem? _problem;
-    private Result(T value, Problem? problem) => (_value, _problem) = (value, problem);
+    internal readonly T Value;
+    internal readonly Problem? Problem;
+    private Result(T value, Problem? problem) => (Value, Problem) = (value, problem);
 
     /// <summary>
     /// Explicit public constructor that throws if used.
