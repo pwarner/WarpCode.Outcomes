@@ -1,50 +1,50 @@
 ﻿namespace WarpCode.Outcomes.Tests;
 
-public class EqualityTests
+public class ResultEqualityTests
 {
     [Fact]
-    public void Should_BeEqualIfOutcomesContainSameReferenceTypes()
+    public void Should_BeEqualIfResultsContainSameReferenceTypes()
     {
         const string test = "test";
-        Outcome<string> x = test;
-        Outcome<string> y = test;
+        Result<string> x = test;
+        Result<string> y = test;
         Assert.True(x.Equals(y));
         Assert.Equal(x.GetHashCode(), y.GetHashCode());
     }
 
     [Fact]
-    public void Should_BeEqualIfOutcomesContainReferenceTypesThatAreEqual()
+    public void Should_BeEqualIfResultsContainReferenceTypesThatAreEqual()
     {
-        Outcome<TestValue> x = new TestValue(42, "test");
-        Outcome<TestValue> y = new TestValue(42, "test");
+        Result<TestValue> x = new TestValue(42, "test");
+        Result<TestValue> y = new TestValue(42, "test");
         Assert.True(x.Equals(y));
         Assert.Equal(x.GetHashCode(), y.GetHashCode());
     }
 
     [Fact]
-    public void Should_BeEqualIfOutcomesContainValueTypesThatAreEqual()
+    public void Should_BeEqualIfResultsContainValueTypesThatAreEqual()
     {
-        Outcome<decimal> x = 4.2m;
-        Outcome<decimal> y = 4.2m;
+        Result<decimal> x = 4.2m;
+        Result<decimal> y = 4.2m;
         Assert.True(x.Equals(y));
         Assert.Equal(x.GetHashCode(), y.GetHashCode());
     }
 
     [Fact]
-    public void Should_BeEqualIfOutcomesContainTheSameProblems()
+    public void Should_BeEqualIfResultsContainTheSameProblems()
     {
         var problem = new Problem("test");
-        var x = problem.ToOutcome<string>();
-        var y = problem.ToOutcome<string>();
+        Result<None> x = problem;
+        Result<None> y = problem;
         Assert.True(x.Equals(y));
         Assert.Equal(x.GetHashCode(), y.GetHashCode());
     }
 
     [Fact]
-    public void Should_BeEqualIfOutcomesContainProblemsThatAreEqual()
+    public void Should_BeEqualIfResultsContainProblemsThatAreEqual()
     {
-        var x = new Problem("test").ToOutcome<string>();
-        var y = new Problem("test").ToOutcome<string>();
+        Result<None> x = new Problem("test");
+        Result<None> y = new Problem("test");
         Assert.True(x.Equals(y));
         Assert.Equal(x.GetHashCode(), y.GetHashCode());
     }
@@ -53,16 +53,16 @@ public class EqualityTests
     public void ProblemAggregateEquality_ShouldBeEqualIfInnerProblemsAreEqual()
     {
         var foo = new Problem("foo");
-        var x = new ProblemAggregate(new[]
-        {
+        var x = new ProblemAggregate(
+        [
             foo,
             new Problem("bar")
-        });
-        var y = new ProblemAggregate(new[]
-        {
+        ]);
+        var y = new ProblemAggregate(
+        [
             foo,
             new Problem("bar")
-        });
+        ]);
         Assert.True(x.Equals(y));
         Assert.Equal(x.GetHashCode(), y.GetHashCode());
     }

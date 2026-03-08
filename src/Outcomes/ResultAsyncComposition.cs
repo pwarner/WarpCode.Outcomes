@@ -11,13 +11,13 @@ public static partial class ResultComposition
             => self.Then(next);
 
         public static ValueTask<Result<TNext>> operator |(Result<T> self, Func<T, Task<Result<TNext>>> next)
-            => self.Then(Wrap(next));
+            => self.Then(WrapAsync(next));
 
         public static ValueTask<Result<TNext>> operator |(Result<T> self, Func<T, ValueTask<TNext>> next)
-            => self.Then(Wrap(next));
+            => self.Then(WrapAsync(next));
 
         public static ValueTask<Result<TNext>> operator |(Result<T> self, Func<T, Task<TNext>> next)
-            => self.Then(Wrap(next));
+            => self.Then(WrapAsync(next));
     }
 
     extension<T, TNext>(Result<T> self)
@@ -37,22 +37,22 @@ public static partial class ResultComposition
             => self.Then(rescue);
 
         public static ValueTask<Result<T>> operator |(Result<T> self, Func<T, Task<Result<None>>> next)
-            => self.Then(Wrap(next));
+            => self.Then(WrapAsync(next));
 
         public static ValueTask<Result<T>> operator |(Result<T> self, Func<Problem, Task<Result<T>>> rescue)
-            => self.Then(Wrap(rescue));
+            => self.Then(WrapAsync(rescue));
 
         public static ValueTask<Result<T>> operator |(Result<T> self, Func<T, ValueTask> onValue)
-            => self.Then(Wrap(onValue));
+            => self.Then(WrapAsync(onValue));
 
         public static ValueTask<Result<T>> operator |(Result<T> self, Func<Problem, ValueTask> onProblem)
-            => self.Then(Wrap<T>(onProblem));
+            => self.Then(WrapAsync<T>(onProblem));
 
         public static ValueTask<Result<T>> operator |(Result<T> self, Func<T, Task> onValue)
-            => self.Then(Wrap(onValue));
+            => self.Then(WrapAsync(onValue));
 
         public static ValueTask<Result<T>> operator |(Result<T> self, Func<Problem, Task> onProblem)
-            => self.Then(Wrap<T>(onProblem));
+            => self.Then(WrapAsync<T>(onProblem));
     }
 
     extension<T>(Result<T> self)

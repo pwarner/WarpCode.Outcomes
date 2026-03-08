@@ -1,14 +1,14 @@
 ﻿namespace WarpCode.Outcomes;
 
 /// <summary>
-/// Default implementation of <see cref="IProblem"/>.
+/// Represents a simple, immutable data object intended to replace the practice of
+/// throwing exceptions in your code when a business rule fails.
 /// </summary>
-/// <remarks>
-/// Creates a new problem with the provided detail.
-/// </remarks>
-/// <param name="detail"><see cref="Detail"/> parameter.</param>
-public record Problem(string detail) : IProblem
+/// <param name="Detail">Human-readable detail of the problem that occured.</param>
+public record Problem(string Detail)
 {
-    /// <inheritdoc />
-    public string Detail { get; init; } = detail ?? throw new ArgumentNullException(nameof(detail));
+    /// <summary>
+    /// Human-readable detail of the problem that occured.
+    /// </summary>
+    public string Detail { get; init; } = Detail ?? throw new ArgumentNullException(nameof(Detail));
 }

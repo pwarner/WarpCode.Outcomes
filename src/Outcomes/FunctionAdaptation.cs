@@ -26,34 +26,40 @@ internal static class FunctionAdaptation
         return new(problem);
     };
 
-    internal static Func<T, ValueTask<Result<TNext>>> Wrap<T, TNext>(Func<T, ValueTask<TNext>> next)
+    internal static Func<T, ValueTask<Result<TNext>>> WrapAsync<T, TNext>(Func<T, Result<TNext>> next)
+        => value => ValueTask.FromResult(next(value));
+
+    internal static Func<T, ValueTask<Result<TNext>>> WrapAsync<T, TNext>(Func<T, TNext> next)
+        => value => ValueTask.FromResult<Result<TNext>>(new(next(value)));
+
+    internal static Func<T, ValueTask<Result<TNext>>> WrapAsync<T, TNext>(Func<T, ValueTask<TNext>> next)
         => async value => new(await next(value));
 
-    internal static Func<T, ValueTask<Result<TNext>>> Wrap<T, TNext>(Func<T, Task<TNext>> next)
+    internal static Func<T, ValueTask<Result<TNext>>> WrapAsync<T, TNext>(Func<T, Task<TNext>> next)
         => async value => new(await next(value));
 
-    internal static Func<T, ValueTask<Result<TNext>>> Wrap<T, TNext>(Func<T, Task<Result<TNext>>> next)
+    internal static Func<T, ValueTask<Result<TNext>>> WrapAsync<T, TNext>(Func<T, Task<Result<TNext>>> next)
         => async value => await next(value);
 
-    internal static Func<T, ValueTask<Result<T>>> Wrap<T>(Func<T, Task> onValue) => async value =>
+    internal static Func<T, ValueTask<Result<T>>> WrapAsync<T>(Func<T, Task> onValue) => async value =>
     {
         await onValue(value);
         return new(value);
     };
 
-    internal static Func<T, ValueTask<Result<T>>> Wrap<T>(Func<T, ValueTask> onValue) => async value =>
+    internal static Func<T, ValueTask<Result<T>>> WrapAsync<T>(Func<T, ValueTask> onValue) => async value =>
     {
         await onValue(value);
         return new(value);
     };
 
-    internal static Func<Problem, ValueTask<Result<T>>> Wrap<T>(Func<Problem, Task> onProblem) => async problem =>
+    internal static Func<Problem, ValueTask<Result<T>>> WrapAsync<T>(Func<Problem, Task> onProblem) => async problem =>
     {
         await onProblem(problem);
         return new(problem);
     };
 
-    internal static Func<Problem, ValueTask<Result<T>>> Wrap<T>(Func<Problem, ValueTask> onProblem) => async problem =>
+    internal static Func<Problem, ValueTask<Result<T>>> WrapAsync<T>(Func<Problem, ValueTask> onProblem) => async problem =>
     {
         await onProblem(problem);
         return new(problem);

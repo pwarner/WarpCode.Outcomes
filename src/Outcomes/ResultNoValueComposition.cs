@@ -26,7 +26,7 @@ public static partial class ResultComposition
 
         public static Result<None> operator |(Result<None> self, Action onValue)
             => self | Wrap(onValue);
-        
+
         public static Result<None> operator |(Result<None> self, Action<Problem> onProblem)
             => self | Wrap<None>(onProblem);
     }
