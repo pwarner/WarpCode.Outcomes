@@ -8,7 +8,7 @@ public class CompositionTests : CompositionTestBase
     public void ShouldMapResult(ProblemStep step)
     {
         Result<string> composition =
-            EmptyResult(step)
+            StringResult(step)
                 | (_ => Success);
 
         AssertExpectedResult(step, composition);
@@ -20,7 +20,7 @@ public class CompositionTests : CompositionTestBase
     public async Task ShouldMapResultTask(ProblemStep step)
     {
         ValueTask<Result<string>> composition =
-            EmptyResultTask(step)
+            StringResultTask(step)
                 | (_ => Success);
 
         AssertExpectedResult(step, await composition);
@@ -32,7 +32,7 @@ public class CompositionTests : CompositionTestBase
     public async Task ShouldMapResultValueTask(ProblemStep step)
     {
         ValueTask<Result<string>> composition =
-            EmptyResultValueTask(step)
+            StringResultValueTask(step)
                 | (_ => Success);
 
         AssertExpectedResult(step, await composition);
@@ -45,7 +45,7 @@ public class CompositionTests : CompositionTestBase
     public void ShouldComposeResultAndResult(ProblemStep step)
     {
         Result<string> composition =
-            EmptyResult(step)
+            StringResult(step)
                 | (_ => StringResult(step));
 
         AssertExpectedResult(step, composition);
@@ -58,7 +58,7 @@ public class CompositionTests : CompositionTestBase
     public async Task ShouldComposeResultAndResultTask(ProblemStep step)
     {
         ValueTask<Result<string>> composition =
-            EmptyResult(step)
+            StringResult(step)
                 | (_ => StringResultTask(step));
 
         AssertExpectedResult(step, await composition);
@@ -71,7 +71,7 @@ public class CompositionTests : CompositionTestBase
     public async Task ShouldComposeResultAndResultValueTask(ProblemStep step)
     {
         ValueTask<Result<string>> composition =
-            EmptyResult(step)
+            StringResult(step)
                 | (_ => StringResultValueTask(step));
 
         AssertExpectedResult(step, await composition);
@@ -84,7 +84,7 @@ public class CompositionTests : CompositionTestBase
     public async Task ShouldComposeResultTaskAndResult(ProblemStep step)
     {
         ValueTask<Result<string>> composition =
-            EmptyResultTask(step)
+            StringResultTask(step)
                 | (_ => StringResult(step));
 
         AssertExpectedResult(step, await composition);
@@ -97,7 +97,7 @@ public class CompositionTests : CompositionTestBase
     public async Task ShouldComposeResultTaskAndResultTask(ProblemStep step)
     {
         ValueTask<Result<string>> composition =
-            EmptyResultTask(step)
+            StringResultTask(step)
                 | (_ => StringResultTask(step));
 
         AssertExpectedResult(step, await composition);
@@ -110,7 +110,7 @@ public class CompositionTests : CompositionTestBase
     public async Task ShouldComposeResultTaskAndResultValueTask(ProblemStep step)
     {
         ValueTask<Result<string>> composition =
-            EmptyResultTask(step)
+            StringResultTask(step)
                 | (_ => StringResultValueTask(step));
 
         AssertExpectedResult(step, await composition);
@@ -123,7 +123,7 @@ public class CompositionTests : CompositionTestBase
     public async Task ShouldComposeResultValueTaskAndResult(ProblemStep step)
     {
         ValueTask<Result<string>> composition =
-            EmptyResultValueTask(step)
+            StringResultValueTask(step)
                 | (_ => StringResult(step));
 
         AssertExpectedResult(step, await composition);
@@ -136,7 +136,7 @@ public class CompositionTests : CompositionTestBase
     public async Task ShouldComposeResultValueTaskAndResultTask(ProblemStep step)
     {
         ValueTask<Result<string>> composition =
-            EmptyResultValueTask(step)
+            StringResultValueTask(step)
                 | (_ => StringResultTask(step));
 
         AssertExpectedResult(step, await composition);
@@ -149,7 +149,7 @@ public class CompositionTests : CompositionTestBase
     public async Task ShouldComposeResultValueTaskAndResultValueTask(ProblemStep step)
     {
         ValueTask<Result<string>> composition =
-            EmptyResultValueTask(step)
+            StringResultValueTask(step)
                 | (_ => StringResultValueTask(step));
 
         AssertExpectedResult(step, await composition);

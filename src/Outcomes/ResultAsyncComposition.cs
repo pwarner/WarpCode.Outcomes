@@ -33,11 +33,11 @@ public static partial class ResultComposition
         public static ValueTask<Result<T>> operator |(Result<T> self, Func<T, ValueTask<Result<None>>> next)
             => self.Then(next);
 
-        public static ValueTask<Result<T>> operator |(Result<T> self, Func<Problem, ValueTask<Result<T>>> rescue)
-            => self.Then(rescue);
-
         public static ValueTask<Result<T>> operator |(Result<T> self, Func<T, Task<Result<None>>> next)
             => self.Then(WrapAsync(next));
+
+        public static ValueTask<Result<T>> operator |(Result<T> self, Func<Problem, ValueTask<Result<T>>> rescue)
+            => self.Then(rescue);
 
         public static ValueTask<Result<T>> operator |(Result<T> self, Func<Problem, Task<Result<T>>> rescue)
             => self.Then(WrapAsync(rescue));
@@ -45,11 +45,11 @@ public static partial class ResultComposition
         public static ValueTask<Result<T>> operator |(Result<T> self, Func<T, ValueTask> onValue)
             => self.Then(WrapAsync(onValue));
 
-        public static ValueTask<Result<T>> operator |(Result<T> self, Func<Problem, ValueTask> onProblem)
-            => self.Then(WrapAsync<T>(onProblem));
-
         public static ValueTask<Result<T>> operator |(Result<T> self, Func<T, Task> onValue)
             => self.Then(WrapAsync(onValue));
+
+        public static ValueTask<Result<T>> operator |(Result<T> self, Func<Problem, ValueTask> onProblem)
+            => self.Then(WrapAsync<T>(onProblem));
 
         public static ValueTask<Result<T>> operator |(Result<T> self, Func<Problem, Task> onProblem)
             => self.Then(WrapAsync<T>(onProblem));
@@ -65,6 +65,52 @@ public static partial class ResultComposition
         private async ValueTask<Result<T>> Then(Func<Problem, ValueTask<Result<T>>> rescue)
             => self.Problem is not null
                 ? await rescue(self.Problem)
+                : self;
+    }
+
+    extension<TNext>(Result<None>)
+    {
+        public static ValueTask<Result<TNext>> operator |(Result<None> self, Func<ValueTask<Result<TNext>>> next)
+            => self.Then(next);
+
+        public static ValueTask<Result<TNext>> operator |(Result<None> self, Func<Task<Result<TNext>>> next)
+            => self.Then(WrapAsync(next));
+
+        public static ValueTask<Result<TNext>> operator |(Result<None> self, Func<ValueTask<TNext>> next)
+            => self.Then(WrapAsync(next));
+
+        public static ValueTask<Result<TNext>> operator |(Result<None> self, Func<Task<TNext>> next)
+            => self.Then(WrapAsync(next));
+    }
+
+    extension<TNext>(Result<None> self)
+    {
+        private async ValueTask<Result<TNext>> Then(Func<ValueTask<Result<TNext>>> next)
+            => self.Problem is not null
+                ? new(self.Problem)
+                : await next();
+    }
+
+    extension(Result<None>)
+    {
+        public static ValueTask<Result<None>> operator |(Result<None> self, Func<ValueTask<Result<None>>> next)
+            => self.Then(next);
+
+        public static ValueTask<Result<None>> operator |(Result<None> self, Func<Task<Result<None>>> next)
+            => self.Then(WrapAsync(next));
+
+        public static ValueTask<Result<None>> operator |(Result<None> self, Func<ValueTask> onValue)
+            => self.Then(WrapAsync(onValue));
+
+        public static ValueTask<Result<None>> operator |(Result<None> self, Func<Task> onValue)
+            => self.Then(WrapAsync(onValue));
+    }
+
+    extension(Result<None> self)
+    {
+        public async ValueTask<Result<None>> Then(Func<ValueTask<Result<None>>> next)
+            => (self.Problem ?? (await next()).Problem) is { } problem
+                ? new(problem)
                 : self;
     }
 }
