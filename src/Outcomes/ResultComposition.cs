@@ -5,25 +5,27 @@ using static WarpCode.Outcomes.FunctionAdaptation;
 namespace WarpCode.Outcomes;
 
 /// <summary>
-/// Extensions to allow composition via the | operator on <see cref="Result{T}"/>, Task{Result{T}}, and ValueTask{Result{T}}
+/// Extensions to allow composition via the | operator on <see cref="Result{T}"/>
 /// </summary>
-public static partial class ResultComposition
+public static class ResultComposition
 {
     extension<T, TNext>(Result<T>)
     {
-        public static Result<TNext> operator |(Result<T> self, Func<T, Result<TNext>> next)
+        public static Result<TNext> operator |(Result<T> self, Func<T, Result<TNext>> bind)
             => self.Problem is not null
                 ? new(self.Problem)
-                : next(self.Value);
+                : bind(self.Value);
 
-        public static Result<TNext> operator |(Result<T> self, Func<T, TNext> next)
-            => self | Wrap(next);
+        public static Result<TNext> operator |(Result<T> self, Func<T, TNext> map)
+            => self.Problem is not null
+                ? new(self.Problem)
+                : new(map(self.Value));
     }
 
     extension<T>(Result<T>)
     {
-        public static Result<T> operator |(Result<T> self, Func<T, Result<None>> next)
-            => (self.Problem ?? next(self.Value).Problem) is { } problem
+        public static Result<T> operator |(Result<T> self, Func<T, Result<None>> ensure)
+            => (self.Problem ?? ensure(self.Value).Problem) is { } problem
                 ? new(problem)
                 : self;
 
@@ -41,19 +43,21 @@ public static partial class ResultComposition
 
     extension<TNext>(Result<None>)
     {
-        public static Result<TNext> operator |(Result<None> self, Func<Result<TNext>> next)
+        public static Result<TNext> operator |(Result<None> self, Func<Result<TNext>> bind)
             => self.Problem is not null
                 ? new(self.Problem)
-                : next();
+                : bind();
 
-        public static Result<TNext> operator |(Result<None> self, Func<TNext> next)
-            => self | Wrap(next);
+        public static Result<TNext> operator |(Result<None> self, Func<TNext> map)
+            => self.Problem is not null
+                ? new(self.Problem)
+                : new(map());
     }
 
     extension(Result<None>)
     {
-        public static Result<None> operator |(Result<None> self, Func<Result<None>> next)
-            => (self.Problem ?? next().Problem) is { } problem
+        public static Result<None> operator |(Result<None> self, Func<Result<None>> ensure)
+            => (self.Problem ?? ensure().Problem) is { } problem
                 ? new(problem)
                 : self;
 

@@ -2,46 +2,25 @@
 
 internal static class FunctionAdaptation
 {
-    internal static Func<T, Result<TNext>> Wrap<T, TNext>(Func<T, TNext> next)
-        => value => new(next(value));
+    internal static Func<T, ValueTask<Result<TNext>>> AsValueTask<T, TNext>(Func<T, Task<Result<TNext>>> bind)
+        => async value => await bind(value);
 
-    internal static Func<Result<TNext>> Wrap<TNext>(Func<TNext> next)
-        => () => new(next());
+    internal static Func<T, ValueTask<TNext>> AsValueTask<T, TNext>(Func<T, Task<TNext>> map)
+        => async value => await map(value);
 
-    internal static Func<T, ValueTask<Result<TNext>>> WrapAsync<T, TNext>(Func<T, Result<TNext>> next)
-        => value => ValueTask.FromResult(next(value));
+    internal static Func<Problem, ValueTask<Result<TNext>>> AsValueTask<TNext>(Func<Problem, Task<Result<TNext>>> rescue)
+        => async value => await rescue(value);
 
-    internal static Func<T, ValueTask<Result<TNext>>> WrapAsync<T, TNext>(Func<T, TNext> next)
-        => value => ValueTask.FromResult<Result<TNext>>(new(next(value)));
+    internal static Func<ValueTask<Result<TNext>>> AsValueTask<TNext>(Func<Task<Result<TNext>>> bind)
+        => async () => await bind();
 
-    internal static Func<T, ValueTask<Result<TNext>>> WrapAsync<T, TNext>(Func<T, ValueTask<TNext>> next)
-        => async value => new(await next(value));
-
-    internal static Func<T, ValueTask<Result<TNext>>> WrapAsync<T, TNext>(Func<T, Task<TNext>> next)
-        => async value => new(await next(value));
-
-    internal static Func<T, ValueTask<Result<TNext>>> WrapAsync<T, TNext>(Func<T, Task<Result<TNext>>> next)
-        => async value => await next(value);
-
-    internal static Func<ValueTask<Result<TNext>>> WrapAsync<TNext>(Func<Task<Result<TNext>>> next)
-        => async () => await next();
-
-    internal static Func<ValueTask<Result<TNext>>> WrapAsync<TNext>(Func<ValueTask<TNext>> next)
-        => async () => new(await next());
-
-    internal static Func<ValueTask<Result<TNext>>> WrapAsync<TNext>(Func<Task<TNext>> next)
-        => async () => new(await next());
+    internal static Func<ValueTask<TNext>> AsValueTask<TNext>(Func<Task<TNext>> map)
+        => async () => await map();
 
     internal static Func<T, Result<T>> Wrap<T>(Action<T> onValue) => value =>
     {
         onValue(value);
         return new(value);
-    };
-
-    internal static Func<Result<None>> Wrap(Action onValue) => () =>
-    {
-        onValue();
-        return Result.Ok;
     };
 
     internal static Func<T, ValueTask<Result<T>>> WrapAsync<T>(Func<T, Task> onValue) => async value =>
@@ -54,6 +33,12 @@ internal static class FunctionAdaptation
     {
         await onValue(value);
         return new(value);
+    };
+
+    internal static Func<Result<None>> Wrap(Action onValue) => () =>
+    {
+        onValue();
+        return Result.Ok;
     };
 
     internal static Func<ValueTask<Result<None>>> WrapAsync(Func<Task> onValue) => async () =>
