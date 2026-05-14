@@ -68,7 +68,7 @@ public readonly struct Result<T>
     /// </summary>
     /// <exception cref="InvalidOperationException">Thrown when the constructor is accessed.</exception>
     public Result() => throw new InvalidOperationException(
-            "Creating a Result with the default parameterless constructor is forbidden."
+            $"Creating a {nameof(Result<>)} with the default parameterless constructor is forbidden."
         );
 
     /// <summary>
@@ -117,4 +117,7 @@ public readonly struct Result<T>
     /// </summary>
     /// <param name="problem">The Problem instance containing error details to be represented as a Result{T}.</param>
     public static implicit operator Result<T>(Problem problem) => new(problem);
+
+    /// <inheritdoc />
+    public override string ToString() => Problem is not null ? $"Problem: {Problem}" : $"Value: {Value}";
 }
