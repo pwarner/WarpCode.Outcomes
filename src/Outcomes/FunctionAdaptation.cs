@@ -17,12 +17,6 @@ internal static class FunctionAdaptation
     internal static Func<ValueTask<TNext>> AsValueTask<TNext>(Func<Task<TNext>> map)
         => async () => await map();
 
-    internal static Func<T, Result<T>> Wrap<T>(Action<T> onValue) => value =>
-    {
-        onValue(value);
-        return new(value);
-    };
-
     internal static Func<T, ValueTask<Result<T>>> WrapAsync<T>(Func<T, Task> onValue) => async value =>
     {
         await onValue(value);
@@ -35,11 +29,6 @@ internal static class FunctionAdaptation
         return new(value);
     };
 
-    internal static Func<Result<None>> Wrap(Action onValue) => () =>
-    {
-        onValue();
-        return Result.Ok;
-    };
 
     internal static Func<ValueTask<Result<None>>> WrapAsync(Func<Task> onValue) => async () =>
     {
@@ -51,12 +40,6 @@ internal static class FunctionAdaptation
     {
         await onValue();
         return Result.Ok;
-    };
-
-    internal static Func<Problem, Result<T>> Wrap<T>(Action<Problem> onProblem) => problem =>
-    {
-        onProblem(problem);
-        return new(problem);
     };
 
     internal static Func<Problem, ValueTask<Result<T>>> WrapAsync<T>(Func<Problem, Task> onProblem) => async problem =>
