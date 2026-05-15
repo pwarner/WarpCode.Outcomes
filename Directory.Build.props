@@ -1,10 +1,11 @@
 <Project>
-	<PropertyGroup>
-		<TargetFrameworks>net8.0</TargetFrameworks>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-		<LangVersion>latest</LangVersion>
-		<Authors>Pete Warner (@pwarner)</Authors>
-		<Copyright>Peter Warner</Copyright>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <LangVersion>14.0</LangVersion>
+    <Authors>Pete Warner (@pwarner)</Authors>
+    <Copyright>Peter Warner</Copyright>
+  </PropertyGroup>
 </Project>

@@ -1,40 +1,40 @@
-# Composing Outcomes
+# Composing Results
 
-You can compose (or chain) expressions that return Outcomes (and Tasks of Outcomes and ValueTasks of Outcomes)
+You can compose (or chain) expressions that return Results (and Tasks of Results and ValueTasks of Results)
 together with one of two approaches:
 1. With Then and ThenAsync
 2. With the LINQ comprehension known as the natural query style.
 
-## Compose an `Outcome<T>` with `Then` and a map function.
+## Compose an `Result<T>` with `Then` and a map function.
 
-The `map` function parameter is a `Func<T,TNext>` delegate that's executed if the outcome **does not** carry a problem.
+The `map` function parameter is a `Func<T,TNext>` delegate that's executed if the result **does not** carry a problem.
 
 ```csharp
-Outcome<string> FormatDate(Outcome<DateTime> input) =>
+Result<Tstring> FormatDate(Result<TDateTime> input) =>
     input.Then(dt => dt.ToString("yyyy/MM/dd"));
 ```
 
-A map function can also be used with a `Task<Outcome<T>>` or `ValueTask<Outcome<T>>` by using `ThenAsync`.
+A map function can also be used with a `Task<Result<T>>` or `ValueTask<Result<T>>` by using `ThenAsync`.
 
 ```csharp
-Task<Outcome<string>> FormatDateAsyc(Task<Outcome<DateTime>> input) =>
+Task<Result<Tstring>> FormatDateAsyc(Task<Result<TDateTime>> input) =>
     input.ThenAsync(dt => dt.ToString("yyyy/MM/dd"));
 ```
 
-## Transform an `Outcome<T>` with `from` and `select`
+## Transform an `Result<T>` with `from` and `select`
 
 We can achieve the same thing using a LINQ comprehension.
 
 ```csharp
-Outcome<string> FormatDate(Outcome<DateTime> input) =>
+Result<Tstring> FormatDate(Result<TDateTime> input) =>
     from dt in input
     select dt.ToString("yyyy/MM/dd");
 ```
 
-As before, this works in asynchronous scenarios, with both `Task<Outcome<T>>` and `ValueTask<Outcome<T>>`:
+As before, this works in asynchronous scenarios, with both `Task<Result<T>>` and `ValueTask<Result<T>>`:
 
 ```csharp
-ValueTask<Outcome<string>> FormatDate(ValueTask<Outcome<DateTime>> input) =>
+ValueTask<Result<Tstring>> FormatDate(ValueTask<Result<TDateTime>> input) =>
     from dt in input
     select dt.ToString("yyyy/MM/dd");
 ```
@@ -52,18 +52,18 @@ In the example above, if the `input` Outcome holds an instance of `IProblem` ins
 
 ## Further composition with factory functions
 
-The `Then` composition accepts a factory delegate that is passed the current value to create an outcome.
+The `Then` composition accepts a factory delegate that is passed the current value to create an result.
 
 ```csharp
     // Composing with a map function
-    public static Outcome<TNext> Then<T, TNext>(
-        this Outcome<T> map,
+    public static Result<TTNext> Then<T, TNext>(
+        this Result<T> map,
         Func<T, TNext> map) { ... }
 
     // Composing with a factory function
-    public static Outcome<TNext> Then<T, TNext>(
-        this Outcome<T> self,
-        Func<T, Outcome<TNext>> factory) { ... }
+    public static Result<TTNext> Then<T, TNext>(
+        this Result<T> self,
+        Func<T, Result<TTNext>> factory) { ... }
 ```
 
 Composition with factory functions is the *glue* that allows you to compose multiple logical steps that each return an Outcome.
@@ -72,31 +72,31 @@ Here's an entirely contrived example. I know you were hoping for another to-do l
 going to have to settle for the traditional *Fetch Order from the Database* routine.
 
 ```csharp
-Task<Outcome<GetOrderResult>> FetchOrderAsync(GetOrderRequest request, CancellationToken ct) =>
+Task<Result<TGetOrderResult>> FetchOrderAsync(GetOrderRequest request, CancellationToken ct) =>
     _validator.Validate(request)
     .ThenAsync(_ =>_FetchOrderAsync(request, ct)) // factory
     .ThenAsync(EnsureOrderExists) // factory
     .ThenAsync(order => new GetOrderResult(order)); // map
 ```
 
-Notice the return type is `Task<Outcome<GetOrderRequest>>` because we compose with an async expression. (`ValueTask<Outcome<GetOrderRequest>>` is also supported.)
+Notice the return type is `Task<Result<TGetOrderRequest>>` because we compose with an async expression. (`ValueTask<Result<TGetOrderRequest>>` is also supported.)
 
-- `validator.Validate()` validates the incoming request and returns an `Outcome<None>`. 
+- `validator.Validate()` validates the incoming request and returns an `Result<TNone>`. 
 Remember, that's an Outcome that doesn't carry a value we're interested in, but it could carry a Problem.
 
 If the request was invalid, this will hold a problem representing all of the validation errors.
 
-The rest of the composition will not be evaluated and will immediately return an outcome holding this problem.
+The rest of the composition will not be evaluated and will immediately return an result holding this problem.
 
 - Next, an Entity Framework DBContext is invoked asychronously to return an `Task<Order?>`. 
 
 The implementation of `FetchOrderAsync` looks like this:
 ```csharp
-private async Task<Outcome<Order?>> FetchOrderAsnc(GetOrderRequest request, CancellationToken ct) =>
+private async Task<Result<TOrder?>> FetchOrderAsnc(GetOrderRequest request, CancellationToken ct) =>
     await _dbContext.Orders.FindAsync(request.OrderId, cancellationToken: ct);
 ```
 
-Although `FindAsync` returns a `Task<Order?>`, thanks to implicit coversion, the awaited `Order?` value becomes an `Outcome<Order?>`.
+Although `FindAsync` returns a `Task<Order?>`, thanks to implicit coversion, the awaited `Order?` value becomes an `Result<TOrder?>`.
 
 - Next, if there no order was fetched with this ID, the Outcome returned by `EnsureOrderExists` will hold some kind of `EntityNotFoundProblem`. 
 The composition will halt immediately, and this problem is used to create the return value.
@@ -104,7 +104,7 @@ The composition will halt immediately, and this problem is used to create the re
 The implementation of `EnsureOrderExists` looks like this:
 
 ```csharp
-private static Outcome<Order> EnsureOrderExists(Order? maybeOrder) =>
+private static Result<TOrder> EnsureOrderExists(Order? maybeOrder) =>
     maybeOrder switch
     {
         null => new EntityNotFoundProblem<Order>(),
@@ -120,7 +120,7 @@ What does this look like as a LINQ comprehension?
 ## LINQ-Style composition with multiple `from` clauses
 
 ```csharp
-Task<Outcome<GetOrderResult>> FetchOrderAsync(GetOrderRequest request) =>
+Task<Result<TGetOrderResult>> FetchOrderAsync(GetOrderRequest request) =>
     from _ in _validator.Validate(request)
     from maybeOrder in FetchOrderAsync(request)
     from order in EnsureOrderExists(maybeOrder)
@@ -131,70 +131,70 @@ Task<Outcome<GetOrderResult>> FetchOrderAsync(GetOrderRequest request) =>
 The value of the Outcome in each step is **in scope** to all subsequent clauses. 
 `GetOrderResult` here could take `maybeOrder` as a parameter because it is still in scope, even though it was not on the immediately preceding line.
 
-## Special case: Composing Then/ThenAsync with `Outcome<None>`
+## Special case: Composing Then/ThenAsync with `Result<TNone>`
 
 ```csharp
 var result = Outcome.Of(1).Then(x=> Outcome.Ok);
 ```
-What is the generic type of the outcome stored in `result`? 
+What is the generic type of the result stored in `result`? 
 
-In the code above, the factory function used in `Then` returns an `Outcome<None>`.
+In the code above, the factory function used in `Then` returns an `Result<TNone>`.
 
 The method signature looks like this:
 
 ```csharp
-public static Outcome<TNext> Then<T, TNext>(
-        this Outcome<T> self,
-        Func<T, Outcome<TNext>> factory)
+public static Result<TTNext> Then<T, TNext>(
+        this Result<T> self,
+        Func<T, Result<TTNext>> factory)
 ```
-Without intervention, the generic type `TNext` will be of type `None`, so result will be of type `Outcome<None>`.
+Without intervention, the generic type `TNext` will be of type `None`, so result will be of type `Result<TNone>`.
 
 That's going to be annoying when composing logic because we've lost the integer type and value that we composed on.
 
-What we really want when we compose with `Outcome<None>` is to pick up any problem it holds, but as it is value-less, 
+What we really want when we compose with `Result<TNone>` is to pick up any problem it holds, but as it is value-less, 
 we'd like to hold on to the value we start with.
 
-Luckily for us, the library treats `Then/ThenAsync` with a delegate that returns `None` or `Outcome<None>` as a special case thanks to this overload:
+Luckily for us, the library treats `Then/ThenAsync` with a delegate that returns `None` or `Result<TNone>` as a special case thanks to this overload:
 ```csharp
-public static Outcome<T> Then<T>(
-        this Outcome<T> self,
-        Func<T, Outcome<None>> factory)
+public static Result<T> Then<T>(
+        this Result<T> self,
+        Func<T, Result<TNone>> factory)
 ```
 
 Revealing the answer to the fiendish puzzle above:
 
 ```csharp
-Outcome<int> result = Outcome.Of(1).Then(x=> Outcome.Ok);
+Result<Tint> result = Outcome.Of(1).Then(x=> Outcome.Ok);
 ```
-The return type is an `Outcome<int>` which will hold 1 because the outcome returned by the factory delegate doesn't hold a problem.
+The return type is an `Result<Tint>` which will hold 1 because the result returned by the factory delegate doesn't hold a problem.
 
 > This special case only applies to `Then/ThenAsync` method of compisition.
-> With `from x in y` LINQ style composition, all values of outcomes in a composition chain are in scope so we never see the case of 'losing' a previous composition value.
+> With `from x in y` LINQ style composition, all values of results in a composition chain are in scope so we never see the case of 'losing' a previous composition value.
 
 
 ## Outcome-compatible expressions
 With `from value in expression` or the `Then`/`ThenAsync` syntax, you can compose expressions that evaluate to any of the following:
 
-- `Outcome<T>`
-- `Task<Outcome<T>>`
-- `ValueTask<Outcome<T>>`
+- `Result<T>`
+- `Task<Result<T>>`
+- `ValueTask<Result<T>>`
 
 Additionally, the following types are also available thanks to Outcome adaptation.
 
-- `Task<T>`(adapts to `Task<Outcome<T>>`)
-- `ValueTask<T>` (adapts to `ValueTask<Outcome<T>>`)
-- `Task`(adapts to `Task<Outcome<None>>`)
-- `ValueTask` (adapts to `ValueTask<Outcome<None>>`)
+- `Task<T>`(adapts to `Task<Result<T>>`)
+- `ValueTask<T>` (adapts to `ValueTask<Result<T>>`)
+- `Task`(adapts to `Task<Result<TNone>>`)
+- `ValueTask` (adapts to `ValueTask<Result<TNone>>`)
 
 ---
 ### Index
-- [Why Outcomes?](why-outcomes.md)
+- [Why Results?](why-results.md)
 - [What is a Problem?](what-is-a-problem.md)
-- [Creating Outcomes](creating-outcomes.md)
-- this: Composing Outcomes
-- [Resolving Outcomes](resolving-outcomes.md)
+- [Creating Results](creating-results.md)
+- this: Composing Results
+- [Resolving Results](resolving-results.md)
 
 ### further reading / miscellaneous
-- [Outcome Extensions](outcome-extensions.md)
-- [Adapting to Outcomes](outcome-adaptation.md)
-- [Outcomes as Monads](outcomes-as-monads.md)
+- [Result Aggregation](result-extensions.md)
+- [Adapting to Results](result-adaptation.md)
+- [Results as Monads](results-as-monads.md)

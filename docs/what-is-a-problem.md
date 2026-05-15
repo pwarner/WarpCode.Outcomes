@@ -1,26 +1,23 @@
 # What is a problem?
 
-The Outcomes library defines a problem as:
+The Results library defines a problem as:
 
 ```csharp
-/// <summary>
-/// Represents a simple, immutable data object intended to replace the practice of throwing exceptions in your code when a business rule fails.
-/// </summary>
-public interface IProblem
+public record Problem(string Detail)
 {
     /// <summary>
     /// Human-readable detail of the problem that occured.
     /// </summary>
-    string Detail { get; }
+    public string Detail { get; init; } = Detail ?? throw new ArgumentNullException(nameof(Detail));
 }
 ```
 
 This contract's single `Detail` property mirrors the `Message` property of an exception.
 
-The library contains an implementation `Problem` which can be used directly in simple cases, and which *implicitly* converts to an Outcome, as this very silly example shows:
+Problems are record types, so they are immutable by design. They *implicitly* convert to a Result, as this very silly example shows:
 
 ```csharp
-Outcome<int> ProcessWithdrawal(Withdrawal withdrawl)
+Result<Tint> ProcessWithdrawal(Withdrawal withdrawl)
 {
     if(withdrawal.Amount > _account.Balance)
         return new Problem("Insufficient funds in account to process transaction");
@@ -30,8 +27,6 @@ Outcome<int> ProcessWithdrawal(Withdrawal withdrawl)
     return remainingBalance;
 }
 ```
-
-You can derive from this Problem class, or choose to implement `IProblem` yourself. Any type implementing `IProblem` can be *explicitly* converted to an outcome via the `.ToOutcome()` or `.ToOutcome<T>` extensions.
 
 Typically, you will want to define your own hierarchy of strongly-typed problems that reflect real-life domain problems. 
 
@@ -45,7 +40,7 @@ public class EntityNotFoundProblem<T>: Problem
     public string MissingId {get;}
 } 
 ```
-Later, when you [resolve an outcome](resolving-outcomes.md), the type of the problem will be useful for determining the resolution value. 
+Later, when you [resolve a result](resolving-results.md), the type of the problem will be useful for determining the resolution value. 
 
 ## What is not a Problem
 Not every case where you throw an exception is a candidate for replacing with a problem. 
@@ -62,13 +57,13 @@ throw new ArgumentOutOfRange(nameof(date), "The date is not in range");
 
 ---
 ### Index
-- [Why Outcomes?](why-outcomes.md)
+- [Why Results?](why-results.md)
 - this: What is a Problem?
-- [Creating Outcomes](creating-outcomes.md)
-- [Composing Outcomes](composing-outcomes.md)
-- [Resolving Outcomes](resolving-outcomes.md)
+- [Creating Results](creating-results.md)
+- [Composing Results](composing-results.md)
+- [Resolving Results](resolving-results.md)
 
 ### further reading / miscellaneous
-- [Outcome Extensions](outcome-extensions.md)
-- [Adapting to Outcomes](outcome-adaptation.md)
-- [Outcomes as Monads](outcomes-as-monads.md)
+- [Result Aggregation](result-extensions.md)
+- [Adapting to Results](result-adaptation.md)
+- [Results as Monads](results-as-monads.md)

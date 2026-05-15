@@ -4,9 +4,15 @@
     <RootNamespace>WarpCode.Outcomes.Tests</RootNamespace>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="xunit.v3" />
   </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\..\src\Outcomes\Outcomes.csproj" />
   </ItemGroup>

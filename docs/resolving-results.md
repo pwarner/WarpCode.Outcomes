@@ -1,22 +1,22 @@
-# Resolving Outcomes
+# Resolving Results
 
 At the end of a pipeline of operations returning Outomes, you'll need to leave the 'rails' and return a final value that makes sense for your application, for example in a Web API that resolves to an `IActionResult` or `IResult`.
 
-The Match method resolves your outcomes to a final return value. 
+The Match method resolves your results to a final return value. 
 It takes two delegates - one to resolve the `Success Outcome` state,
 and one to resolve the `Problem Outcome` state.
 
 ```csharp
-Task<Outcome<OrderDetailDto>> Pipeline(OrderDetailRequest request) =>
+Task<Result<TOrderDetailDto>> Pipeline(OrderDetailRequest request) =>
     from isValid in Validate(request)
     from orderDetail in FetchOrderDetailsAsync(request.OrderId)
     select MapToDto(orderDetail);
 
 public async Task<IResult> GetOrderDetail(OrderDetailRequest request)
 {
-    Outcome<OrderDetailDto> outcome = await Pipline(request);
+    Result<TOrderDetailDto> result = await Pipline(request);
 
-    return outcome.Match(
+    return result.Match(
         value=> Results.Of(value),
         problem => problem switch
         {
@@ -50,17 +50,17 @@ public Task<IResult> GetOrderDetail(OrderDetailRequest request) =>
 In the examples above, a switch expression is used to handle multiple problems defined in our application.
 
 Most likely, you'll want to create a single function that resolves multiple problem cases to appropriate response types,
-that can be used anywhere you resolve an outcome. If you write this as an extension method, outcome resolution looks much simpler.
+that can be used anywhere you resolve an result. If you write this as an extension method, result resolution looks much simpler.
 
 ```csharp
 
 public static class OutcomeResolverExtensions
 {
-    public static IResult ToResult<T>(this Outcome<T> outcome, Func<T, IResult> valueResolver) =>
-        outcome.Match(valueResolver, ProblemResolver);
+    public static IResult ToResult<T>(this Result<T> result, Func<T, IResult> valueResolver) =>
+        result.Match(valueResolver, ProblemResolver);
 
-    public static IResult ToResult<T>(this Outcome<T> outcome) =>
-        outcome.Match(DefaultValueResolver<T>, ProblemResolver);
+    public static IResult ToResult<T>(this Result<T> result) =>
+        result.Match(DefaultValueResolver<T>, ProblemResolver);
 
     private static IResult DefaultValueResolver<T>(T value) => 
         Results.Ok(value);
@@ -77,13 +77,13 @@ public static class OutcomeResolverExtensions
 
 ---
 ### Index
-- [Why Outcomes?](why-outcomes.md)
+- [Why Results?](why-results.md)
 - [What is a Problem?](what-is-a-problem.md)
-- [Creating Outcomes](creating-outcomes.md)
-- [Composing Outcomes](composing-outcomes.md)
-- this: Resolving Outcomes
+- [Creating Results](creating-results.md)
+- [Composing Results](composing-results.md)
+- this: Resolving Results
 
 ### further reading / miscellaneous
-- [Outcome Extensions](outcome-extensions.md)
-- [Adapting to Outcomes](outcome-adaptation.md)
-- [Outcomes as Monads](outcomes-as-monads.md)
+- [Result Aggregation](result-extensions.md)
+- [Adapting to Results](result-adaptation.md)
+- [Results as Monads](results-as-monads.md)

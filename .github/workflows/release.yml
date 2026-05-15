@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  release:
+    types: [ published ]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  publish:
+    name: Build and Publish to NuGet
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          8.0.x
+          10.0.x
+          
+    - name: Extract version from tag
+      id: get_version
+      run: |
+        # Remove 'v' prefix from tag (e.g., v1.0.0 -> 1.0.0)
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "Building version: $VERSION"
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+      
+    - name: Test
+      run: dotnet test --no-build --configuration Release --verbosity normal
+      
+    - name: Pack
+      run: |
+        dotnet pack src/Smidgen/Smidgen.csproj \
+          --no-build \
+          --configuration Release \
+          --output ./artifacts \
+          /p:Version=${{ steps.get_version.outputs.VERSION }} \
+          /p:PackageReleaseNotes="See https://github.com/pwarner/WarpCode.Outcomes/releases/tag/v${{ steps.get_version.outputs.VERSION }}"
+          
+    - name: Publish to NuGet
+      run: |
+        dotnet nuget push ./artifacts/*.nupkg \
+          --api-key ${{ secrets.NUGET_API_KEY }} \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate
+          
+    - name: Upload artifacts to release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          ./artifacts/*.nupkg
+          ./artifacts/*.snupkg

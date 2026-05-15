@@ -43,7 +43,7 @@ public class ResultAggregationTests
     [Fact]
     public void Aggregate_ShouldCreateResultOfFirstProblem_WhenBailEarlyNoValues()
     {
-        var expected = Result.FromProblem(TestProblem);
+        var expected = Result.OfProblem(TestProblem);
         Result<None> actual = SomeProblems().Aggregate(bailEarly: true);
 
         Assert.Equal(expected, actual);
@@ -52,7 +52,7 @@ public class ResultAggregationTests
     [Fact]
     public async Task AggregateAsync_ShouldCreateResultOfFirstProblem_WhenBailEarlyNoValues()
     {
-        var expected = Result.FromProblem(TestProblem);
+        var expected = Result.OfProblem(TestProblem);
         Result<None> actual = await AsyncOf(SomeProblems()).AggregateAsync(bailEarly: true);
 
         Assert.Equal(expected, actual);
@@ -61,7 +61,7 @@ public class ResultAggregationTests
     [Fact]
     public void Aggregate_ShouldCreateResultOfFirstProblem_WhenBailEarly()
     {
-        var expected = Result.FromProblem<int[]>(TestProblem);
+        var expected = Result.OfProblem<int[]>(TestProblem);
         Result<int[]> actual = SomeIntProblems().Aggregate(bailEarly: true);
 
         Assert.Equal(expected, actual);
@@ -70,7 +70,7 @@ public class ResultAggregationTests
     [Fact]
     public async Task AggregateAsync_ShouldCreateResultOfFirstProblem_WhenBailEarly()
     {
-        var expected = Result.FromProblem<int[]>(TestProblem);
+        var expected = Result.OfProblem<int[]>(TestProblem);
         Result<int[]> actual = await AsyncOf(SomeIntProblems()).AggregateAsync(bailEarly: true);
 
         Assert.Equal(expected, actual);

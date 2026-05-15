@@ -8,7 +8,7 @@ public class ResultTests
     public void Should_CreateResult_FromValueImplicitly() => Assert.Equal(new Result<int>(10), 10);
 
     [Fact]
-    public void Should_CreateResult_FromOfEntryHelper() => Assert.Equal(new Result<int>(10), Result.From(10));
+    public void Should_CreateResult_FromOfEntryHelper() => Assert.Equal(new Result<int>(10), Result.Of(10));
 
     [Fact]
     public void Should_CreateValuelessResult_FromOkEntryHelper() => Assert.Equal(new Result<None>(default(None)), Result.Ok);
@@ -17,16 +17,16 @@ public class ResultTests
     public void Should_CreateProblemResult_Implicitly() => Assert.Equal(new Result<None>(TestProblem), TestProblem);
 
     [Fact]
-    public void Should_CreateProblemResult_FromToResultExtension() => Assert.Equal(new Result<None>(TestProblem), Result.FromProblem(TestProblem));
+    public void Should_CreateProblemResult_FromToResultExtension() => Assert.Equal(new Result<None>(TestProblem), Result.OfProblem(TestProblem));
 
     [Fact]
-    public void Should_CreateStronglyTypedProblemResult_FromToResultExtension() => Assert.Equal(new Result<int>(TestProblem), Result.FromProblem<int>(TestProblem));
+    public void Should_CreateStronglyTypedProblemResult_FromToResultExtension() => Assert.Equal(new Result<int>(TestProblem), Result.OfProblem<int>(TestProblem));
 
     [Fact]
-    public void Should_CreateProblemResult_FromProblemHelper() => Assert.Equal(new Result<None>(TestProblem), Result.FromProblem(TestProblem));
+    public void Should_CreateProblemResult_FromProblemHelper() => Assert.Equal(new Result<None>(TestProblem), Result.OfProblem(TestProblem));
 
     [Fact]
-    public void Should_CreateStronglyTypedProblemResult_ProblemHelper() => Assert.Equal(new Result<int>(TestProblem), Result.FromProblem<int>(TestProblem));
+    public void Should_CreateStronglyTypedProblemResult_ProblemHelper() => Assert.Equal(new Result<int>(TestProblem), Result.OfProblem<int>(TestProblem));
 
     [Fact]
     public void Match_ShouldResolveWithOnSuccessFunction_WhenNoProblem() => Assert.True(Result.Ok.Match(_ => true, _ => false));

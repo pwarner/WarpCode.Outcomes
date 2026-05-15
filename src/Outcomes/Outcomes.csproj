@@ -3,43 +3,30 @@
     <Title>WarpCode.Outcomes</Title>
     <Description>
       A small, monadic Result-type library, targeting .Net 8.x and above.
-      Outcomes are a fluent, compositonal discriminated union type representing a result value or a problem.
-      Outcomes supports R.O.P. flow control (Railway Orientated Programming) via composition 
-      with async support, LINQ natural query form, or fliuent style with Then/ThenAsync.
+      Results are a fluent, compositonal discriminated union type representing a result value or a problem.
+      Results supports R.O.P. flow control (Railway Orientated Programming) via composition 
+      with full async support.
     </Description>
     <PackageProjectUrl>https://github.com/pwarner/WarpCode.Outcomes</PackageProjectUrl>
-    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>WarpCode;Outcomes;WarpCode.Outcomes;Result;Results;Result Union;Either;ErrorOr;OneOf;ROP;Railway Orientated Programming</PackageTags>
     <RepositoryUrl>https://github.com/pwarner/WarpCode.Outcomes</RepositoryUrl>
-    <PackageLicenseFile>license.md</PackageLicenseFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <RootNamespace>WarpCode.Outcomes</RootNamespace>
     <PackageId>WarpCode.Outcomes</PackageId>
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-  </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\license.md">
+    <None Include="..\..\LICENSE">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <None Include="..\..\readme.md">
+    <None Include="..\..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="MinVer">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 
 </Project>

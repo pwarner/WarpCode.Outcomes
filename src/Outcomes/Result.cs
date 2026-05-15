@@ -19,7 +19,7 @@ public static class Result
     /// <typeparam name="T">The type of the result value.</typeparam>
     /// <param name="value">The value with which to produce a result.</param>
     /// <returns>An <see cref="Result{T}"/> representing this value.</returns>
-    public static Result<T> From<T>(T value) => new(value);
+    public static Result<T> Of<T>(T value) => new(value);
 
     /// <summary>
     /// Creates a new <see cref="Result{T}"/> from a <see cref="Problem"/>.
@@ -27,7 +27,7 @@ public static class Result
     /// <typeparam name="T">The type of the result value.</typeparam>
     /// <param name="problem">The problem instance.</param>
     /// <returns>A Result{T} that represents the specified problem.</returns>
-    public static Result<T> FromProblem<T>(Problem problem) => new(problem);
+    public static Result<T> OfProblem<T>(Problem problem) => new(problem);
 
     /// <summary>
     /// Creates a new <see cref="Result{T}"/> from a problem detail message.
@@ -35,21 +35,21 @@ public static class Result
     /// <typeparam name="T">The type of the result value.</typeparam>
     /// <param name="detail">The detail message with which to initialise the problem.</param>
     /// <returns>A Result{T} that represents the specified problem.</returns>
-    public static Result<T> FromProblem<T>(string detail) => new(new Problem(detail));
+    public static Result<T> OfProblem<T>(string detail) => new(new Problem(detail));
 
     /// <summary>
     /// Creates a new <see cref="Result{None}"/> from a <see cref="Problem"/>.
     /// </summary>
     /// <param name="problem">The problem instance.</param>
     /// <returns>A Result{T} that represents the specified problem.</returns>
-    public static Result<None> FromProblem(Problem problem) => new(problem);
+    public static Result<None> OfProblem(Problem problem) => new(problem);
 
     /// <summary>
     /// Creates a new <see cref="Result{None}"/> from a problem detail message.
     /// </summary>
     /// <param name="detail">The detail message with which to initialise the problem.</param>
     /// <returns>A Result{T} that represents the specified problem.</returns>
-    public static Result<None> FromProblem(string detail) => new(new Problem(detail));
+    public static Result<None> OfProblem(string detail) => new(new Problem(detail));
 }
 
 /// <summary>

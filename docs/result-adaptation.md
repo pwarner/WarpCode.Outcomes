@@ -1,13 +1,13 @@
-# Adapting to Outcomes
+# Adapting to Results
 
-You've started using Outcomes in your code, because you're a talented and discerning developer.
+You've started using Results in your code, because you're a talented and discerning developer.
 
-But there's a lot of other code you have to work with that doesn't use Outcomes. 
+But there's a lot of other code you have to work with that doesn't use Results. 
 It's not at all viable to change that code to use them, and often not possible because *it's not your code*.
 
-Happily, you can still work with methods that don't return Outcomes via a simple adaptation wrapper.
+Happily, you can still work with methods that don't return Results via a simple adaptation wrapper.
 
-For example, in the code below, the method `GetReservationAsync` doesn't return a `Task<Outcome<Reservation>>`. 
+For example, in the code below, the method `GetReservationAsync` doesn't return a `Task<Result<TReservation>>`. 
 Any problems that occur during invocation of that method result in an exception being thrown.
 Specifically, the method documentation tells you that it throws: 
 - An `ArgumentNullException` if the `bookingId` parameter is null.
@@ -27,7 +27,7 @@ To adapt this method for use, we need to do two things:
 An `ExceptionMap` is just a delegate with the following signature:
 ```csharp
 /// <summary>
-/// A function called when exceptions are thrown by code instead of returning outcomes.
+/// A function called when exceptions are thrown by code instead of returning results.
 /// If the function returns a <see cref="IProblem"/> then a new <see cref="Outcome{T}"/>
 /// will be returned by the adaptive methods. If null is returned, the exception will be re-thrown.
 /// </summary>
@@ -51,7 +51,7 @@ await GetReservationAsync(bookingId).ToOutcome(e=>
 As it's quite a common use case to only need to map a single exception type to a problem, there's a convenient short-cut syntax:
 ```csharp
 await GetReservationAsync(bookingId)
-.ToOutcome<Reservation, BookingNotFoundException>(e=> 
+.ToResult<TReservation, BookingNotFoundException>(e=> 
 	new NotFoundProblem($"Could not find booking with Id {bookingId}");
 ```
 This approach makes use of the generic `ExceptionMap<TException>` delegate, 
@@ -87,12 +87,12 @@ The `ToOutcome()` extension method is available for:
 
 |Target type|Adapts to|
 |--|--|
-|`System.Func<T>`|`Outcome<T>`|
-|`System.Action`|`Outcome<None>`|
-| `Task<T>` | `Task<Outcome<T>>` |
-| `Task` | `Task<Outcome<None>>` |
-| `ValueTask<T>` | `ValueTask<Outcome<T>>` |
-| `ValueTask` | `ValueTask<Outcome<None>>` |
+|`System.Func<T>`|`Result<T>`|
+|`System.Action`|`Result<TNone>`|
+| `Task<T>` | `Task<Result<T>>` |
+| `Task` | `Task<Result<TNone>>` |
+| `ValueTask<T>` | `ValueTask<Result<T>>` |
+| `ValueTask` | `ValueTask<Result<TNone>>` |
 
 
 
@@ -101,17 +101,17 @@ It might be tempting to try and catch all exceptions of type `Exception` and ret
 
 This is a bad idea. Mapping all exceptions would swallow up guard exceptions like `ArgumentNullException` and `AgumentException`, thrown when you misuse an API. 
 
-Outcomes help to replace throwing Exceptions to represent violations of business state, but they are most definitely **not** intended to replace throwing Exceptions *when exceptional conditions occur*.
+Results help to replace throwing Exceptions to represent violations of business state, but they are most definitely **not** intended to replace throwing Exceptions *when exceptional conditions occur*.
 
 ---
 ### Index
-- [Why Outcomes?](why-outcomes.md)
+- [Why Results?](why-results.md)
 - [What is a Problem?](what-is-a-problem.md)
-- [Creating Outcomes](creating-outcomes.md)
-- [Composing Outcomes](composing-outcomes.md)
-- [Resolving Outcomes](resolving-outcomes.md)
+- [Creating Results](creating-results.md)
+- [Composing Results](composing-results.md)
+- [Resolving Results](resolving-results.md)
 
 ### further reading / miscellaneous
-- [Outcome Extensions](outcome-extensions.md)
-- this: Adapting to Outcomes
-- [Outcomes as Monads](outcomes-as-monads.md)
+- [Result Aggregation](result-extensions.md)
+- this: Adapting to Results
+- [Results as Monads](results-as-monads.md)

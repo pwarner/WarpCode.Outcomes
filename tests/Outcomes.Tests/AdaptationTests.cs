@@ -28,7 +28,7 @@ public class AdaptationTests
 
         var actual = Adapt.ToResult(Func, TestMap);
 
-        Assert.Equal(Result.From(13), actual);
+        Assert.Equal(Result.Of(13), actual);
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public class AdaptationTests
     {
         var actual = ThrowFunc.ToResult(TestMap);
 
-        Assert.Equal(Result.FromProblem<int>(Message), actual);
+        Assert.Equal(Result.OfProblem<int>(Message), actual);
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public class AdaptationTests
     {
         var actual = ThrowFunc.ToResult<int, ApplicationException>(StrongTestMap);
 
-        Assert.Equal(Result.FromProblem<int>(Message), actual);
+        Assert.Equal(Result.OfProblem<int>(Message), actual);
     }
 
     [Fact]
@@ -54,7 +54,7 @@ public class AdaptationTests
 
         var actual = ThrowFunc.ToResult();
 
-        Assert.Equal(Result.FromProblem<int>(Message), actual);
+        Assert.Equal(Result.OfProblem<int>(Message), actual);
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public class AdaptationTests
     {
         var actual = ThrowAction.ToResult(TestMap);
 
-        Assert.Equal(Result.FromProblem(Message), actual);
+        Assert.Equal(Result.OfProblem(Message), actual);
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public class AdaptationTests
     {
         var actual = ThrowAction.ToResult<ApplicationException>(StrongTestMap);
 
-        Assert.Equal(Result.FromProblem(Message), actual);
+        Assert.Equal(Result.OfProblem(Message), actual);
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public class AdaptationTests
 
         var actual = ThrowAction.ToResult();
 
-        Assert.Equal(Result.FromProblem(Message), actual);
+        Assert.Equal(Result.OfProblem(Message), actual);
     }
 
     [Fact]
@@ -118,7 +118,7 @@ public class AdaptationTests
 
         Result<int> actual = await valueTask.ToResult();
 
-        Assert.Equal(Result.From(13), actual);
+        Assert.Equal(Result.Of(13), actual);
     }
 
     [Fact]
@@ -128,7 +128,7 @@ public class AdaptationTests
 
         Result<int> actual = await valueTask.ToResult(TestMap);
 
-        Assert.Equal(Result.FromProblem<int>(Message), actual);
+        Assert.Equal(Result.OfProblem<int>(Message), actual);
     }
 
     [Fact]
@@ -138,7 +138,7 @@ public class AdaptationTests
 
         Result<int> actual = await valueTask.ToResult<int, ApplicationException>(StrongTestMap);
 
-        Assert.Equal(Result.FromProblem<int>(Message), actual);
+        Assert.Equal(Result.OfProblem<int>(Message), actual);
     }
 
     [Fact]
@@ -150,7 +150,7 @@ public class AdaptationTests
 
         Result<int> actual = await valueTask.ToResult();
 
-        Assert.Equal(Result.FromProblem<int>(Message), actual);
+        Assert.Equal(Result.OfProblem<int>(Message), actual);
     }
 
     [Fact]
@@ -171,7 +171,7 @@ public class AdaptationTests
 
         Result<int> actual = await task.ToResult();
 
-        Assert.Equal(Result.From(13), actual);
+        Assert.Equal(Result.Of(13), actual);
     }
 
     [Fact]
@@ -181,7 +181,7 @@ public class AdaptationTests
 
         Result<int> actual = await task.ToResult(TestMap);
 
-        Assert.Equal(Result.FromProblem<int>(Message), actual);
+        Assert.Equal(Result.OfProblem<int>(Message), actual);
     }
 
     [Fact]
@@ -191,7 +191,7 @@ public class AdaptationTests
 
         Result<int> actual = await task.ToResult<int, ApplicationException>(StrongTestMap);
 
-        Assert.Equal(Result.FromProblem<int>(Message), actual);
+        Assert.Equal(Result.OfProblem<int>(Message), actual);
     }
 
     [Fact]
@@ -203,7 +203,7 @@ public class AdaptationTests
 
         Result<int> actual = await task.ToResult();
 
-        Assert.Equal(Result.FromProblem<int>(Message), actual);
+        Assert.Equal(Result.OfProblem<int>(Message), actual);
     }
 
     [Fact]
@@ -234,7 +234,7 @@ public class AdaptationTests
 
         Result<None> actual = await valueTask.ToResult(TestMap);
 
-        Assert.Equal(Result.FromProblem(Message), actual);
+        Assert.Equal(Result.OfProblem(Message), actual);
     }
 
     [Fact]
@@ -244,7 +244,7 @@ public class AdaptationTests
 
         Result<None> actual = await valueTask.ToResult<ApplicationException>(StrongTestMap);
 
-        Assert.Equal(Result.FromProblem(Message), actual);
+        Assert.Equal(Result.OfProblem(Message), actual);
     }
 
     [Fact]
@@ -256,7 +256,7 @@ public class AdaptationTests
 
         Result<None> actual = await valueTask.ToResult();
 
-        Assert.Equal(Result.FromProblem(Message), actual);
+        Assert.Equal(Result.OfProblem(Message), actual);
     }
 
     [Fact]
@@ -287,7 +287,7 @@ public class AdaptationTests
 
         Result<None> actual = await task.ToResult(TestMap);
 
-        Assert.Equal(Result.FromProblem(Message), actual);
+        Assert.Equal(Result.OfProblem(Message), actual);
     }
 
     [Fact]
@@ -297,7 +297,7 @@ public class AdaptationTests
 
         Result<None> actual = await task.ToResult<ApplicationException>(StrongTestMap);
 
-        Assert.Equal(Result.FromProblem(Message), actual);
+        Assert.Equal(Result.OfProblem(Message), actual);
     }
 
     [Fact]
@@ -309,7 +309,7 @@ public class AdaptationTests
 
         Result<None> actual = await task.ToResult();
 
-        Assert.Equal(Result.FromProblem(Message), actual);
+        Assert.Equal(Result.OfProblem(Message), actual);
     }
 
     [Fact]
