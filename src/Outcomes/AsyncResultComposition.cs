@@ -36,7 +36,7 @@ public static class AsyncResultComposition
 
     // these instance (non-static) extension members are necessary because the | operator can't be used with async/await keywords
     // so we delegate to these methods that can be used with async/await to implement the operator overloads.
-    // The AsyncResult<T>.Then(...) helper wraps up the value task with the cancellation token into a new AsyncResult,
+    // The `self with { ResultTask = ... }` form creates a new AsyncResult with the same cancellation token but a new task,
     // so we can use the same pattern for all the operator overloads.
     extension<T, TNext>(AsyncResult<T> self)
     {
@@ -53,52 +53,52 @@ public static class AsyncResultComposition
     {
         public static AsyncResult<T> operator |(AsyncResult<T> self, 
             Func<T, CancellationToken, ValueTask<Result<None>>> ensure)
-            => self.Then(self.EnsureAsync(ensure));
+            => self with { ResultTask = self.EnsureAsync(ensure) };
 
         public static AsyncResult<T> operator |(AsyncResult<T> self, 
             Func<T, CancellationToken, Task<Result<None>>> ensure)
-            => self.Then(self.EnsureAsync((x,c) => new(ensure(x,c))));
+            => self with { ResultTask = self.EnsureAsync((x,c) => new(ensure(x,c))) };
 
         public static AsyncResult<T> operator |(AsyncResult<T> self, 
             Func<Problem, CancellationToken, ValueTask<Result<T>>> rescue)
-            => self.Then(self.RescueAsync(rescue));
+            => self with { ResultTask = self.RescueAsync(rescue) };
 
         public static AsyncResult<T> operator |(AsyncResult<T> self, 
             Func<Problem, CancellationToken, Task<Result<T>>> rescue)
-            => self.Then(self.RescueAsync((x,c) => new(rescue(x,c))));
+            => self with { ResultTask = self.RescueAsync((x,c) => new(rescue(x,c))) };
 
         public static AsyncResult<T> operator |(AsyncResult<T> self, 
             Func<T, CancellationToken, ValueTask> onValue)
-            => self.Then(self.EnsureAsync(async (x, c) =>
+            => self with { ResultTask = self.EnsureAsync(async (x, c) =>
             {
                 await onValue(x, c).ConfigureAwait(false);
                 return Result.Ok;
-            }));
+            }) };
 
         public static AsyncResult<T> operator |(AsyncResult<T> self,
             Func<T, CancellationToken, Task> onValue)
-            => self.Then(self.EnsureAsync(async (x, c) =>
+            => self with { ResultTask = self.EnsureAsync(async (x, c) =>
             {
                 await onValue(x, c).ConfigureAwait(false);
                 return Result.Ok;
-            }));
+            }) };
 
         public static ValueTask<Result<T>> operator |(AsyncResult<T> self, 
-            
+
             Func<Problem, CancellationToken, ValueTask> onProblem)
-            => self.Then(self.RescueAsync(async (p, c) =>
+            => (self with { ResultTask = self.RescueAsync(async (p, c) =>
             {
                 await onProblem(p, c).ConfigureAwait(false);
                 return p;
-            }));
+            }) }).ResultTask;
 
         public static ValueTask<Result<T>> operator |(AsyncResult<T> self, 
             Func<Problem, CancellationToken, Task> onProblem)
-            => self.Then(self.RescueAsync(async (p, c) =>
+            => (self with { ResultTask = self.RescueAsync(async (p, c) =>
             {
                 await onProblem(p, c).ConfigureAwait(false);
                 return p;
-            }));
+            }) }).ResultTask;
     }
 
     // instance helpers. Note that OnValue and OnProblem can be implemented in terms of Ensure and Rescue respectively,
@@ -150,32 +150,25 @@ public static class AsyncResultComposition
             ));
     }
 
-    // Ensure and OnValue but without the value parameter in the provided functions, since there is no value to pass along.
+    // OnValue but without the value parameter in the provided functions, since there is no value to pass along.
+    // As with the non-async version, Ensure doesn't make sense when you don't have a value to validate.
     // Rescue and OnProblem signatures are unchanged when there is no value since they take a problem as a parameter.
     extension(AsyncResult<None>)
     {
         public static ValueTask<Result<None>> operator |(AsyncResult<None> self, 
-            Func<CancellationToken, ValueTask<Result<None>>> ensure)
-            => self.Then(self.EnsureAsync((_,c)=> ensure(c)));
-
-        public static ValueTask<Result<None>> operator |(AsyncResult<None> self, 
-            Func<CancellationToken, Task<Result<None>>> ensure)
-            => self.Then(self.EnsureAsync((_, c) => new(ensure(c))));
-
-        public static ValueTask<Result<None>> operator |(AsyncResult<None> self, 
             Func<CancellationToken, ValueTask> onValue)
-            => self.Then(self.EnsureAsync(async (_, c) =>
+            => (self with { ResultTask = self.EnsureAsync(async (_, c) =>
             {
                 await onValue(c);
                 return Result.Ok;
-            }));
+            }) }).ResultTask;
 
         public static ValueTask<Result<None>> operator |(AsyncResult<None> self, 
             Func<CancellationToken, Task> onValue)
-            => self.Then(self.EnsureAsync(async (_, c) =>
+            => (self with { ResultTask = self.EnsureAsync(async (_, c) =>
             {
                 await onValue(c);
                 return Result.Ok;
-            }));
+            }) }).ResultTask;
     }
 }

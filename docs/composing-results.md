@@ -1,190 +1,233 @@
 # Composing Results
 
-You can compose (or chain) expressions that return Results (and Tasks of Results and ValueTasks of Results)
-together with one of two approaches:
-1. With Then and ThenAsync
-2. With the LINQ comprehension known as the natural query style.
+> [!NOTE]
+> All composition operations use the overloaded `|` operator to chain together expressions that return `Result<T>` or `AsyncResult<T>`
 
-## Compose an `Result<T>` with `Then` and a map function.
+There are six canonical composition operations. 
+- Four are executed when your result has a value (aka the happy path). 
+- The other two are executed when your result holds a problem (aka the sad path).
 
-The `map` function parameter is a `Func<T,TNext>` delegate that's executed if the result **does not** carry a problem.
+In addition to the six operators, there are three overloads on the happy path for `Result<None>` which holds no value.
 
-```csharp
-Result<Tstring> FormatDate(Result<TDateTime> input) =>
-    input.Then(dt => dt.ToString("yyyy/MM/dd"));
+
+```mermaid
+---
+config:
+  flowchart:
+    padding: 0
+---
+flowchart TD
+    R("Result&ltT&gt")
+    R2("Result&ltT&gt")
+    HR("new Result&ltT&gt(T value)")
+    SR("new Result&ltT&gt(Problem p)")
+    H(
+        Ensure: T -> Result&ltNone&gt
+        OnAction: T -> void
+    )
+    M(
+        Bind: T -> Result&ltTNext&gt
+        Map: T -> TNext
+    )
+    S(
+        Rescue: Problem -> Result&ltT&gt
+        OnProblem: Problem -> void
+    )
+    NR("Result.OK")
+    NH("OnAction: () -> void")
+    NM("
+        Bind: () -> Result&ltTNext&gt
+        Map: () -> TNext
+    ")
+    R   --- |happy path| HR
+    HR  --- H 
+        --- |+generic parameter &lt;TNext&gt;| M
+    
+    R   --- |happy path| NR
+    NR  --- NH 
+        --- |+generic parameter &lt;TNext&gt;| NM
+    
+    R2  ---|sad path| SR
+        --- S
+    class H,M,S,NH,NM ops
+    classDef ops text-align:left,fill:#CEF,color:black
+    class HR,SR,NR type
+    classDef type fill:#FEC,color:black
 ```
 
-A map function can also be used with a `Task<Result<T>>` or `ValueTask<Result<T>>` by using `ThenAsync`.
+## Map and Bind
+
+[Monadic](results-as-monads.md) "happy path" operators that transform a Result value to the next value and possibly different type.
+
+|operation|description|signature|
+|---|---|---|
+| `Bind<TNext>` | Invoke the bind function with the current value to obtain a `Result<TNext>`. | `Func<T,Result<TNext>>` |
+| `Map<TNext>` | Invoke the map function with the current value to obtain a `TNext`, and produce a new `Result<TNext>` with it. | `Func<T,TNext>` |
+
+The main difference being `Map` will never produce a problem result, whereas `Bind` can do what `Map` does but can also produce a problem result.
+
 
 ```csharp
-Task<Result<Tstring>> FormatDateAsyc(Task<Result<TDateTime>> input) =>
-    input.ThenAsync(dt => dt.ToString("yyyy/MM/dd"));
-```
+public Result<Customer> UpdateCachedCustomer(UpdateCustomer command)
+{
+    CacheEntry<Customer> customer = _cacheService<Customer>.FetchCachedEntity(command.CustomerId);
 
-## Transform an `Result<T>` with `from` and `select`
+    return Result.Of(customer)
+            | EnsureCachedEntity // bind using method name
+            | (c => c with { Name = command.Name, Status = command.Status }); // map with lambda, command is captured by closure
+}
 
-We can achieve the same thing using a LINQ comprehension.
-
-```csharp
-Result<Tstring> FormatDate(Result<TDateTime> input) =>
-    from dt in input
-    select dt.ToString("yyyy/MM/dd");
-```
-
-As before, this works in asynchronous scenarios, with both `Task<Result<T>>` and `ValueTask<Result<T>>`:
-
-```csharp
-ValueTask<Result<Tstring>> FormatDate(ValueTask<Result<TDateTime>> input) =>
-    from dt in input
-    select dt.ToString("yyyy/MM/dd");
-```
-
-> Notice how there was no need to `await` anything. 
-
-A line in the form `from x in y` means:
-> `x` represents the value contained in an Outcome returned by the expression `y`.
-
-## Important
-If any Outcome in a composition step holds an `IProblem`, *none* of the subsequent Outcome expressions (the `from` or `select` clauses) are evaluated. 
-The flow is short-circuited, and a new problem Outcome of the desired return type is immediately returned.
-
-In the example above, if the `input` Outcome holds an instance of `IProblem` instead of a `DateTime` value, the `select` clause is never evaluated.
-
-## Further composition with factory functions
-
-The `Then` composition accepts a factory delegate that is passed the current value to create an result.
-
-```csharp
-    // Composing with a map function
-    public static Result<TTNext> Then<T, TNext>(
-        this Result<T> map,
-        Func<T, TNext> map) { ... }
-
-    // Composing with a factory function
-    public static Result<TTNext> Then<T, TNext>(
-        this Result<T> self,
-        Func<T, Result<TTNext>> factory) { ... }
-```
-
-Composition with factory functions is the *glue* that allows you to compose multiple logical steps that each return an Outcome.
-
-Here's an entirely contrived example. I know you were hoping for another to-do list, but I'm afraid you're
-going to have to settle for the traditional *Fetch Order from the Database* routine.
-
-```csharp
-Task<Result<TGetOrderResult>> FetchOrderAsync(GetOrderRequest request, CancellationToken ct) =>
-    _validator.Validate(request)
-    .ThenAsync(_ =>_FetchOrderAsync(request, ct)) // factory
-    .ThenAsync(EnsureOrderExists) // factory
-    .ThenAsync(order => new GetOrderResult(order)); // map
-```
-
-Notice the return type is `Task<Result<TGetOrderRequest>>` because we compose with an async expression. (`ValueTask<Result<TGetOrderRequest>>` is also supported.)
-
-- `validator.Validate()` validates the incoming request and returns an `Result<TNone>`. 
-Remember, that's an Outcome that doesn't carry a value we're interested in, but it could carry a Problem.
-
-If the request was invalid, this will hold a problem representing all of the validation errors.
-
-The rest of the composition will not be evaluated and will immediately return an result holding this problem.
-
-- Next, an Entity Framework DBContext is invoked asychronously to return an `Task<Order?>`. 
-
-The implementation of `FetchOrderAsync` looks like this:
-```csharp
-private async Task<Result<TOrder?>> FetchOrderAsnc(GetOrderRequest request, CancellationToken ct) =>
-    await _dbContext.Orders.FindAsync(request.OrderId, cancellationToken: ct);
-```
-
-Although `FindAsync` returns a `Task<Order?>`, thanks to implicit coversion, the awaited `Order?` value becomes an `Result<TOrder?>`.
-
-- Next, if there no order was fetched with this ID, the Outcome returned by `EnsureOrderExists` will hold some kind of `EntityNotFoundProblem`. 
-The composition will halt immediately, and this problem is used to create the return value.
-
-The implementation of `EnsureOrderExists` looks like this:
-
-```csharp
-private static Result<TOrder> EnsureOrderExists(Order? maybeOrder) =>
-    maybeOrder switch
+private static Result<T> EnsureCachedEntity<T>(CacheEntry<T> maybeEntity) =>
+    maybeEntity switch
     {
-        null => new EntityNotFoundProblem<Order>(),
-        not null => maybeOrder
+        { IsCached: false } => new CacheMissProblem<T>(maybeEntity.Id),
+        { Entity: var entity } => entity
     };
+
 ```
 
-- Finally, and only when an order was successfully fetched, the last `ThenAsync` clause is evaluated with a map function, and a DTO is created to hold relevant properties of the Order. 
-This becomes the value held by the final Outcome.
+## Ensure and OnSuccess
 
-What does this look like as a LINQ comprehension?
+|operation|description|signature|
+|---|---|---|
+| `Ensure` | invoke the validation function with the current value to get a `Result{TNone}`. If the returned result carries a problem, 
+            the original result is replaced with the problem result. Otherwise the original result is returned. | `Func<T,Result<TNone>>` |
+| `OnSuccess` | invoke the provided action with the current value, and return the original result | `Action<T>` |
 
-## LINQ-Style composition with multiple `from` clauses
+The following example (using the `Map` signature) works fine, but the ValidateCommand method bears the responsibility for round-tripping the the input parameter value.
+```csharp
+public Result<UpdateCustomer> ValidateCommand(UpdateCustomer command)
+{
+    bool isValid = // your validation logic here
+
+    return isValid 
+        ? Result.Of(command) 
+        : new ValidationProblem("Invalid command");
+}
+
+```
+The **Ensure** operation makes a subtle change and only returns a problem, or an ok result. The original result only changes to the sad path if a problem is returned.
+```csharp
+public Result<None> ValidateCommand(UpdateCustomer command)
+{
+    bool isValid = // your validation logic here
+
+    return isValid 
+        ? Result.Ok 
+        : new ValidationProblem("Invalid command");
+}
+
+```
+
+Let's revisit an example above to see the **OnSuccess** operator in action. We just want to log a message when we have a cache hit.
+```csharp
+public Result<Customer> UpdateCachedCustomer(UpdateCustomer command)
+{
+    CacheEntry<Customer> customer = _cacheService<Customer>.FetchCachedEntity(command.CustomerId);
+
+    return Result.Of(customer)
+            | EnsureCachedEntity
+            | LogCacheHit
+            | (c => c with { Name = command.Name, Status = command.Status });
+    
+    static void LogCacheHit(Customer c) => _logger.LogInformation("Successfully fetched customer {CustomerId} from cache", c.Id);
+}
+```
+
+## Rescue and OnProblem
+|operation|description|signature|
+|---|---|---|
+| `Rescue` | invoke the rescue function with the problem, which returns a `Result<T>`. That function can just return the original problem result, or it can pass back a new success result. | `Func<Problem,Result<T>>` |
+| `OnProblem` | invoke the provided action with the current problem, and return the original result | `Action<Problem>` |
+
+**Rescue** is the sad path equivalent of **Ensure**. It allows you to inspect a problem and decide whether to return a new success result, or just pass the original problem back.
+
+It's only useful if the problem contains enough information to be able to determine a valid success result, unless you can produce one by other means. 
+
+In this awful example, the business realised that returning a problem on a customer cache miss was not ideal, and decided to perform an UPSERT instead, creating a default customer instead. 
+
+The problem contains the customer id, so we can use that to create a default customer.
 
 ```csharp
-Task<Result<TGetOrderResult>> FetchOrderAsync(GetOrderRequest request) =>
-    from _ in _validator.Validate(request)
-    from maybeOrder in FetchOrderAsync(request)
-    from order in EnsureOrderExists(maybeOrder)
-    select new GetOrderResult(order);
+public Result<Customer> UpdateCachedCustomer(UpdateCustomer command)
+{
+    CacheEntry<Customer> customer = _cacheService<Customer>.FetchCachedEntity(command.CustomerId);
+
+    return Result.Of(customer)
+            | EnsureCachedEntity
+            | CreateDefaultCustomerOnCacheMiss
+            | (c => c with { Name = command.Name, Status = command.Status });
+    
+    static Result<Customer> CreateDefaultCustomerOnCacheMiss(Problem p) => p switch{
+        CacheMissProblem<Customer> cacheMiss => new Customer { Id = cacheMiss.Id, Name = "Default Customer", Status = "Unknown" },
+        _ => p // pass the original problem back if it's not a cache miss
+    };
+}
+
 ```
 
-> It isn't obvious from this example, but LINQ style composition offers an advantage over the Then/ThenAsync direct style.
-The value of the Outcome in each step is **in scope** to all subsequent clauses. 
-`GetOrderResult` here could take `maybeOrder` as a parameter because it is still in scope, even though it was not on the immediately preceding line.
+**OnProblem** example
+Let's add to our **OnValue** example to see the **OnProblem** operator in action. We also want to log a message when we have a cache miss problem.
+```csharp
+public Result<Customer> UpdateCachedCustomer(UpdateCustomer command)
+{
+    CacheEntry<Customer> customer = _cacheService<Customer>.FetchCachedEntity(command.CustomerId);
 
-## Special case: Composing Then/ThenAsync with `Result<TNone>`
+    return Result.Of(customer)
+            | EnsureCachedEntity
+            | LogCacheHit
+            | LogCacheMiss
+            | (c => c with { Name = command.Name, Status = command.Status });
+    
+    static void LogCacheHit(Customer c) => _logger.LogInformation("Successfully fetched customer {CustomerId} from cache", c.Id);
+    static void LogCacheMiss(Problem p) 
+    {
+        if(p is CacheMissProblem<Customer> cacheMiss)
+            _logger.LogInformation("Cache miss for customer {CustomerId}", cacheMiss.Id;
+    }
+}
+```
+// TODO: we could make a strongly typed OnProblem operator that uses a generic TProblem type parameter which is only invoked if the problem is of the expected type. 
+// This would save us from having to do a type check and cast in the body of the LogCacheMiss method.
+
+## Value-less overloads
+The three happy path operators also have overloads for `Result<None>` which holds no value. 
+
+They exist to save you (or your agentic self) from having to type the discard operator `_` in lambda expressions, and make it more clear that you are not using a value from the result in the body of the operator.
+
+|operation|signature|
+|---|---|
+| `Bind<TNext>` | `Func<Result<TNext>>` |
+| `Map<TNext>` | `Func<TNext>` |
+| `OnSuccess` | `Action` |
+
+## Multiple parameters with Tuples and spreading
+
+In the examples above, you might have noticed how readable composition is when you work with methods over lambda functions. 
+These are deeply contrived examples where the methods take a single input value.
+
+But we can also work with multiple input values using results that hold value tuples. 
+
+Overloads of the composition operators automatically spread the member values in those tuples for methods that take multiple parameters (support for up to 4 parameters).
 
 ```csharp
-var result = Outcome.Of(1).Then(x=> Outcome.Ok);
-```
-What is the generic type of the result stored in `result`? 
-
-In the code above, the factory function used in `Then` returns an `Result<TNone>`.
-
-The method signature looks like this:
-
-```csharp
-public static Result<TTNext> Then<T, TNext>(
-        this Result<T> self,
-        Func<T, Result<TTNext>> factory)
-```
-Without intervention, the generic type `TNext` will be of type `None`, so result will be of type `Result<TNone>`.
-
-That's going to be annoying when composing logic because we've lost the integer type and value that we composed on.
-
-What we really want when we compose with `Result<TNone>` is to pick up any problem it holds, but as it is value-less, 
-we'd like to hold on to the value we start with.
-
-Luckily for us, the library treats `Then/ThenAsync` with a delegate that returns `None` or `Result<TNone>` as a special case thanks to this overload:
-```csharp
-public static Result<T> Then<T>(
-        this Result<T> self,
-        Func<T, Result<TNone>> factory)
+public static Result<int> VerySillyExample(int firstInput) =>
+    Result.Of(firstInput)
+    | NextInput(13)
+    | AndAnotherInput(42)
+    | AddThem;
+    
+private static Func<int, (int, int)> NextInput(int next) => last => (last, next);
+private static Func<(int, int), (int, int, int)> AndAnotherInput(int next) => last => (last.Item1, last.Item2, next);
+private static int AddThem(int a, int b, int c) => a + b + c;
 ```
 
-Revealing the answer to the fiendish puzzle above:
-
-```csharp
-Result<Tint> result = Outcome.Of(1).Then(x=> Outcome.Ok);
-```
-The return type is an `Result<Tint>` which will hold 1 because the result returned by the factory delegate doesn't hold a problem.
-
-> This special case only applies to `Then/ThenAsync` method of compisition.
-> With `from x in y` LINQ style composition, all values of results in a composition chain are in scope so we never see the case of 'losing' a previous composition value.
-
-
-## Outcome-compatible expressions
-With `from value in expression` or the `Then`/`ThenAsync` syntax, you can compose expressions that evaluate to any of the following:
-
-- `Result<T>`
-- `Task<Result<T>>`
-- `ValueTask<Result<T>>`
-
-Additionally, the following types are also available thanks to Outcome adaptation.
-
-- `Task<T>`(adapts to `Task<Result<T>>`)
-- `ValueTask<T>` (adapts to `ValueTask<Result<T>>`)
-- `Task`(adapts to `Task<Result<TNone>>`)
-- `ValueTask` (adapts to `ValueTask<Result<TNone>>`)
+## Summary
+- All operations go through the `|` operator.
+- Three of our operators can switch you from the happy path to the sad path or back: `Bind`, `Ensure` and `Rescue`.
+- `Map` is transforming values on the happy path.
+- `OnSuccess` and `OnProblem` are for performing side effects, and don't change the result.
+- Tuples of up to four items are spread to input parameters.
 
 ---
 ### Index

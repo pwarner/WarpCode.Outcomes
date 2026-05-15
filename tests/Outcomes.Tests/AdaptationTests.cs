@@ -22,7 +22,7 @@ public class AdaptationTests
         Adapt.MapExceptions = null;
 
     [Fact]
-    public void Adapt_From_Func_ShouldCreateSucessResultIfNoErrorThrown()
+    public void Adapt_From_Func_ShouldCreateSuccessResultIfNoErrorThrown()
     {
         static int Func() => 13;
 

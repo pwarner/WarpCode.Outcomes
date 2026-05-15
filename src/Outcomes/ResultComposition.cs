@@ -3,7 +3,7 @@
 /// <summary>
 /// Extensions to allow composition via the | operator on <see cref="Result{T}"/>
 /// </summary>
-public static class ResultComposition
+public static partial class ResultComposition
 {
     extension<T, TNext>(Result<T>)
     {
@@ -108,10 +108,6 @@ public static class ResultComposition
 
     extension(Result<None>)
     {
-        /// <inheritdoc cref=" ResultComposition.extension{T}(Result{T}).operator |(Result{T}, Func{T, Result{None}})"/>
-        public static Result<None> operator |(Result<None> self, Func<Result<None>> ensure)
-            => self | ((None _) => ensure());
-
         /// <inheritdoc cref=" ResultComposition.extension{T}(Result{T}).operator |(Result{T}, Action{T})"/>
         public static Result<None> operator |(Result<None> self, Action onValue)
             => self | ((None _) =>

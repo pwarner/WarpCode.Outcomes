@@ -7,14 +7,14 @@ It takes two delegates - one to resolve the `Success Outcome` state,
 and one to resolve the `Problem Outcome` state.
 
 ```csharp
-Task<Result<TOrderDetailDto>> Pipeline(OrderDetailRequest request) =>
-    from isValid in Validate(request)
-    from orderDetail in FetchOrderDetailsAsync(request.OrderId)
-    select MapToDto(orderDetail);
+ValueTask<Result<TOrderDetailDto>> Pipeline(OrderDetailRequest request) =>
+    Validate(request)
+    | FetchOrderDetailsAsync
+    | MapToDto;
 
-public async Task<IResult> GetOrderDetail(OrderDetailRequest request)
+public async ValueTask<IResult> GetOrderDetail(OrderDetailRequest request)
 {
-    Result<TOrderDetailDto> result = await Pipline(request);
+    Result<TOrderDetailDto> result = await Pipeline(request);
 
     return result.Match(
         value=> Results.Of(value),
@@ -34,7 +34,7 @@ Using this, the GetOrderDetail method above can be simplified a little:
 
 ```csharp
 
-public Task<IResult> GetOrderDetail(OrderDetailRequest request) =>
+public ValueTask<IResult> GetOrderDetail(OrderDetailRequest request) =>
     Pipeline(request)
         .MatchAsync(
             value=> Results.Of(value),
@@ -56,10 +56,10 @@ that can be used anywhere you resolve an result. If you write this as an extensi
 
 public static class OutcomeResolverExtensions
 {
-    public static IResult ToResult<T>(this Result<T> result, Func<T, IResult> valueResolver) =>
+    public static IResult ToApiResult<T>(this Result<T> result, Func<T, IResult> valueResolver) =>
         result.Match(valueResolver, ProblemResolver);
 
-    public static IResult ToResult<T>(this Result<T> result) =>
+    public static IResult ToApiResult<T>(this Result<T> result) =>
         result.Match(DefaultValueResolver<T>, ProblemResolver);
 
     private static IResult DefaultValueResolver<T>(T value) => 

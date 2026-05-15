@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace WarpCode.Outcomes;
 
@@ -56,6 +57,7 @@ public static class Result
 /// Primitive union type that can hold either a value or a <see cref="Outcomes.Problem"/>, but not both.
 /// </summary>
 /// <typeparam name="T">The type of the outcome value.</typeparam>
+[DebuggerDisplay("{ToString(),nq}")]
 [StructLayout(LayoutKind.Auto)]
 public readonly struct Result<T>
 {
