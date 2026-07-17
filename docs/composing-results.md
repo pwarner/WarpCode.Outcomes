@@ -19,22 +19,22 @@ config:
 flowchart TD
     R("Result&ltT&gt")
     R2("Result&ltT&gt")
-    HR("new Result&ltT&gt(T value)")
+    HR("new Result&ltT&gt(T t)")
     SR("new Result&ltT&gt(Problem p)")
     H(
-        Ensure: T -> Result&ltNone&gt
-        OnAction: T -> void
+        Ensure: t -> Result&ltNone&gt
+        OnSuccess: t -> void
     )
     M(
-        Bind: T -> Result&ltTNext&gt
-        Map: T -> TNext
+        Bind: t -> Result&ltTNext&gt
+        Map: t -> TNext
     )
     S(
-        Rescue: Problem -> Result&ltT&gt
-        OnProblem: Problem -> void
+        Rescue: p -> Result&ltT&gt
+        OnProblem: p -> void
     )
     NR("Result.OK")
-    NH("OnAction: () -> void")
+    NH("OnSuccess: () -> void")
     NM("
         Bind: () -> Result&ltTNext&gt
         Map: () -> TNext
@@ -90,11 +90,10 @@ private static Result<T> EnsureCachedEntity<T>(CacheEntry<T> maybeEntity) =>
 
 |operation|description|signature|
 |---|---|---|
-| `Ensure` | invoke the validation function with the current value to get a `Result{TNone}`. If the returned result carries a problem, 
-            the original result is replaced with the problem result. Otherwise the original result is returned. | `Func<T,Result<TNone>>` |
+| `Ensure` | invoke the validation function with the current value to get a `Result{TNone}`. If the returned result carries a problem, the original result is replaced with the problem result. Otherwise the original result is returned. | `Func<T,Result<TNone>>` |
 | `OnSuccess` | invoke the provided action with the current value, and return the original result | `Action<T>` |
 
-The following example (using the `Map` signature) works fine, but the ValidateCommand method bears the responsibility for round-tripping the the input parameter value.
+The following example (using the `Bind` signature) works fine, but the ValidateCommand method bears the responsibility for round-tripping the the input parameter value.
 ```csharp
 public Result<UpdateCustomer> ValidateCommand(UpdateCustomer command)
 {
@@ -217,8 +216,8 @@ public static Result<int> VerySillyExample(int firstInput) =>
     | AndAnotherInput(42)
     | AddThem;
     
-private static Func<int, (int, int)> NextInput(int next) => last => (last, next);
-private static Func<(int, int), (int, int, int)> AndAnotherInput(int next) => last => (last.Item1, last.Item2, next);
+private static Func<int, (int, int)> NextInput(int b) => a => (a, b);
+private static Func<int, int, (int, int, int)> AndAnotherInput(int c) => (a, b) => (a, b, c);
 private static int AddThem(int a, int b, int c) => a + b + c;
 ```
 
