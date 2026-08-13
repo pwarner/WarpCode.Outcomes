@@ -1,20 +1,20 @@
-# Adapting to Results
+# Adapting to Outcomes
 
-You've started using Results in your code, because you're a talented and discerning developer.
+You've started using Outcomes in your code, because you're a talented and discerning developer.
 
-But there's a lot of other code you have to work with that doesn't use Results. 
+But there's a lot of other code you have to work with that doesn't use Outcomes. 
 It's not at all viable to change that code to use them, and often not possible because *it's not your code*.
 
-Happily, you can still work with methods that don't return Results.
-- via [composition](composing-results.md) which overloads the `|` operator for function signatures that don't return results.
-- with `ToResult()` via the Adaptation wrapper (this document).
+Happily, you can still work with methods that don't return Outcomes.
+- via [composition](composing-outcomes.md) which overloads the `|` operator for function signatures that don't return outcomes.
+- with `ToOutcome()` via the Adaptation wrapper (this document).
 
 > [!NOTE]
-> Composition with functions that don't return results do not catch exceptions. 
-> In cases where you want to adapt a function that doesn't return a result, you need to use the `ToResult()` extension method.
+> Composition with functions that don't return outcomes do not catch exceptions. 
+> In cases where you want to adapt a function that doesn't return an outcome, you need to use the `ToOutcome()` extension method.
 
 
-For example, in the code below, the method `GetReservationAsync` doesn't return a `Task<Result<TReservation>>`. 
+For example, in the code below, the method `GetReservationAsync` doesn't return a `Task<Outcome<TReservation>>`. 
 Any problems that occur during invocation of that method result in an exception being thrown.
 Specifically, the method documentation tells you that it throws: 
 - An `ArgumentNullException` if the `bookingId` parameter is null.
@@ -27,14 +27,14 @@ Task<Reservation> GetReservationAsync(string bookingId);
 
 To adapt this method to give us Problems instead of Exceptions, we need to do two things:
 
-1. Use the `ToResult()` extension method (or in non-extension form`Adapt.ToResult(...)`)
+1. Use the `ToOutcome()` extension method (or in non-extension form`Adapt.ToOutcome(...)`)
 2. Define an `ExceptionMap` either globally, or provide it as a parameter.
 
 ### Exception Mapping
 An `ExceptionMap` is just a delegate with the following signature:
 ```csharp
 /// <summary>
-/// A function called when exceptions are thrown by code instead of returning results.
+/// A function called when exceptions are thrown by code instead of returning outcomes.
 /// If the function returns a <see cref="IProblem"/> then a new <see cref="Outcome{T}"/>
 /// will be returned by the adaptive methods. If null is returned, the exception will be re-thrown.
 /// </summary>
@@ -58,7 +58,7 @@ await GetReservationAsync(bookingId).ToOutcome(e=>
 As it's quite a common use case to only need to map a single exception type to a problem, there's a convenient short-cut syntax:
 ```csharp
 await GetReservationAsync(bookingId)
-	.ToResult<TReservation, BookingNotFoundException>(e=> 
+	.ToOutcome<TReservation, BookingNotFoundException>(e=> 
 		new NotFoundProblem($"Could not find booking with Id {bookingId}");
 ```
 This approach makes use of the generic `ExceptionMap<TException>` delegate, 
@@ -67,7 +67,7 @@ allowing all other exceptions to throw.
 
 
 ### Global/Application-level exception mapping
-Instead of providing an exception map delegate as a method parameter to every call of `ToResult()`, 
+Instead of providing an exception map delegate as a method parameter to every call of `ToOutcome()`, 
 it is far more convenient to create a single exception mapper function responsible for mapping any exceptions that logically map to problems.
 
 To achieve this, set the static `Adapt.MapExceptions` property to an instance of this delegate in your application startup.
@@ -92,32 +92,32 @@ Adapt.MapExceptions = e =>
 > [!CAUTION]
 > It's tempting to try and catch all exceptions of type `Exception` and return some catch-all ExceptionWrapper problem.
 > This is a bad idea. Mapping all exceptions would swallow up guard exceptions like `ArgumentNullException` and `AgumentException`, thrown when you misuse an API. 
-> Results help to replace throwing Exceptions to represent violations of business state, but they are most definitely **not** intended to replace throwing Exceptions *when exceptional conditions occur*.
+> Outcomes help to replace throwing Exceptions to represent violations of business state, but they are most definitely **not** intended to replace throwing Exceptions *when exceptional conditions occur*.
 
 
 ### What can be adapted?
-The `ToResult()` extension method is available for:
+The `ToOutcome()` extension method is available for:
 
 |Target type|Adapts to|
 |--|--|
-|`System.Func<T>`|`Result<T>`|
-|`System.Action`|`Result<TNone>`|
-| `Task<T>` | `Task<Result<T>>` |
-| `Task` | `Task<Result<TNone>>` |
-| `ValueTask<T>` | `ValueTask<Result<T>>` |
-| `ValueTask` | `ValueTask<Result<TNone>>` |
+|`System.Func<T>`|`Outcome<T>`|
+|`System.Action`|`Outcome<TNone>`|
+| `Task<T>` | `Task<Outcome<T>>` |
+| `Task` | `Task<Outcome<TNone>>` |
+| `ValueTask<T>` | `ValueTask<Outcome<T>>` |
+| `ValueTask` | `ValueTask<Outcome<TNone>>` |
 
-// TO DO: Adapt for async should return AsyncResult<T>
+// TO DO: Adapt for async should return AsyncOutcome<T>
 
 ---
 ### Index
-- [Why Results?](why-results.md)
+- [Why Outcomes?](why-outcomes.md)
 - [What is a Problem?](what-is-a-problem.md)
-- [Creating Results](creating-results.md)
-- [Composing Results](composing-results.md)
-- [Resolving Results](resolving-results.md)
+- [Creating Outcomes](creating-outcomes.md)
+- [Composing Outcomes](composing-outcomes.md)
+- [Resolving Outcomes](resolving-outcomes.md)
 
 ### further reading / miscellaneous
-- [Result Aggregation](result-extensions.md)
-- this: Adapting to Results
-- [Results as Monads](results-as-monads.md)
+- [Outcome Aggregation](outcome-aggregation.md)
+- this: Adapting to Outcomes
+- [Outcomes as Monads](outcomes-as-monads.md)

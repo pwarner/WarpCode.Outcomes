@@ -22,135 +22,135 @@ public class AdaptationTests
         Adapt.MapExceptions = null;
 
     [Fact]
-    public void Adapt_From_Func_ShouldCreateSuccessResultIfNoErrorThrown()
+    public void Adapt_From_Func_ShouldCreateSuccessOutcomeIfNoErrorThrown()
     {
         static int Func() => 13;
 
-        var actual = Adapt.ToResult(Func, TestMap);
+        var actual = Adapt.ToOutcome(Func, TestMap);
 
-        Assert.Equal(Result.Of(13), actual);
+        Assert.Equal(Outcome.Of(13), actual);
     }
 
     [Fact]
-    public void Adapt_From_Func_ShouldCreateProblemResultIfErrorMapped()
+    public void Adapt_From_Func_ShouldCreateProblemOutcomeIfErrorMapped()
     {
-        var actual = ThrowFunc.ToResult(TestMap);
+        var actual = ThrowFunc.ToOutcome(TestMap);
 
-        Assert.Equal(Result.OfProblem<int>(Message), actual);
+        Assert.Equal(Outcome.OfProblem<int>(Message), actual);
     }
 
     [Fact]
-    public void Adapt_From_Func_ShouldCreateProblemResultIfErrorMapped_Strongly()
+    public void Adapt_From_Func_ShouldCreateProblemOutcomeIfErrorMapped_Strongly()
     {
-        var actual = ThrowFunc.ToResult<int, ApplicationException>(StrongTestMap);
+        var actual = ThrowFunc.ToOutcome<int, ApplicationException>(StrongTestMap);
 
-        Assert.Equal(Result.OfProblem<int>(Message), actual);
+        Assert.Equal(Outcome.OfProblem<int>(Message), actual);
     }
 
     [Fact]
-    public void Adapt_From_Func_ShouldCreateProblemResultIfErrorMappedGlobally()
+    public void Adapt_From_Func_ShouldCreateProblemOutcomeIfErrorMappedGlobally()
     {
         Adapt.MapExceptions = TestMap;
 
-        var actual = ThrowFunc.ToResult();
+        var actual = ThrowFunc.ToOutcome();
 
-        Assert.Equal(Result.OfProblem<int>(Message), actual);
+        Assert.Equal(Outcome.OfProblem<int>(Message), actual);
     }
 
     [Fact]
     public void Adapt_From_Func_ShouldThrowIfErrorNotMapped()
     {
-        ApplicationException error = Assert.Throws<ApplicationException>(() => ThrowFunc.ToResult());
+        ApplicationException error = Assert.Throws<ApplicationException>(() => ThrowFunc.ToOutcome());
 
         Assert.Same(Message, error.Message);
     }
 
     [Fact]
-    public void Adapt_From_Action_ShouldCreateSucessResultIfNoErrorThrown()
+    public void Adapt_From_Action_ShouldCreateSucessOutcomeIfNoErrorThrown()
     {
         static void Action()
         {
         }
 
-        var actual = Adapt.ToResult(Action, TestMap);
+        var actual = Adapt.ToOutcome(Action, TestMap);
 
-        Assert.Equal(Result.Ok, actual);
+        Assert.Equal(Outcome.Ok, actual);
     }
 
     [Fact]
-    public void Adapt_From_Action_ShouldCreateProblemResultIfErrorMapped()
+    public void Adapt_From_Action_ShouldCreateProblemOutcomeIfErrorMapped()
     {
-        var actual = ThrowAction.ToResult(TestMap);
+        var actual = ThrowAction.ToOutcome(TestMap);
 
-        Assert.Equal(Result.OfProblem(Message), actual);
+        Assert.Equal(Outcome.OfProblem(Message), actual);
     }
 
     [Fact]
-    public void Adapt_From_Action_ShouldCreateProblemResultIfErrorMapped_Strongly()
+    public void Adapt_From_Action_ShouldCreateProblemOutcomeIfErrorMapped_Strongly()
     {
-        var actual = ThrowAction.ToResult<ApplicationException>(StrongTestMap);
+        var actual = ThrowAction.ToOutcome<ApplicationException>(StrongTestMap);
 
-        Assert.Equal(Result.OfProblem(Message), actual);
+        Assert.Equal(Outcome.OfProblem(Message), actual);
     }
 
     [Fact]
-    public void Adapt_From_Action_ShouldCreateProblemResultIfErrorMappedGlobally()
+    public void Adapt_From_Action_ShouldCreateProblemOutcomeIfErrorMappedGlobally()
     {
         Adapt.MapExceptions = TestMap;
 
-        var actual = ThrowAction.ToResult();
+        var actual = ThrowAction.ToOutcome();
 
-        Assert.Equal(Result.OfProblem(Message), actual);
+        Assert.Equal(Outcome.OfProblem(Message), actual);
     }
 
     [Fact]
     public void Adapt_From_Action_ShouldThrowIfErrorNotMapped()
     {
-        ApplicationException error = Assert.Throws<ApplicationException>(() => ThrowAction.ToResult());
+        ApplicationException error = Assert.Throws<ApplicationException>(() => ThrowAction.ToOutcome());
 
         Assert.Same(Message, error.Message);
     }
 
     [Fact]
-    public async Task Adapt_From_ValueTaskOfT_ShouldCreateSuccessResultIfNoErrorThrown()
+    public async Task Adapt_From_ValueTaskOfT_ShouldCreateSuccessOutcomeIfNoErrorThrown()
     {
         ValueTask<int> valueTask = new(13);
 
-        Result<int> actual = await valueTask.ToResult();
+        Outcome<int> actual = await valueTask.ToOutcome();
 
-        Assert.Equal(Result.Of(13), actual);
+        Assert.Equal(Outcome.Of(13), actual);
     }
 
     [Fact]
-    public async Task Adapt_From_ValueTaskOfT_ShouldCreateProblemResultIfErrorMapped()
+    public async Task Adapt_From_ValueTaskOfT_ShouldCreateProblemOutcomeIfErrorMapped()
     {
         ValueTask<int> valueTask = ValueTask.FromException<int>(new ApplicationException(Message));
 
-        Result<int> actual = await valueTask.ToResult(TestMap);
+        Outcome<int> actual = await valueTask.ToOutcome(TestMap);
 
-        Assert.Equal(Result.OfProblem<int>(Message), actual);
+        Assert.Equal(Outcome.OfProblem<int>(Message), actual);
     }
 
     [Fact]
-    public async Task Adapt_From_ValueTaskOfT_ShouldCreateProblemResultIfErrorMapped_Strongly()
+    public async Task Adapt_From_ValueTaskOfT_ShouldCreateProblemOutcomeIfErrorMapped_Strongly()
     {
         ValueTask<int> valueTask = ValueTask.FromException<int>(new ApplicationException(Message));
 
-        Result<int> actual = await valueTask.ToResult<int, ApplicationException>(StrongTestMap);
+        Outcome<int> actual = await valueTask.ToOutcome<int, ApplicationException>(StrongTestMap);
 
-        Assert.Equal(Result.OfProblem<int>(Message), actual);
+        Assert.Equal(Outcome.OfProblem<int>(Message), actual);
     }
 
     [Fact]
-    public async Task Adapt_From_ValueTaskOfT_ShouldCreateProblemResultIfErrorMappedGlobally()
+    public async Task Adapt_From_ValueTaskOfT_ShouldCreateProblemOutcomeIfErrorMappedGlobally()
     {
         ValueTask<int> valueTask = ValueTask.FromException<int>(new ApplicationException(Message));
 
         Adapt.MapExceptions = TestMap;
 
-        Result<int> actual = await valueTask.ToResult();
+        Outcome<int> actual = await valueTask.ToOutcome();
 
-        Assert.Equal(Result.OfProblem<int>(Message), actual);
+        Assert.Equal(Outcome.OfProblem<int>(Message), actual);
     }
 
     [Fact]
@@ -159,51 +159,51 @@ public class AdaptationTests
         ValueTask<int> valueTask = ValueTask.FromException<int>(new ApplicationException(Message));
 
         ApplicationException error = await Assert.ThrowsAsync<ApplicationException>(async () =>
-            await valueTask.ToResult());
+            await valueTask.ToOutcome());
 
         Assert.Same(Message, error.Message);
     }
 
     [Fact]
-    public async Task Adapt_From_TaskOfT_ShouldCreateSuccessResultIfNoErrorThrown()
+    public async Task Adapt_From_TaskOfT_ShouldCreateSuccessOutcomeIfNoErrorThrown()
     {
         Task<int> task = Task.FromResult(13);
 
-        Result<int> actual = await task.ToResult();
+        Outcome<int> actual = await task.ToOutcome();
 
-        Assert.Equal(Result.Of(13), actual);
+        Assert.Equal(Outcome.Of(13), actual);
     }
 
     [Fact]
-    public async Task Adapt_From_TaskOfT_ShouldCreateProblemResultIfErrorMapped()
+    public async Task Adapt_From_TaskOfT_ShouldCreateProblemOutcomeIfErrorMapped()
     {
         Task<int> task = Task.FromException<int>(new ApplicationException(Message));
 
-        Result<int> actual = await task.ToResult(TestMap);
+        Outcome<int> actual = await task.ToOutcome(TestMap);
 
-        Assert.Equal(Result.OfProblem<int>(Message), actual);
+        Assert.Equal(Outcome.OfProblem<int>(Message), actual);
     }
 
     [Fact]
-    public async Task Adapt_From_TaskOfT_ShouldCreateProblemResultIfErrorMapped_Strongly()
+    public async Task Adapt_From_TaskOfT_ShouldCreateProblemOutcomeIfErrorMapped_Strongly()
     {
         Task<int> task = Task.FromException<int>(new ApplicationException(Message));
 
-        Result<int> actual = await task.ToResult<int, ApplicationException>(StrongTestMap);
+        Outcome<int> actual = await task.ToOutcome<int, ApplicationException>(StrongTestMap);
 
-        Assert.Equal(Result.OfProblem<int>(Message), actual);
+        Assert.Equal(Outcome.OfProblem<int>(Message), actual);
     }
 
     [Fact]
-    public async Task Adapt_From_TaskOfT_ShouldCreateProblemResultIfErrorMappedGlobally()
+    public async Task Adapt_From_TaskOfT_ShouldCreateProblemOutcomeIfErrorMappedGlobally()
     {
         Task<int> task = Task.FromException<int>(new ApplicationException(Message));
 
         Adapt.MapExceptions = TestMap;
 
-        Result<int> actual = await task.ToResult();
+        Outcome<int> actual = await task.ToOutcome();
 
-        Assert.Equal(Result.OfProblem<int>(Message), actual);
+        Assert.Equal(Outcome.OfProblem<int>(Message), actual);
     }
 
     [Fact]
@@ -212,51 +212,51 @@ public class AdaptationTests
         Task<int> task = Task.FromException<int>(new ApplicationException(Message));
 
         ApplicationException error = await Assert.ThrowsAsync<ApplicationException>(async () =>
-            await task.ToResult());
+            await task.ToOutcome());
 
         Assert.Same(Message, error.Message);
     }
 
     [Fact]
-    public async Task Adapt_From_ValueTask_ShouldCreateSuccessResultIfNoErrorThrown()
+    public async Task Adapt_From_ValueTask_ShouldCreateSuccessOutcomeIfNoErrorThrown()
     {
         ValueTask valueTask = ValueTask.CompletedTask;
 
-        Result<None> actual = await valueTask.ToResult();
+        Outcome<None> actual = await valueTask.ToOutcome();
 
-        Assert.Equal(Result.Ok, actual);
+        Assert.Equal(Outcome.Ok, actual);
     }
 
     [Fact]
-    public async Task Adapt_From_ValueTask_ShouldCreateProblemResultIfErrorMapped()
+    public async Task Adapt_From_ValueTask_ShouldCreateProblemOutcomeIfErrorMapped()
     {
         var valueTask = ValueTask.FromException(new ApplicationException(Message));
 
-        Result<None> actual = await valueTask.ToResult(TestMap);
+        Outcome<None> actual = await valueTask.ToOutcome(TestMap);
 
-        Assert.Equal(Result.OfProblem(Message), actual);
+        Assert.Equal(Outcome.OfProblem(Message), actual);
     }
 
     [Fact]
-    public async Task Adapt_From_ValueTask_ShouldCreateProblemResultIfErrorMapped_Strongly()
+    public async Task Adapt_From_ValueTask_ShouldCreateProblemOutcomeIfErrorMapped_Strongly()
     {
         var valueTask = ValueTask.FromException(new ApplicationException(Message));
 
-        Result<None> actual = await valueTask.ToResult<ApplicationException>(StrongTestMap);
+        Outcome<None> actual = await valueTask.ToOutcome<ApplicationException>(StrongTestMap);
 
-        Assert.Equal(Result.OfProblem(Message), actual);
+        Assert.Equal(Outcome.OfProblem(Message), actual);
     }
 
     [Fact]
-    public async Task Adapt_From_ValueTask_ShouldCreateProblemResultIfErrorMappedGlobally()
+    public async Task Adapt_From_ValueTask_ShouldCreateProblemOutcomeIfErrorMappedGlobally()
     {
         var valueTask = ValueTask.FromException(new ApplicationException(Message));
 
         Adapt.MapExceptions = TestMap;
 
-        Result<None> actual = await valueTask.ToResult();
+        Outcome<None> actual = await valueTask.ToOutcome();
 
-        Assert.Equal(Result.OfProblem(Message), actual);
+        Assert.Equal(Outcome.OfProblem(Message), actual);
     }
 
     [Fact]
@@ -265,51 +265,51 @@ public class AdaptationTests
         var valueTask = ValueTask.FromException(new ApplicationException(Message));
 
         ApplicationException error = await Assert.ThrowsAsync<ApplicationException>(async () =>
-            await valueTask.ToResult());
+            await valueTask.ToOutcome());
 
         Assert.Same(Message, error.Message);
     }
 
     [Fact]
-    public async Task Adapt_From_Task_ShouldCreateSuccessResultIfNoErrorThrown()
+    public async Task Adapt_From_Task_ShouldCreateSuccessOutcomeIfNoErrorThrown()
     {
         Task task = Task.CompletedTask;
 
-        Result<None> actual = await task.ToResult();
+        Outcome<None> actual = await task.ToOutcome();
 
-        Assert.Equal(Result.Ok, actual);
+        Assert.Equal(Outcome.Ok, actual);
     }
 
     [Fact]
-    public async Task Adapt_From_Task_ShouldCreateProblemResultIfErrorMapped()
+    public async Task Adapt_From_Task_ShouldCreateProblemOutcomeIfErrorMapped()
     {
         var task = Task.FromException(new ApplicationException(Message));
 
-        Result<None> actual = await task.ToResult(TestMap);
+        Outcome<None> actual = await task.ToOutcome(TestMap);
 
-        Assert.Equal(Result.OfProblem(Message), actual);
+        Assert.Equal(Outcome.OfProblem(Message), actual);
     }
 
     [Fact]
-    public async Task Adapt_From_Task_ShouldCreateProblemResultIfErrorMapped_Strongly()
+    public async Task Adapt_From_Task_ShouldCreateProblemOutcomeIfErrorMapped_Strongly()
     {
         var task = Task.FromException(new ApplicationException(Message));
 
-        Result<None> actual = await task.ToResult<ApplicationException>(StrongTestMap);
+        Outcome<None> actual = await task.ToOutcome<ApplicationException>(StrongTestMap);
 
-        Assert.Equal(Result.OfProblem(Message), actual);
+        Assert.Equal(Outcome.OfProblem(Message), actual);
     }
 
     [Fact]
-    public async Task Adapt_From_Task_ShouldCreateProblemResultIfErrorMappedGlobally()
+    public async Task Adapt_From_Task_ShouldCreateProblemOutcomeIfErrorMappedGlobally()
     {
         var task = Task.FromException(new ApplicationException(Message));
 
         Adapt.MapExceptions = TestMap;
 
-        Result<None> actual = await task.ToResult();
+        Outcome<None> actual = await task.ToOutcome();
 
-        Assert.Equal(Result.OfProblem(Message), actual);
+        Assert.Equal(Outcome.OfProblem(Message), actual);
     }
 
     [Fact]
@@ -318,7 +318,7 @@ public class AdaptationTests
         var task = Task.FromException(new ApplicationException(Message));
 
         ApplicationException error = await Assert.ThrowsAsync<ApplicationException>(async () =>
-            await task.ToResult());
+            await task.ToOutcome());
 
         Assert.Same(Message, error.Message);
     }

@@ -3,13 +3,13 @@
     <Title>WarpCode.Outcomes</Title>
     <Description>
       A small, monadic Result-type library, targeting .Net 8.x and above.
-      Results are a fluent, compositonal discriminated union type representing a result value or a problem.
-      Results supports R.O.P. flow control (Railway Orientated Programming) via composition 
+      Outcomes are a fluent, compositonal discriminated union type representing a value or a problem.
+      Outcomes support R.O.P. flow control (Railway Orientated Programming) via composition
       with full async support.
     </Description>
     <PackageProjectUrl>https://github.com/pwarner/WarpCode.Outcomes</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>WarpCode;Outcomes;WarpCode.Outcomes;Result;Results;Result Union;Either;ErrorOr;OneOf;ROP;Railway Orientated Programming</PackageTags>
+    <PackageTags>WarpCode;Outcomes;Outcome;WarpCode.Outcomes;Result;Results;Result Union;Outcome Union;Either;ErrorOr;OneOf;ROP;Railway Orientated Programming</PackageTags>
     <RepositoryUrl>https://github.com/pwarner/WarpCode.Outcomes</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>

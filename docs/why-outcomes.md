@@ -1,14 +1,14 @@
-# Why Results?
+# Why Outcomes?
 
 Throwing exceptions in your code to enforce business logic is:
 - expensive: the entire call-stack is captured for the exception.
 - incorrect: exceptions should represent unexpected/exceptional states and events, not expected ones.
 
-An Result is a `discriminated union` that represents a value or a problem, but not both. 
+An Outcome is a `discriminated union` that represents a value or a problem, but not both. 
 
 It is implemented as a generic immutable value-type.
 
-We can use results to control our logical workflows without resorting to throwing exceptions to halt the flow.
+We can use outcomes to control our logical workflows without resorting to throwing exceptions to halt the flow.
 
 Instead of doing this 👇
 
@@ -32,7 +32,7 @@ we do this 👇
 using WarpCode.Outcomes;
 
 
-public async Task<Result<TCustomer>> FetchCustomerAsync(string customerId)
+public async Task<Outcome<TCustomer>> FetchCustomerAsync(string customerId)
 {
     Customer? customer = await _dbContext.Customers.FindAsync(customerId);
 
@@ -53,7 +53,7 @@ By returning a Problem instead of throwing an exception:
 That last bullet-point means you can write code like this:
 
 ```csharp
-private Task<Result<CustomerUpdateResult>> UpdateCustomerNameFlow(UpdateCustomerNameCommand cmd) =>
+private Task<Outcome<CustomerUpdateResult>> UpdateCustomerNameFlow(UpdateCustomerNameCommand cmd) =>
     ValidateCommand(cmd)
     | LoadCustomerAync
     | UpdateCustomer<UpdateCustomerNameCommand>
@@ -64,13 +64,13 @@ private Task<Result<CustomerUpdateResult>> UpdateCustomerNameFlow(UpdateCustomer
 ---
 
 ### Index
-- this: Why Results?
+- this: Why Outcomes?
 - [What is a Problem?](what-is-a-problem.md)
-- [Creating Results](creating-results.md)
-- [Composing Results](composing-results.md)
-- [Resolving Results](resolving-results.md)
+- [Creating Outcomes](creating-outcomes.md)
+- [Composing Outcomes](composing-outcomes.md)
+- [Resolving Outcomes](resolving-outcomes.md)
 
 ### further reading / miscellaneous
-- [Result Aggregation](result-extensions.md)
-- [Adapting to Results](result-adaptation.md)
-- [Results as Monads](results-as-monads.md)
+- [Outcome Aggregation](outcome-aggregation.md)
+- [Adapting to Outcomes](outcome-adaptation.md)
+- [Outcomes as Monads](outcomes-as-monads.md)

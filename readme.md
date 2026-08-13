@@ -1,10 +1,9 @@
 A small, monadic Result-type library, targeting .Net 8.x and above.
 
-Results are a fluent, compositonal discriminated union type representing a result value or a problem.
+Outcomes are a fluent, compositonal discriminated union type representing a value or a problem.
 
-Results supports R.O.P. flow control (Railway Orientated Programming) via composition with the `|` operator, 
-and **full async support**.
+Supports R.O.P. flow control (Railway Orientated Programming) via composition and **full async support**.
     
-- [Documentation](https://github.com/pwarner/WarpCode.Outcomes/blob/main/docs/why-results.md)
+- [Documentation](https://github.com/pwarner/WarpCode.Outcomes/blob/main/docs/why-outcomes.md)
 - [NuGet Package](https://www.nuget.org/packages/WarpCode.Outcomes/)
 - [License](https://github.com/pwarner/WarpCode.Outcomes/blob/main/LICENSE.md)

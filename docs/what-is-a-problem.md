@@ -1,6 +1,6 @@
 # What is a problem?
 
-The Results library defines a problem as:
+The Outcomes library defines a problem as:
 
 ```csharp
 public record Problem(string Detail)
@@ -14,10 +14,10 @@ public record Problem(string Detail)
 
 This contract's single `Detail` property mirrors the `Message` property of an exception.
 
-Problems are record types, so they are immutable by design. They *implicitly* convert to a Result, as this very silly example shows:
+Problems are record types, so they are immutable by design. They *implicitly* convert to an Outcome, as this very silly example shows:
 
 ```csharp
-Result<Tint> ProcessWithdrawal(Withdrawal withdrawl)
+Outcome<Tint> ProcessWithdrawal(Withdrawal withdrawl)
 {
     if(withdrawal.Amount > _account.Balance)
         return new Problem("Insufficient funds in account to process transaction");
@@ -40,7 +40,7 @@ public class EntityNotFoundProblem<T>: Problem
     public string MissingId {get;}
 } 
 ```
-Later, when you [resolve a result](resolving-results.md), the type of the problem will be useful for determining the resolution value. 
+Later, when you [resolve an outcome](resolving-outcomes.md), the type of the problem will be useful for determining the resolution value. 
 
 ## What is not a Problem
 Not every case where you throw an exception is a candidate for replacing with a problem. 
@@ -57,13 +57,13 @@ throw new ArgumentOutOfRange(nameof(date), "The date is not in range");
 
 ---
 ### Index
-- [Why Results?](why-results.md)
+- [Why Outcomes?](why-outcomes.md)
 - this: What is a Problem?
-- [Creating Results](creating-results.md)
-- [Composing Results](composing-results.md)
-- [Resolving Results](resolving-results.md)
+- [Creating Outcomes](creating-outcomes.md)
+- [Composing Outcomes](composing-outcomes.md)
+- [Resolving Outcomes](resolving-outcomes.md)
 
 ### further reading / miscellaneous
-- [Result Aggregation](result-extensions.md)
-- [Adapting to Results](result-adaptation.md)
-- [Results as Monads](results-as-monads.md)
+- [Outcome Aggregation](outcome-aggregation.md)
+- [Adapting to Outcomes](outcome-adaptation.md)
+- [Outcomes as Monads](outcomes-as-monads.md)

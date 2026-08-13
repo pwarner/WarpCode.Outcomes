@@ -1,6 +1,6 @@
-# Monadic design of Results 
+# Monadic design of Outcomes 
 
-Results are a `discriminated union` type, and also adhere to a `Monad` design pattern from the world of functional programming. 
+Outcomes are a `discriminated union` type, and also adhere to a `Monad` design pattern from the world of functional programming. 
 
 A Monad usually appears in the form of a sort of wrapper that augments an inner value with additional logic, but it's also a type of contract.
 
@@ -34,32 +34,32 @@ Did you know that `IEnumerable<T>` was a monad?
 - It presents the `Map` operation as the `Select` function.
 - It presents the `Bind/Flat-map` operation as the `SelectMany` function.
 
-## Results as Monads
+## Outcomes as Monads
 
-Since bind and map are compositional operations, `Result<T>` fulfils its monadic contract via the `|` operator as it does for every compisitional operator in the library.
+Since bind and map are compositional operations, `Outcome<T>` fulfils its monadic contract via the `|` operator as it does for every compisitional operator in the library.
 
-They are `happy path` operators, meaning that they only execute when the result does not hold a problem. 
+They are `happy path` operators, meaning that they only execute when the outcome does not hold a problem. 
 Which makes sense, as there is no meaningful value when a problem is present.
 
 Bind:
 ```csharp
-Result<int> myResult = Result.Of(5) | (x => Result.Of(x * 2));
+Outcome<int> myOutcome = Outcome.Of(5) | (x => Outcome.Of(x * 2));
 ```
 Map:
 ```csharp
 static int DoubleIt(int x) => x * 2;
-Result<int> myResult = Result.Of(5) | DoubleIt;
+Outcome<int> myOutcome = Outcome.Of(5) | DoubleIt;
 ```
 
 ---
 ### Index
-- [Why Results?](why-results.md)
+- [Why Outcomes?](why-outcomes.md)
 - [What is a Problem?](what-is-a-problem.md)
-- [Creating Results](creating-results.md)
-- [Composing Results](composing-results.md)
-- [Resolving Results](resolving-results.md)
+- [Creating Outcomes](creating-outcomes.md)
+- [Composing Outcomes](composing-outcomes.md)
+- [Resolving Outcomes](resolving-outcomes.md)
 
 ### further reading / miscellaneous
-- [Result Aggregation](result-extensions.md)
-- [Adapting to Results](result-adaptation.md)
-- this: Results as Monads
+- [Outcome Aggregation](outcome-aggregation.md)
+- [Adapting to Outcomes](outcome-adaptation.md)
+- this: Outcomes as Monads
