@@ -4,7 +4,7 @@
 /// Extensions for aggregating multiple <see cref="Outcome{T}"/> into a single <see cref="Outcome{T}"/> containing 
 /// a collection of the successful values, or a collection of the problems encountered.
 /// </summary>
-public static class OutcomeAggregationExtensions
+public static class AggregationExtensions
 {
     extension<T>(IEnumerable<Outcome<T>> outcomes)
     {
@@ -82,7 +82,7 @@ public static class OutcomeAggregationExtensions
 
     extension<T>(IAsyncEnumerable<Outcome<T>> outcomes)
     {
-        /// <inheritdoc cref="OutcomeAggregationExtensions.Aggregate{T}"/>
+        /// <inheritdoc cref="AggregationExtensions.Aggregate{T}"/>
         public async Task<Outcome<T[]>> AggregateAsync(bool bailEarly = false)
         {
             List<T>? values = null;
@@ -110,7 +110,7 @@ public static class OutcomeAggregationExtensions
 
     extension(IAsyncEnumerable<Outcome<None>> outcomes)
     {
-        /// <inheritdoc cref="OutcomeAggregationExtensions.Aggregate"/>
+        /// <inheritdoc cref="AggregationExtensions.Aggregate"/>
         public async Task<Outcome<None>> AggregateAsync(bool bailEarly = false)
         {
             List<Problem>? problems = null;

@@ -39,6 +39,7 @@ Outcome<TNone> tempAggregate = temps.Aggregate();
 - [What is a Problem?](what-is-a-problem.md)
 - [Creating Outcomes](creating-outcomes.md)
 - [Composing Outcomes](composing-outcomes.md)
+- [Composing Async Outcomes](composing-async-outcomes.md)
 - [Resolving Outcomes](resolving-outcomes.md)
 
 ### further reading / miscellaneous

@@ -61,6 +61,7 @@ throw new ArgumentOutOfRange(nameof(date), "The date is not in range");
 - this: What is a Problem?
 - [Creating Outcomes](creating-outcomes.md)
 - [Composing Outcomes](composing-outcomes.md)
+- [Composing Async Outcomes](composing-async-outcomes.md)
 - [Resolving Outcomes](resolving-outcomes.md)
 
 ### further reading / miscellaneous

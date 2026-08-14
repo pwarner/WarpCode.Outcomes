@@ -13,23 +13,23 @@ public static class AsyncOutcomeComposition
     {
         public static AsyncOutcome<TNext> operator |(AsyncOutcome<T> self,
             Func<T, CancellationToken, ValueTask<Outcome<TNext>>> bind)
-            => self.Then(self.BindAsync(bind));
+            => self.With(self.BindAsync(bind));
 
         public static AsyncOutcome<TNext> operator |(AsyncOutcome<T> self,
             Func<T, CancellationToken, Task<Outcome<TNext>>> bind)
-            => self.Then(self.BindAsync<T, TNext>((x, c) =>
+            => self.With(self.BindAsync<T, TNext>((x, c) =>
                 new(bind(x, c))
             ));
 
         public static AsyncOutcome<TNext> operator |(AsyncOutcome<T> self,
             Func<T, CancellationToken, ValueTask<TNext>> map)
-            => self.Then(self.BindAsync<T, TNext>(async (x, c) =>
+            => self.With(self.BindAsync<T, TNext>(async (x, c) =>
                 await map(x, c).ConfigureAwait(false)
             ));
 
         public static AsyncOutcome<TNext> operator |(AsyncOutcome<T> self,
             Func<T, CancellationToken, Task<TNext>> map)
-            => self.Then(self.BindAsync<T, TNext>(async (x, c) =>
+            => self.With(self.BindAsync<T, TNext>(async (x, c) =>
                 await map(x, c).ConfigureAwait(false)
             ));
     }
@@ -138,25 +138,25 @@ public static class AsyncOutcomeComposition
     {
         public static AsyncOutcome<TNext> operator |(AsyncOutcome<None> self,
             Func<CancellationToken, ValueTask<Outcome<TNext>>> bind)
-            => self.Then(self.BindAsync((_, c) =>
+            => self.With(self.BindAsync((_, c) =>
                 bind(c)
             ));
 
         public static AsyncOutcome<TNext> operator |(AsyncOutcome<None> self,
             Func<CancellationToken, Task<Outcome<TNext>>> bind)
-            => self.Then(self.BindAsync<None, TNext>((_, c) =>
+            => self.With(self.BindAsync<None, TNext>((_, c) =>
                 new(bind(c))
             ));
 
         public static AsyncOutcome<TNext> operator |(AsyncOutcome<None> self,
             Func<CancellationToken, ValueTask<TNext>> map)
-            => self.Then(self.BindAsync<None, TNext>(async (_, c) =>
+            => self.With(self.BindAsync<None, TNext>(async (_, c) =>
                 await map(c).ConfigureAwait(false)
             ));
 
         public static AsyncOutcome<TNext> operator |(AsyncOutcome<None> self,
             Func<CancellationToken, Task<TNext>> map)
-            => self.Then(self.BindAsync<None, TNext>(async (_, c) =>
+            => self.With(self.BindAsync<None, TNext>(async (_, c) =>
                 await map(c).ConfigureAwait(false)
             ));
     }

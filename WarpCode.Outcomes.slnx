@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/docs/">
+    <File Path="docs/composing-async-outcomes.md" />
     <File Path="docs/composing-outcomes.md" />
     <File Path="docs/creating-outcomes.md" />
     <File Path="docs/resolving-outcomes.md" />

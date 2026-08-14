@@ -67,6 +67,7 @@ Outcome<TNone> outcome = Outcome.OfProblem("Something went wrong");
 - [What is a Problem?](what-is-a-problem.md)
 - this: Creating Outcomes
 - [Composing Outcomes](composing-outcomes.md)
+- [Composing Async Outcomes](composing-async-outcomes.md)
 - [Resolving Outcomes](resolving-outcomes.md)
 
 ### further reading / miscellaneous

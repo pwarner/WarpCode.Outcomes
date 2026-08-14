@@ -81,6 +81,7 @@ public static class OutcomeResolverExtensions
 - [What is a Problem?](what-is-a-problem.md)
 - [Creating Outcomes](creating-outcomes.md)
 - [Composing Outcomes](composing-outcomes.md)
+- [Composing Async Outcomes](composing-async-outcomes.md)
 - this: Resolving Outcomes
 
 ### further reading / miscellaneous

@@ -20,7 +20,7 @@ public readonly record struct AsyncOutcome<T>(ValueTask<Outcome<T>> OutcomeTask,
     public override string ToString() =>
         this switch
         {
-            { CancellationToken: { IsCancellationRequested: true } } => $"Cancelled AsyncOutcome<{typeof(T)}>",
+            { CancellationToken.IsCancellationRequested: true } => $"Cancelled AsyncOutcome<{typeof(T)}>",
             { OutcomeTask: { IsCompletedSuccessfully: true } task } => $"Completed Outcome<{typeof(T)}>: {task.Result}",
             { OutcomeTask.IsFaulted: true } => $"Faulted Outcome<{typeof(T)}>",
             _ => $"Pending AsyncOutcome<{typeof(T)}>"
@@ -35,10 +35,10 @@ public readonly record struct AsyncOutcome<T>(ValueTask<Outcome<T>> OutcomeTask,
 
     /// <summary>
     /// Convenience method to build a new AsyncOutcome with the existing cancellation token and a new ValueTask{Outcome{TNext}}.
-    /// Used when `self { OutcomeTask = [expression]` record semantics are not available where
+    /// Used when `self with { OutcomeTask = [expression] }` record semantics are not available where
     /// the generic parameter of AsyncOutcome{T} changes to AsyncOutcome{TNext}
     /// </summary>
-    internal AsyncOutcome<TNext> Then<TNext>(ValueTask<Outcome<TNext>> task)=> new(task, CancellationToken);
+    internal AsyncOutcome<TNext> With<TNext>(ValueTask<Outcome<TNext>> task)=> new(task, CancellationToken);
 
     /// <summary>
     /// Implicitly converts an AsyncOutcome{T} to a ValueTask{Outcome{T}}.

@@ -59,7 +59,7 @@ public static class Outcome
 /// <typeparam name="T">The type of the outcome value.</typeparam>
 [DebuggerDisplay("{ToString(),nq}")]
 [StructLayout(LayoutKind.Auto)]
-public readonly struct Outcome<T>
+public readonly struct Outcome<T>: IEquatable<Outcome<T>>
 {
     internal readonly T Value;
     internal readonly Problem? Problem;
@@ -107,6 +107,9 @@ public readonly struct Outcome<T>
         return Problem is not null ? onProblem(Problem) : onValue(Value);
     }
 
+    /// <inheritdoc />
+    public override string ToString() => Problem is not null ? $"Problem: {Problem}" : $"Value: {Value}";
+
     /// <summary>
     /// Implicitly converts a value of type T to a new instance of Outcome{T}.
     /// </summary>
@@ -120,6 +123,28 @@ public readonly struct Outcome<T>
     /// <param name="problem">The Problem instance containing error details to be represented as an Outcome{T}.</param>
     public static implicit operator Outcome<T>(Problem problem) => new(problem);
 
-    /// <inheritdoc />
-    public override string ToString() => Problem is not null ? $"Problem: {Problem}" : $"Value: {Value}";
+    /// <inheritdoc/>
+    public bool Equals(Outcome<T> other) => EqualityComparer<T>.Default.Equals(Value, other.Value) && Equals(Problem, other.Problem);
+
+    /// <inheritdoc/>
+    public override bool Equals(object? obj) => obj is Outcome<T> other && Equals(other);
+
+    /// <inheritdoc/>
+    public override int GetHashCode() => HashCode.Combine(Value, Problem);
+
+    /// <summary>
+    /// Defines the equality operator for Outcome{T} instances, allowing for comparison of two Outcome{T} objects based on their values and problems.
+    /// </summary>
+    /// <param name="left">The left Outcome{T} instance to compare.</param>
+    /// <param name="right">The right Outcome{T} instance to compare.</param>
+    /// <returns>True if the two Outcome{T} instances are equal; otherwise, false.</returns>
+    public static bool operator ==(Outcome<T> left, Outcome<T> right) => left.Equals(right);
+
+    /// <summary>
+    /// Defines the inequality operator for Outcome{T} instances, allowing for comparison of two Outcome{T} objects based on their values and problems.
+    /// </summary>
+    /// <param name="left">The left Outcome{T} instance to compare.</param>
+    /// <param name="right">The right Outcome{T} instance to compare.</param>
+    /// <returns>True if the two Outcome{T} instances are not equal; otherwise, false.</returns>
+    public static bool operator !=(Outcome<T> left, Outcome<T> right) => !left.Equals(right);
 }

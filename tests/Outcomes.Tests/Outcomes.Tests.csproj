@@ -4,9 +4,6 @@
     <RootNamespace>WarpCode.Outcomes.Tests</RootNamespace>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="CompositionTestBase.cs" />
-  </ItemGroup>
   
   <ItemGroup>
     <Using Include="Xunit" />
