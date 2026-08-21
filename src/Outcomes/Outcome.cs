@@ -107,6 +107,14 @@ public readonly struct Outcome<T>: IEquatable<Outcome<T>>
         return Problem is not null ? onProblem(Problem) : onValue(Value);
     }
 
+    /// <summary>
+    /// Wraps the current Outcome{T} instance in an AsyncOutcome{T} with the specified cancellation token, allowing for asynchronous operations to be performed on the outcome.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token to associate with the asynchronous operation.</param>
+    /// <returns>An AsyncOutcome{T} instance representing the asynchronous operation.</returns>
+    public AsyncOutcome<T> AsAsync(CancellationToken cancellationToken = default) 
+        => new(new ValueTask<Outcome<T>>(this), cancellationToken);
+
     /// <inheritdoc />
     public override string ToString() => Problem is not null ? $"Problem: {Problem}" : $"Value: {Value}";
 

@@ -15,8 +15,11 @@ public static class ThenExtensions
         /// </summary>
         /// <param name="next">Function to execute to obtain next outcome.</param>
         /// <returns>An Outcome{TNext} representing the result of the composition.</returns>
-        public Outcome<TNext> Then(Func<T, Outcome<TNext>> next) =>
-            self.Match(next, static problem => new(problem));
+        public Outcome<TNext> Then(Func<T, Outcome<TNext>> next) => self switch
+        {
+            { Problem: {} p}  => new Outcome<TNext>(p),
+            { Value: var v } => next(v)
+        };
 
         /// <summary>
         /// Happy-path composition operator.
@@ -25,8 +28,11 @@ public static class ThenExtensions
         /// </summary>
         /// <param name="next">Function to execute to obtain next value.</param>
         /// <returns>An Outcome{TNext} representing the result of the composition.</returns>
-        public Outcome<TNext> Then(Func<T, TNext> next) =>
-            self.Then(value => new Outcome<TNext>(next(value)));
+        public Outcome<TNext> Then(Func<T, TNext> next) => self switch
+        {
+            { Problem: { } p } => new Outcome<TNext>(p),
+            { Value: var v } => new Outcome<TNext>(next(v))
+        };
     }
 
     /// <summary>Then extensions for an outcome containing no value.</summary>

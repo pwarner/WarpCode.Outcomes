@@ -5,7 +5,7 @@ There are three core composition operations:
 
 Each of those operations can cause an outcome to switch between the happy and sad paths.
 
-Together with `OnValue` and `OnProblem` (which never affect the path, these form the five canonical operators that allow you to compose a sequence of operations while handling both success and failure cases.
+Together with `OnValue` and `OnProblem` (which never change the path), these form the five canonical operations that allow you to compose a sequence of operations while handling both success and failure cases.
   
 
 ## Then

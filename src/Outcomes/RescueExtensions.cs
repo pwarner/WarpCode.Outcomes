@@ -15,7 +15,10 @@ public static class RescueExtensions
         /// </summary>
         /// <param name="rescue">Function to execute to attempt recovery from the problem.</param>
         /// <returns>The current outcome if it resolves to a value, otherwise a new outcome representing the result of the rescue function.</returns>
-        public Outcome<T> Rescue(Func<Problem, Outcome<T>> rescue)
-            => self.Match(_ => self, rescue);
+        public Outcome<T> Rescue(Func<Problem, Outcome<T>> rescue) => self switch
+        {
+            { Problem: { } p } => rescue(p),
+            _ => self
+        };
     }
 }

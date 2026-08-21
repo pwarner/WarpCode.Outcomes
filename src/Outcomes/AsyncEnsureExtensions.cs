@@ -32,7 +32,7 @@ public static class AsyncEnsureExtensions
     /// <param name="self">Current async outcome.</param>
     extension<T, T1>(AsyncOutcome<(T, T1)> self)
     {
-        /// <inheritdoc cref="EnsureExtensions.extension{T}(Outcome{T}).Ensure(Func{T, Outcome{None}})"/>
+        /// <inheritdoc cref="AsyncEnsureExtensions.extension{T}(AsyncOutcome{T}).Ensure(Func{T, Outcome{None}})"/>
         public AsyncOutcome<(T, T1)> Ensure(Func<T, T1, Outcome<None>> ensure)
             => self.Ensure(value => ensure(value.Item1, value.Item2));
     }
@@ -41,7 +41,7 @@ public static class AsyncEnsureExtensions
     /// <param name="self">Current async outcome.</param>
     extension<T, T1, T2>(AsyncOutcome<(T, T1, T2)> self)
     {
-        /// <inheritdoc cref="EnsureExtensions.extension{T}(Outcome{T}).Ensure(Func{T, Outcome{None}})"/>
+        /// <inheritdoc cref="AsyncEnsureExtensions.extension{T}(AsyncOutcome{T}).Ensure(Func{T, Outcome{None}})"/>
         public AsyncOutcome<(T, T1, T2)> Ensure(Func<T, T1, T2, Outcome<None>> ensure)
             => self.Ensure(value => ensure(value.Item1, value.Item2, value.Item3));
     }
@@ -51,7 +51,7 @@ public static class AsyncEnsureExtensions
     /// <param name="self">Current async outcome.</param>
     extension<T, T1, T2, T3>(AsyncOutcome<(T, T1, T2, T3)> self)
     {
-        /// <inheritdoc cref="EnsureExtensions.extension{T}(Outcome{T}).Ensure(Func{T, Outcome{None}})"/>
+        /// <inheritdoc cref="AsyncEnsureExtensions.extension{T}(AsyncOutcome{T}).Ensure(Func{T, Outcome{None}})"/>
         public AsyncOutcome<(T, T1, T2, T3)> Ensure(Func<T, T1, T2, T3, Outcome<None>> ensure)
             => self.Ensure(value => ensure(value.Item1, value.Item2, value.Item3, value.Item4));
     }

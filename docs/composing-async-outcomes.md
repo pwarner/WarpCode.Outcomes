@@ -1,5 +1,6 @@
 # Composing Async Outcomes
-place holder
+place holder. 
+TO DO: Show how to go async with member Outcome{T}.AsAsync and via the static AsyncOutcome.Of,  AsyncOutcome.Ok, AsyncOutcome.OfProblem helpers
 
 ## Summary
 place holder
