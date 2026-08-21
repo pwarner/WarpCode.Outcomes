@@ -83,14 +83,17 @@ Total: 25 sync extensions.
 
 ## Async extensions
 - Async versions of the sync composition extensions extend ONLY the AsyncOutcome type.
-- Async delegate extensions filename format: `{xxx}AsyncExtensions.cs` where `xxx` is the composition method name like `Then`, `Ensure` etc.
-- For each sync composition operator that takes a Func or Action delegate (22 out of 25), two async versions are provided:
-  - delegate returning a Task or Task<T> (extension name is `{zzz}Async` where `zzz` is the sync composition method name like `Then`, `Ensure` etc.)
-  - delegate returning a ValueTask or ValueTask<T>.
+- Async delegate extensions filename format: `{xxx}AsyncExtensions.cs` where `xxx` is the composition method name like `Then`, `Ensure` etc. Both the ValueTask and Task delegate families for an operator live in this one file.
+- For each sync composition operator that takes a Func or Action delegate (22 out of 25), two async versions are provided, given **distinct method names** rather than overloads that differ only by return type:
+  - delegate returning a `ValueTask` or `ValueTask<T>` — method name `{zzz}Async` (e.g. `ThenAsync`). This is the preferred, allocation-friendly form.
+  - delegate returning a `Task` or `Task<T>` — method name `{zzz}Task` (e.g. `ThenTask`).
 - In both cases, a CancellationToken is provided as the last input parameter.
 - An AsyncOutcome is a struct containing the `CancellationToken` that gets passed, and a `ValueTask<Outcome<T>>>`
 
-Total: 44 async extensions (22 ValueTask versions + 22 Task versions)
+### Why distinct names (`{zzz}Async` vs `{zzz}Task`), not return-type overloads
+An `async` lambda is convertible to both `Task<T>` and `ValueTask<T>`, and neither is "better" under C# overload resolution. If a single method name were overloaded on both return types, every inline `async` lambda would be a `CS0121` ambiguous-call error — the single most idiomatic usage in a fluent chain. Splitting the names removes the ambiguity: `{zzz}Async` takes ValueTask-returning delegates (inline `async` lambdas bind here cleanly) and `{zzz}Task` takes Task-returning delegates (an existing `Task`-returning method, including a method group, binds directly without a `ValueTask` wrap). Verified empirically in ThenAsyncExtensionsTests (`ThenAsync_ShouldAwaitGenuinelyAsyncContinuation_WhenSuccess` and `ThenTask_ShouldAcceptTaskReturningMethodGroup_WhenSuccess`).
+
+Total: 44 async extensions (22 ValueTask `{zzz}Async` versions + 22 Task `{zzz}Task` versions)
 
 ### async version examples (shows ValueTask variants, non-exhaustive)
 | operation | original sync version | async verson |
@@ -99,6 +102,13 @@ Total: 44 async extensions (22 ValueTask versions + 22 Task versions)
 | AsyncOutcome<T>.ThenAsync<TNext> | Func<T, Outcome<TNext>> | Func<T, CancellationToken, ValueTask<Outcome<TNext>>> |
 | AsyncOutcome<T>.OnValueAsync | Action<T> | Func<T, CancellationToken, ValueTask> |
 | AsyncOutcome<None>.OnValueAsync | Action | Func<CancellationToken, ValueTask> |
+
+## `Local` helper convention (async-delegate extensions)
+Each async-delegate family has a private `Local` helper on `AsyncOutcome<T>` that awaits `self` once, then branches on the resulting `Outcome<T>` using its internal `Value` / `Problem` members directly (not `Match` — this avoids the per-call delegate allocations and the extra await). The delegate is invoked with `self.CancellationToken`.
+
+Branch style:
+- **switch expression** where each arm yields the result outcome — `ThenAsync`, `EnsureAsync`, `RescueAsync`. The value/rescue arm `await`s the delegate; a trailing `var outcome =>` arm is the catch-all (keeps the switch exhaustive).
+- **if-return** for the side-effecting taps that return the *original* outcome — `OnValueAsync`, `OnProblemAsync` — because a switch arm can't cleanly "await a void-returning action, then return the original" without an extra local function.
 
 ## Extension documentation
 The structured function comments that drive the Xml documentation are carefully worded to be reused across overloads where possible. Almost all overloads just take a delegate. The delegate changes across overloads but the description of the function behavour is consistent, so overloads use <inheritdoc ... /> and keep the files smaller.

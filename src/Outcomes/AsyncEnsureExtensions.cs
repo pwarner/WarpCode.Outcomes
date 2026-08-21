@@ -28,6 +28,19 @@ public static class AsyncEnsureExtensions
             => self.With(self.Local(ensure));
     }
 
+    /// <summary>Ensure extensions for an async outcome containing no value.</summary>
+    /// <param name="self">Current value-less async outcome.</param>
+    extension(AsyncOutcome<None> self)
+    {
+        /// <inheritdoc cref="AsyncEnsureExtensions.extension{T}(AsyncOutcome{T}).Ensure(Func{T, Outcome{None}})"/>
+        public AsyncOutcome<None> Ensure(Func<Outcome<None>> ensure)
+            => self.Ensure(_ => ensure());
+
+        /// <inheritdoc cref="EnsureExtensions.extension(Outcome{None}).Ensure(Outcome{None})"/>
+        public AsyncOutcome<None> Ensure(Outcome<None> ensure)
+            => self.Ensure(_ => ensure);
+    }
+
     /// <summary>Ensure extensions for an async outcome containing a tuple of two values.</summary>
     /// <param name="self">Current async outcome.</param>
     extension<T, T1>(AsyncOutcome<(T, T1)> self)
