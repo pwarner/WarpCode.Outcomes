@@ -36,19 +36,19 @@ Did you know that `IEnumerable<T>` was a monad?
 
 ## Outcomes as Monads
 
-Since bind and map are compositional operations, `Outcome<T>` fulfils its monadic contract via the `|` operator as it does for every compisitional operator in the library.
+Since bind and map are compositional operations, `Outcome<T>` fulfils its monadic contract via the `Then` operator.
 
 They are `happy path` operators, meaning that they only execute when the outcome does not hold a problem. 
 Which makes sense, as there is no meaningful value when a problem is present.
 
 Bind:
 ```csharp
-Outcome<int> myOutcome = Outcome.Of(5) | (x => Outcome.Of(x * 2));
+Outcome<int> myOutcome = Outcome.Of(5).Then(x => Outcome.Of(x * 2));
 ```
 Map:
 ```csharp
 static int DoubleIt(int x) => x * 2;
-Outcome<int> myOutcome = Outcome.Of(5) | DoubleIt;
+Outcome<int> myOutcome = Outcome.Of(5).Then(DoubleIt);
 ```
 
 ---

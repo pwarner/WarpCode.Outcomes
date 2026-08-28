@@ -9,8 +9,8 @@ and one to resolve the `Problem Outcome` state.
 ```csharp
 ValueTask<Outcome<TOrderDetailDto>> Pipeline(OrderDetailRequest request) =>
     Validate(request)
-    | FetchOrderDetailsAsync
-    | MapToDto;
+    .ThenAsync(FetchOrderDetailsAsync)
+    .Then(MapToDto);
 
 public async ValueTask<IResult> GetOrderDetail(OrderDetailRequest request)
 {
@@ -20,8 +20,8 @@ public async ValueTask<IResult> GetOrderDetail(OrderDetailRequest request)
         value=> Outcomes.Of(value),
         problem => problem switch
         {
-            NotFoundProblem notFound => Outcomes.NotFound(),
-            ValidationProblem invalid => Outcomes.ValidationProblem(invalid.Message)
+            NotFoundProblem notFound => Results.NotFound(),
+            ValidationProblem invalid => Results.ValidationProblem(invalid.Message)
             _ => Outcomes.Error(problem.Detail)
         }
     );
@@ -40,8 +40,8 @@ public ValueTask<IResult> GetOrderDetail(OrderDetailRequest request) =>
             value=> Outcomes.Of(value),
             problem => problem switch
             {
-                NotFoundProblem notFound => Outcomes.NotFound(),
-                ValidationProblem invalid => Outcomes.ValidationProblem(invalid.Message)
+                NotFoundProblem notFound => Results.NotFound(),
+                ValidationProblem invalid => Results.ValidationProblem(invalid.Message)
                 _ => Outcomes.Error(problem.Detail)
             }
         );
@@ -63,14 +63,14 @@ public static class OutcomeResolverExtensions
         outcome.Match(DefaultValueResolver<T>, ProblemResolver);
 
     private static IResult DefaultValueResolver<T>(T value) => 
-        Outcomes.Ok(value);
+        Results.Ok(value);
 
     private static IResult ProblemResolver(IProblem problem) =>
         problem switch 
         {
-            NotFoundProblem notFound => Outcomes.NotFound(),
-            ValidationProblem invalid => Outcomes.ValidationProblem(invalid.Message)
-            _ => Outcomes.Error(problem.Detail)
+            NotFoundProblem notFound => Results.NotFound(),
+            ValidationProblem invalid => Results.ValidationProblem(invalid.Message)
+            _ => Results.Error(problem.Detail)
         };
 }
 ```

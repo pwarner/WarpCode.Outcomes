@@ -55,10 +55,10 @@ That last bullet-point means you can write code like this:
 ```csharp
 private Task<Outcome<CustomerUpdateResult>> UpdateCustomerNameFlow(UpdateCustomerNameCommand cmd) =>
     ValidateCommand(cmd)
-    | LoadCustomerAync
-    | UpdateCustomer<UpdateCustomerNameCommand>
-    | SaveCustomerAsync
-    | ToUpdateCommandResult;
+    .Then(LoadCustomerAync)
+    .Then(UpdateCustomer<UpdateCustomerNameCommand>)
+    .ThenAsync(SaveCustomerAsync)
+    .Then(ToUpdateCommandResult);
 ```
 
 ---
