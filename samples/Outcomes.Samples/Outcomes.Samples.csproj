@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net10.0</TargetFrameworks>
+    <RootNamespace>WarpCode.Outcomes.Samples</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <!-- keeps prices and output identical on every machine -->
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Outcomes\Outcomes.csproj" />
+  </ItemGroup>
+</Project>

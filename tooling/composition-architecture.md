@@ -79,7 +79,7 @@ AsyncOutcome extensions filename format: `Async{xxx}Extensions.cs`. The Async pr
 - (Async)Outcome<T>.Rescue(Func<Problem, Outcome<T>>)
 - (Async)Outcome<T>.OnProblem(Action<Problem>)
 
-Total: 25 sync extensions.
+Total: 25 Outcome extensions, 25 AsyncOutcome extensions.
 
 ## Async extensions
 - Async versions of the sync composition extensions extend ONLY the AsyncOutcome type.
@@ -90,8 +90,10 @@ Total: 25 sync extensions.
 - In both cases, a CancellationToken is provided as the last input parameter.
 - An AsyncOutcome is a struct containing the `CancellationToken` that gets passed, and a `ValueTask<Outcome<T>>>`
 
-### Why distinct names (`{zzz}Async` vs `{zzz}Task`), not return-type overloads
-An `async` lambda is convertible to both `Task<T>` and `ValueTask<T>`, and neither is "better" under C# overload resolution. If a single method name were overloaded on both return types, every inline `async` lambda would be a `CS0121` ambiguous-call error — the single most idiomatic usage in a fluent chain. Splitting the names removes the ambiguity: `{zzz}Async` takes ValueTask-returning delegates (inline `async` lambdas bind here cleanly) and `{zzz}Task` takes Task-returning delegates (an existing `Task`-returning method, including a method group, binds directly without a `ValueTask` wrap). Verified empirically in ThenAsyncExtensionsTests (`ThenAsync_ShouldAwaitGenuinelyAsyncContinuation_WhenSuccess` and `ThenTask_ShouldAcceptTaskReturningMethodGroup_WhenSuccess`).
+### Why distinct async extension method names
+Methods explicitly distinguish between functions returning ValueTask `{zzz}Async` and Task `{zzz}Task`
+This is because an `async` lambda expression is convertible to both `Task<T>` and `ValueTask<T>`, and neither is "better" under C# overload resolution. 
+If a single method name were overloaded on both return types, every inline `async` lambda would be a `CS0121` ambiguous-call error — the single most idiomatic usage in a fluent chain. Splitting the names removes the ambiguity: `{zzz}Async` takes ValueTask-returning delegates (inline `async` lambdas bind here cleanly) and `{zzz}Task` takes Task-returning delegates (an existing `Task`-returning method, including a method group, binds directly without a `ValueTask` wrap). Verified empirically in ThenAsyncExtensionsTests (`ThenAsync_ShouldAwaitGenuinelyAsyncContinuation_WhenSuccess` and `ThenTask_ShouldAcceptTaskReturningMethodGroup_WhenSuccess`).
 
 Total: 44 async extensions (22 ValueTask `{zzz}Async` versions + 22 Task `{zzz}Task` versions)
 

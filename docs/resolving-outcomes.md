@@ -1,82 +1,81 @@
-# Resolving Outcomes
+# 🏁 Resolving Outcomes
 
-At the end of a pipeline of operations returning Outomes, you'll need to leave the 'rails' and return a final value that makes sense for your application, for example in a Web API that resolves to an `IActionResult` or `IResult`.
+At the end of a pipeline of operations returning Outcomes, you'll need to leave the rails 🚉 and return a final value that makes sense for your application. In a Web API, for example, that might be an `IActionResult` or `IResult`.
 
-The Match method resolves your outcomes to a final return value. 
-It takes two delegates - one to resolve the `Success Outcome` state,
-and one to resolve the `Problem Outcome` state.
+To keep the samples free of dependencies, we resolve to a tiny stand-in for ASP.NET Core's `IResult`:
 
 ```csharp
-ValueTask<Outcome<TOrderDetailDto>> Pipeline(OrderDetailRequest request) =>
-    Validate(request)
-    .ThenAsync(FetchOrderDetailsAsync)
-    .Then(MapToDto);
+public sealed record HttpResult(int StatusCode, string Body)
+```
 
-public async ValueTask<IResult> GetOrderDetail(OrderDetailRequest request)
-{
-    Outcome<TOrderDetailDto> outcome = await Pipeline(request);
+> [!TIP]
+> 📂 Full sample: [ResolvingOutcomes.cs](../samples/Outcomes.Samples/ResolvingOutcomes.cs)<br>
+> ▶️ `dotnet run --project samples/Outcomes.Samples -- resolving-outcomes`
 
-    return outcome.Match(
-        value=> Outcomes.Of(value),
+## 🔀 Match
+
+The `Match` method resolves your outcome to a final return value. It takes two functions: one to resolve the ✅ success state, and one to resolve the ❌ problem state.
+
+```csharp
+public static HttpResult GetTheUsual(string customerId) =>
+    ComposingOutcomes.TheUsualInStock(customerId).Match(
+        drink => HttpResult.Ok(drink.Name),
         problem => problem switch
         {
-            NotFoundProblem notFound => Results.NotFound(),
-            ValidationProblem invalid => Results.ValidationProblem(invalid.Message)
-            _ => Outcomes.Error(problem.Detail)
-        }
-    );
-}
+            NotFoundProblem notFound => HttpResult.NotFound(notFound.Detail),
+            OutOfStockProblem outOfStock => HttpResult.Conflict(outOfStock.Detail),
+            _ => HttpResult.Error(problem.Detail)
+        });
 ```
 
-There is a `MatchAsync()` extension that allows you to resolve an asynchronous Outcome without `await`ing it first.
+A switch expression over the problem's *type* maps each of your [typed problems](what-is-a-problem.md) to the right response. Notice how matching on the base `NotFoundProblem` handles both unknown customers and unknown drinks.
 
-Using this, the GetOrderDetail method above can be simplified a little:
+## ♻️ A shared resolver
 
-```csharp
-
-public ValueTask<IResult> GetOrderDetail(OrderDetailRequest request) =>
-    Pipeline(request)
-        .MatchAsync(
-            value=> Outcomes.Of(value),
-            problem => problem switch
-            {
-                NotFoundProblem notFound => Results.NotFound(),
-                ValidationProblem invalid => Results.ValidationProblem(invalid.Message)
-                _ => Outcomes.Error(problem.Detail)
-            }
-        );
-```
-
-In the examples above, a switch expression is used to handle multiple problems defined in our application.
-
-Most likely, you'll want to create a single function that resolves multiple problem cases to appropriate response types,
-that can be used anywhere you resolve an outcome. If you write this as an extension method, outcome resolution looks much simpler.
+Most likely, you'll want a single function that maps all your application's problems to responses, used everywhere you resolve an outcome. Write it as extension methods, and resolution becomes a one-liner:
 
 ```csharp
-
-public static class OutcomeResolverExtensions
+public static class OutcomeHttpExtensions
 {
-    public static IResult ToApiResult<T>(this Outcome<T> outcome, Func<T, IResult> valueResolver) =>
-        outcome.Match(valueResolver, ProblemResolver);
+    public static HttpResult ToHttpResult<T>(this Outcome<T> outcome) =>
+        outcome.Match(HttpResult.Ok, ToHttpResult);
 
-    public static IResult ToApiResult<T>(this Outcome<T> outcome) =>
-        outcome.Match(DefaultValueResolver<T>, ProblemResolver);
+    public static ValueTask<HttpResult> ToHttpResultAsync<T>(this AsyncOutcome<T> outcome) =>
+        outcome.Match(HttpResult.Ok, ToHttpResult);
 
-    private static IResult DefaultValueResolver<T>(T value) => 
-        Results.Ok(value);
-
-    private static IResult ProblemResolver(IProblem problem) =>
-        problem switch 
-        {
-            NotFoundProblem notFound => Results.NotFound(),
-            ValidationProblem invalid => Results.ValidationProblem(invalid.Message)
-            _ => Results.Error(problem.Detail)
-        };
+    public static HttpResult ToHttpResult(this Problem problem) => problem switch
+    {
+        ValidationProblem invalid => HttpResult.BadRequest(invalid.Detail),
+        PaymentDeclinedProblem declined => HttpResult.PaymentRequired(declined.Detail),
+        NotFoundProblem notFound => HttpResult.NotFound(notFound.Detail),
+        OutOfStockProblem outOfStock => HttpResult.Conflict(outOfStock.Detail),
+        _ => HttpResult.Error(problem.Detail)
+    };
 }
 ```
+
+```csharp
+public static HttpResult GetTheUsualResolved(string customerId) =>
+    ComposingOutcomes.TheUsualInStock(customerId).ToHttpResult();
+```
+
+## ⚡ Resolving async outcomes
+
+`Match` on an [`AsyncOutcome<T>`](composing-async-outcomes.md) returns a `ValueTask<TFinal>`, so you can resolve an async pipeline without `await`ing it first:
+
+```csharp
+public static ValueTask<HttpResult> PostOrderAsync(OrderRequest request, CancellationToken cancellationToken) =>
+    ComposingAsyncOutcomes.PlaceOrderAsync(request, cancellationToken)
+        .Match(HttpResult.Ok, OutcomeHttpExtensions.ToHttpResult);
+```
+
+## 📋 Summary
+- `Match` takes one function for the value and one for the problem, and returns whatever they return.
+- Switch over the problem's type to choose a response, and put that switch in one shared resolver.
+- On an `AsyncOutcome<T>`, `Match` returns a `ValueTask<TFinal>`.
 
 ---
-### Index
+### 📚 Index
 - [Why Outcomes?](why-outcomes.md)
 - [What is a Problem?](what-is-a-problem.md)
 - [Creating Outcomes](creating-outcomes.md)
@@ -88,3 +87,4 @@ public static class OutcomeResolverExtensions
 - [Outcome Aggregation](outcome-aggregation.md)
 - [Adapting to Outcomes](outcome-adaptation.md)
 - [Outcomes as Monads](outcomes-as-monads.md)
+- [Runnable samples](../samples/Outcomes.Samples/) ☕

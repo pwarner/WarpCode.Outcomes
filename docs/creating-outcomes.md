@@ -1,68 +1,62 @@
+# 🏗️ Creating Outcomes
 
-# Creating Outcomes
 As mentioned, Outcomes have exactly two states: either they hold a value (`Success Outcomes`), or they hold a Problem (`Problem Outcomes`).
 
-You can consider succcess outcomes as the *'happy path'* of your code, and Problem Outcomes as the *'unhappy path'*.
+You can consider success outcomes as the ✅ *'happy path'* of your code, and problem outcomes as the ❌ *'unhappy path'*.
 
-Or if you really enjoy the railway orientated concept, you can call them the 'hale rail' and 'fail rail'.
+Or if you really enjoy the railway-orientated concept 🚂, you can call them the 'hale rail' and the 'fail rail'.
 
-`Success Outcomes` can also hold an absence of meaningful value. Use `None` as the generic type, which is like `System.Void` or `Unit`
+`Success Outcomes` can also hold an absence of meaningful value. Use `None` as the generic type, which plays the role of `void` (known as `Unit` in functional languages).
 
-## Creating Successful Outcomes
-By constructor
+## ✅ Creating success outcomes
+
 ```csharp
-var outcomeStr = new Outcome<Tstring>("success!");
-var outcomeInt = new Outcome<Tint>(13);
+var byConstructor = new Outcome<string>("Flat White");
+Outcome<string> byConversion = "Flat White";
+Outcome<string> byFactory = Outcome.Of("Flat White");
 ```
 
-By implicit coversion
+Value-less success outcomes, with `Outcome.Ok` (or `default`, which is the same thing):
+
 ```csharp
-Outcome<Tstring> outcomeStr = "success!";
-Outcome<Tint> outcomeInt = 13;
-Outcome<TNone> outcomeVoid = default;
+Outcome<None> ok = Outcome.Ok;
+Outcome<None> alsoOk = default;
 ```
 
-With `Outcome.Of(..)`
+## ❌ Creating problem outcomes
+
 ```csharp
-Outcome<Tstring> outcomeStr = Outcome.Of("success!");
-Outcome<Tint> outcomeInt = Outcome.Of(13);
+var problemByConstructor = new Outcome<Drink>(new OutOfStockProblem("Mocha"));
+Outcome<Drink> problemByConversion = new OutOfStockProblem("Mocha");
+Outcome<Drink> problemByFactory = Outcome.OfProblem<Drink>(new OutOfStockProblem("Mocha"));
 ```
 
-Value-less Outcome<TNone> with `Outcome.Ok`
+Implicit conversion works for any type deriving from `WarpCode.Outcomes.Problem`.
+
+Value-less problem outcomes, with `Outcome.OfProblem(...)`:
+
 ```csharp
-Outcome<TNone> outcomeVoid = Outcome.Ok;
+Outcome<None> valuelessProblem = Outcome.OfProblem(new OutOfStockProblem("Mocha"));
 ```
 
-## Creating Problem Outcomes
+Need a problem in a hurry? Create the basic `Problem` from just a detail message:
 
-By constructor
 ```csharp
-Outcome<Tstring> outcome = new Outcome<Tstring>(new SomeProblem());
-```
-
-By implicit coversion
-```csharp
-// available if the SomeProblem type derives from the base Outcomes.Problem type
-Outcome<Tstring> outcome = new SomeProblem();
-```
-With `Outcome.OfProblem<T>(...)`
-```csharp
-Outcome<Tstring> outcome = Outcome.OfProblem<string>(new SomeProblem());
+Outcome<Drink> fromDetail = Outcome.OfProblem<Drink>("The grinder is jammed");
+Outcome<None> valuelessFromDetail = Outcome.OfProblem("The grinder is jammed");
 ```
 
-Valueless Problem Outcome with `Outcome.OfProblem(...)`
-```csharp
-Outcome<TNone> outcome = Outcome.OfProblem(new SomeProblem());
-```
+> [!NOTE]
+> Outcomes have value equality: two outcomes are equal when they hold equal values, or equal problems.
 
-Create the basic `WarpCode.Outcomes.Problem` with just a string description
-```csharp
-Outcome<Customer> outcome = Outcome.OfProblem<Customer>("Something went wrong");
-Outcome<TNone> outcome = Outcome.OfProblem("Something went wrong");
-```
+> [!TIP]
+> Need an *async* outcome from the start? See [Going async](composing-async-outcomes.md) for `AsyncOutcome.Of`, `AsyncOutcome.Ok` and friends.
+
+📂 Sample code: [CreatingOutcomes.cs](../samples/Outcomes.Samples/CreatingOutcomes.cs)<br>
+▶️ `dotnet run --project samples/Outcomes.Samples -- creating-outcomes`
 
 ---
-### Index
+### 📚 Index
 - [Why Outcomes?](why-outcomes.md)
 - [What is a Problem?](what-is-a-problem.md)
 - this: Creating Outcomes
@@ -74,3 +68,4 @@ Outcome<TNone> outcome = Outcome.OfProblem("Something went wrong");
 - [Outcome Aggregation](outcome-aggregation.md)
 - [Adapting to Outcomes](outcome-adaptation.md)
 - [Outcomes as Monads](outcomes-as-monads.md)
+- [Runnable samples](../samples/Outcomes.Samples/) ☕

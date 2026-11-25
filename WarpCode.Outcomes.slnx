@@ -20,6 +20,9 @@
     <File Path=".github/workflows/ci.yml" />
     <File Path=".github/workflows/release.yml" />
   </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/Outcomes.Samples/Outcomes.Samples.csproj" />
+  </Folder>
   <Project Path="src/Outcomes/Outcomes.csproj" />
   <Project Path="tests/Outcomes.Tests/Outcomes.Tests.csproj" />
 </Solution>

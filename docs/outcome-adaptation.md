@@ -1,116 +1,125 @@
-# Adapting to Outcomes
+# 🔌 Adapting to Outcomes
 
-You've started using Outcomes in your code, because you're a talented and discerning developer.
+You've started using Outcomes in your code, because you're a talented and discerning developer 😎.
 
-But there's a lot of other code you have to work with that doesn't use Outcomes. 
-It's not at all viable to change that code to use them, and often not possible because *it's not your code*.
+But there's a lot of other code you have to work with that doesn't use Outcomes. It's not at all viable to change that code, and often not possible, because *it's not your code*.
 
-Happily, you can still work with methods that don't return Outcomes.
-- via [composition](composing-outcomes.md) which overloads the `|` operator for function signatures that don't return outcomes.
-- with `ToOutcome()` via the Adaptation wrapper (this document).
+Happily, you can still work with methods that don't return Outcomes:
+- via [composition](composing-outcomes.md): the map overloads of `Then` (`Func<T, TNext>`) accept functions that return plain values.
+- with `ToOutcome()`, which turns thrown exceptions into problems (this document).
 
 > [!NOTE]
-> Composition with functions that don't return outcomes do not catch exceptions. 
-> In cases where you want to adapt a function that doesn't return an outcome, you need to use the `ToOutcome()` extension method.
+> Composition with functions that don't return outcomes does **not** catch exceptions.
+> When you want exceptions from a function turned into problems, use the `ToOutcome()` extension method.
 
+> [!TIP]
+> 📂 Full sample: [OutcomeAdaptation.cs](../samples/Outcomes.Samples/OutcomeAdaptation.cs)<br>
+> ▶️ `dotnet run --project samples/Outcomes.Samples -- outcome-adaptation`
 
-For example, in the code below, the method `GetReservationAsync` doesn't return a `Task<Outcome<TReservation>>`. 
-Any problems that occur during invocation of that method result in an exception being thrown.
-Specifically, the method documentation tells you that it throws: 
-- An `ArgumentNullException` if the `bookingId` parameter is null.
-- An `ArgumentException` if the `bookingId` parameter is empty or just whitespace.
-- an `BookingNotFoundException` if a seemingly valid `bookingId` is provided but a matching reservation with this id is not found.
+Our coffee shop uses a third-party card-terminal SDK 🧓 that we can't change. Its documentation tells us that it throws:
+- an `ArgumentException` if the `cardNumber` is null, empty or whitespace.
+- a `CardDeclinedException` if the card is declined.
 
 ```csharp
-Task<Reservation> GetReservationAsync(string bookingId);
+public static string Charge(string cardNumber, decimal amount)
+public static async Task<string> ChargeAsync(string cardNumber, decimal amount, CancellationToken cancellationToken)
 ```
 
-To adapt this method to give us Problems instead of Exceptions, we need to do two things:
+To adapt this SDK to give us Problems instead of Exceptions, we need to do two things:
 
-1. Use the `ToOutcome()` extension method (or in non-extension form`Adapt.ToOutcome(...)`)
-2. Define an `ExceptionMap` either globally, or provide it as a parameter.
+1. Use the `ToOutcome()` extension method.
+2. Define an `ExceptionMap`, either globally or as a parameter.
 
-### Exception Mapping
+## 🗺️ Exception mapping
+
 An `ExceptionMap` is just a delegate with the following signature:
+
 ```csharp
 /// <summary>
 /// A function called when exceptions are thrown by code instead of returning outcomes.
-/// If the function returns a <see cref="IProblem"/> then a new <see cref="Outcome{T}"/>
+/// If the function returns a <see cref="Problem"/> then a new <see cref="Outcome{T}"/>
 /// will be returned by the adaptive methods. If null is returned, the exception will be re-thrown.
 /// </summary>
-/// <param name="exception">A caught <see cref="Exception"/> instance to try to map to a <see cref="IProblem"/>.</param>
-/// <returns>A <see cref="IProblem"/> if one could be created from the exception, or null.</returns>
-public delegate IProblem? ExceptionMap(Exception exception);
+public delegate Problem? ExceptionMap(Exception exception);
 ```
 
 ### Exception map as a parameter
 
-We can provide a delegate as a parameter just to handle the `BookingNotFound` exception case.
+We can pass a map just for the `CardDeclinedException` case. Returning `null` for anything else lets those exceptions keep throwing:
 
 ```csharp
-await GetReservationAsync(bookingId).ToOutcome(e=> 
-	e switch {
-		BookingNotFoundException => new NotFoundProblem($"Could not find booking with Id {bookingId}",
-		_ => null
-	});
+public static Outcome<string> Charge(string cardNumber, decimal amount)
+{
+    Func<string> charge = () => LegacyCardTerminal.Charge(cardNumber, amount);
+
+    return charge.ToOutcome(exception => exception switch
+    {
+        CardDeclinedException declined => new PaymentDeclinedProblem(declined.Amount),
+        _ => null
+    });
+}
 ```
 
-As it's quite a common use case to only need to map a single exception type to a problem, there's a convenient short-cut syntax:
-```csharp
-await GetReservationAsync(bookingId)
-	.ToOutcome<TReservation, BookingNotFoundException>(e=> 
-		new NotFoundProblem($"Could not find booking with Id {bookingId}");
-```
-This approach makes use of the generic `ExceptionMap<TException>` delegate, 
-which catches and maps only exceptions of type `TException` to a problem, 
-allowing all other exceptions to throw.
+As it's very common to need to map just a single exception type, there's a convenient shortcut that uses the generic `ExceptionMap<TException>` delegate. It catches and maps only exceptions of type `TException`, and lets everything else throw.
 
-
-### Global/Application-level exception mapping
-Instead of providing an exception map delegate as a method parameter to every call of `ToOutcome()`, 
-it is far more convenient to create a single exception mapper function responsible for mapping any exceptions that logically map to problems.
-
-To achieve this, set the static `Adapt.MapExceptions` property to an instance of this delegate in your application startup.
+Name the exception type on the lambda's parameter, and C# infers everything else for you:
 
 ```csharp
-
-Adapt.MapExceptions = e => 
-	e switch 
-	{
-		BookingNotFoundException bnf => 
-			new NotFoundProblem($"Could not find booking with Id {bnf.BookingId}",
-		
-		BalanceUnpaidException bup => 
-			new OverdueProblem("$An overdue amount of {bup.Amount} is due for booking {bup.BookingId}"),
-
-		// other exception types mapped here
-		
-		_ => null // let all other exceptions be thrown
-	};
+public static Task<Outcome<string>> ChargeAsync(string cardNumber, decimal amount, CancellationToken cancellationToken) =>
+    LegacyCardTerminal.ChargeAsync(cardNumber, amount, cancellationToken)
+        .ToOutcome((CardDeclinedException declined) => new PaymentDeclinedProblem(declined.Amount));
 ```
+
+> [!IMPORTANT]
+> **Don't pass the exception type as a lone type argument.** On `Func<T>`, `Task<T>`, `ValueTask<T>` and `Task`, a call like `.ToOutcome<CardDeclinedException>(map)` **won't compile**; the compiler reports `CS1929: '...' does not contain a definition for 'ToOutcome'`. When you write explicit type arguments, C# fills the *receiver's* type parameter first (the `T` of `Task<T>`), so your one type argument would be read as the value type, not the exception type.
+>
+> That's deliberate. In version 1 the same call on a `Task<T>` compiled, quietly bound to the value-less `Task` overload instead (a `Task<T>` *is* a `Task`), and threw away the task's result. Version 2 turns that silent bug into a compile error.
+>
+> If you do need explicit type arguments (C# can't infer `TException` from a *method group*, only from a typed lambda), give both, receiver type first:
+> - `.ToOutcome<string, CardDeclinedException>(MapDeclined)` on a `Task<string>`, `ValueTask<string>` or `Func<string>`
+> - `.ToOutcome<Task, CardDeclinedException>(MapDeclined)` on a plain `Task`
+>
+> `Action` and plain `ValueTask` have no value type, so on those a single type argument, `.ToOutcome<CardDeclinedException>(MapDeclined)`, is fine.
+
+### 🌍 Global, application-level exception mapping
+
+Instead of passing an exception map to every call of `ToOutcome()`, it's far more convenient to write one function responsible for mapping every exception that logically represents a problem.
+
+To do that, set the static `Adapt.MapExceptions` property during your application's startup:
+
+```csharp
+public static void ConfigureExceptionMapping() =>
+    Adapt.MapExceptions = exception => exception switch
+    {
+        CardDeclinedException declined => new PaymentDeclinedProblem(declined.Amount),
+        // other exception types that represent expected situations go here
+        _ => null // everything else keeps on throwing
+    };
+```
+
+After that, a plain `ToOutcome()` with no arguments uses the global map.
 
 > [!CAUTION]
-> It's tempting to try and catch all exceptions of type `Exception` and return some catch-all ExceptionWrapper problem.
-> This is a bad idea. Mapping all exceptions would swallow up guard exceptions like `ArgumentNullException` and `AgumentException`, thrown when you misuse an API. 
-> Outcomes help to replace throwing Exceptions to represent violations of business state, but they are most definitely **not** intended to replace throwing Exceptions *when exceptional conditions occur*.
+> It's tempting to catch every `Exception` and return some catch-all wrapper problem. This is a bad idea 🙈. Mapping all exceptions would swallow guard exceptions like `ArgumentNullException` and `ArgumentException`, which are thrown when an API is misused.
+> Outcomes replace throwing exceptions to represent violations of *business* state, but they are most definitely **not** intended to replace throwing exceptions *when exceptional conditions occur*.
 
+## 🧰 What can be adapted?
 
-### What can be adapted?
 The `ToOutcome()` extension method is available for:
 
-|Target type|Adapts to|
+|target type|adapts to|
 |--|--|
-|`System.Func<T>`|`Outcome<T>`|
-|`System.Action`|`Outcome<TNone>`|
+| `Func<T>` | `Outcome<T>` |
+| `Action` | `Outcome<None>` |
 | `Task<T>` | `Task<Outcome<T>>` |
-| `Task` | `Task<Outcome<TNone>>` |
+| `Task` | `Task<Outcome<None>>` |
 | `ValueTask<T>` | `ValueTask<Outcome<T>>` |
-| `ValueTask` | `ValueTask<Outcome<TNone>>` |
+| `ValueTask` | `ValueTask<Outcome<None>>` |
 
-// TO DO: Adapt for async should return AsyncOutcome<T>
+<!-- TODO: Adapt for async should return AsyncOutcome<T> -->
 
 ---
-### Index
+### 📚 Index
 - [Why Outcomes?](why-outcomes.md)
 - [What is a Problem?](what-is-a-problem.md)
 - [Creating Outcomes](creating-outcomes.md)
@@ -122,3 +131,4 @@ The `ToOutcome()` extension method is available for:
 - [Outcome Aggregation](outcome-aggregation.md)
 - this: Adapting to Outcomes
 - [Outcomes as Monads](outcomes-as-monads.md)
+- [Runnable samples](../samples/Outcomes.Samples/) ☕

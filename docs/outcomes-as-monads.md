@@ -1,22 +1,26 @@
-# Monadic design of Outcomes 
+# 🧙 Monadic design of Outcomes
 
-Outcomes are a `discriminated union` type, and also adhere to a `Monad` design pattern from the world of functional programming. 
+Outcomes are a `discriminated union` type, and also follow the `Monad` design pattern from the world of functional programming.
 
-A Monad usually appears in the form of a sort of wrapper that augments an inner value with additional logic, but it's also a type of contract.
+Don't let the word scare you off 👻. A Monad usually appears as a sort of wrapper that augments an inner value with some extra logic, but it's also a kind of contract.
 
-The contract requires that a Monad exposes two functions that take function/delegates as parameters and create new Monads from the existing one.
+The contract requires that a Monad exposes two functions that take functions as parameters and create new Monads from the existing one.
 
-## Map
-A map function takes as a parameter a function that transforms the Monad's inner value to another value.
+## 🗺️ Map
+
+A map function takes a function that transforms the Monad's inner value into another value.
 
 ```csharp
 class Monad<T>
 {
-    Monad<TNext> Map<TNext>(Func<T,TNext> selector)
+    Monad<TNext> Map<TNext>(Func<T, TNext> selector);
 }
 ```
-## Bind/Flat-map
-The bind function takes as a parameter a function that takes the Monad's inner value and returns a new Monad. 
+
+## 🔗 Bind / Flat-map
+
+A bind function takes a function that receives the Monad's inner value and returns a whole new Monad.
+
 ```csharp
 class Monad<T>
 {
@@ -24,35 +28,48 @@ class Monad<T>
 }
 ```
 
-If you provided this parameter to the Map function, you'd get a Monad whose inner type was also a Monad (here, a `Monad<Monad<TNext>>`). 
-The bind function knows how to 'flatten' this *Monad-within-a-Monad* and produce a single `Monad<TNext>`, hence why it is sometimes known as a Flat-Map.
+If you passed that function to `Map` instead, you'd get a Monad whose inner value was *also* a Monad (here, a `Monad<Monad<TNext>>`) 🪆. The bind function knows how to 'flatten' this *Monad-within-a-Monad* into a single `Monad<TNext>`, which is why it's sometimes called flat-map.
 
-The monadic contract doesn't require that these functions are strictly named `Map` and `Bind`, just that functions are present that represent these behaviours.
+The monadic contract doesn't require that these functions are literally named `Map` and `Bind`, just that functions with these behaviours exist.
 
-## The `IEnumerable<T>` Monad
-Did you know that `IEnumerable<T>` was a monad?
-- It presents the `Map` operation as the `Select` function.
-- It presents the `Bind/Flat-map` operation as the `SelectMany` function.
+## 📜 The `IEnumerable<T>` Monad
 
-## Outcomes as Monads
+Did you know that `IEnumerable<T>` is a monad?
+- It presents the map operation as the `Select` function.
+- It presents the bind/flat-map operation as the `SelectMany` function.
 
-Since bind and map are compositional operations, `Outcome<T>` fulfils its monadic contract via the `Then` operator.
+```csharp
+public static (IEnumerable<decimal> Prices, IEnumerable<string> Words) MenuMonads(IEnumerable<Drink> menu) =>
+    (menu.Select(drink => drink.Price), menu.SelectMany(drink => drink.Name.Split(' ')));
+```
 
-They are `happy path` operators, meaning that they only execute when the outcome does not hold a problem. 
-Which makes sense, as there is no meaningful value when a problem is present.
+`Select` turns each drink into one price. `SelectMany` turns each drink into a *sequence* of words, then flattens those sequences into one.
+
+## ✅ Outcomes as Monads
+
+`Outcome<T>` fulfils its monadic contract via the [`Then`](composing-outcomes.md) operator, which is overloaded for both behaviours.
+
+They are happy-path operators, meaning they only execute when the outcome does not hold a problem. Which makes sense, as there's no meaningful value to work with when a problem is present.
+
+Map:
+```csharp
+public static Outcome<decimal> LargePrice(Outcome<Drink> drink) =>
+    drink.Then(d => decimal.Round(d.Price * 1.25m, 2));
+```
 
 Bind:
 ```csharp
-Outcome<int> myOutcome = Outcome.Of(5).Then(x => Outcome.Of(x * 2));
-```
-Map:
-```csharp
-static int DoubleIt(int x) => x * 2;
-Outcome<int> myOutcome = Outcome.Of(5).Then(DoubleIt);
+public static Outcome<Drink> Favourite(Outcome<Customer> customer) =>
+    customer.Then(c => CoffeeShop.FindDrink(c.Favourite));
 ```
 
+No `Outcome<Outcome<Drink>>` in sight: `Then` flattens it for you.
+
+📂 Sample code: [OutcomesAsMonads.cs](../samples/Outcomes.Samples/OutcomesAsMonads.cs)<br>
+▶️ `dotnet run --project samples/Outcomes.Samples -- outcomes-as-monads`
+
 ---
-### Index
+### 📚 Index
 - [Why Outcomes?](why-outcomes.md)
 - [What is a Problem?](what-is-a-problem.md)
 - [Creating Outcomes](creating-outcomes.md)
@@ -64,3 +81,4 @@ Outcome<int> myOutcome = Outcome.Of(5).Then(DoubleIt);
 - [Outcome Aggregation](outcome-aggregation.md)
 - [Adapting to Outcomes](outcome-adaptation.md)
 - this: Outcomes as Monads
+- [Runnable samples](../samples/Outcomes.Samples/) ☕
