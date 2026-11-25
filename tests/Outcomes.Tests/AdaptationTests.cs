@@ -295,7 +295,7 @@ public class AdaptationTests
     {
         var task = Task.FromException(new ApplicationException(Message));
 
-        Outcome<None> actual = await task.ToOutcome<ApplicationException>(StrongTestMap);
+        Outcome<None> actual = await task.ToOutcome<Task, ApplicationException>(StrongTestMap);
 
         Assert.Equal(Outcome.OfProblem(Message), actual);
     }
@@ -322,4 +322,115 @@ public class AdaptationTests
 
         Assert.Same(Message, error.Message);
     }
+
+    // ----- Strongly-typed shortcut, called the recommended way: a typed lambda lets C# infer every type argument -----
+    // Each receiver: keeps the value on success, maps the matching exception, and re-throws any other exception.
+
+    private static readonly InvalidOperationException OtherError = new(Message);
+
+    [Fact]
+    public void Adapt_From_Func_Strongly_ShouldKeepValue_WhenNoErrorThrown()
+        => Assert.Equal(Outcome.Of(13), ((Func<int>)(() => 13)).ToOutcome((ApplicationException e) => StrongTestMap(e)));
+
+    [Fact]
+    public void Adapt_From_Func_Strongly_ShouldMapMatchingException()
+        => Assert.Equal(Outcome.OfProblem<int>(Message), ThrowFunc.ToOutcome((ApplicationException e) => StrongTestMap(e)));
+
+    [Fact]
+    public void Adapt_From_Func_Strongly_ShouldThrow_WhenExceptionTypeDoesNotMatch()
+    {
+        Func<int> func = () => throw OtherError;
+
+        Assert.Same(OtherError, Assert.Throws<InvalidOperationException>(() => func.ToOutcome((ApplicationException e) => StrongTestMap(e))));
+    }
+
+    [Fact]
+    public void Adapt_From_Action_Strongly_ShouldBeOk_WhenNoErrorThrown()
+        => Assert.Equal(Outcome.Ok, ((Action)(() => { })).ToOutcome((ApplicationException e) => StrongTestMap(e)));
+
+    [Fact]
+    public void Adapt_From_Action_Strongly_ShouldMapMatchingException()
+        => Assert.Equal(Outcome.OfProblem(Message), ThrowAction.ToOutcome((ApplicationException e) => StrongTestMap(e)));
+
+    [Fact]
+    public void Adapt_From_Action_Strongly_ShouldThrow_WhenExceptionTypeDoesNotMatch()
+    {
+        Action action = () => throw OtherError;
+
+        Assert.Same(OtherError, Assert.Throws<InvalidOperationException>(() => action.ToOutcome((ApplicationException e) => StrongTestMap(e))));
+    }
+
+    // The silent-loss regression: this must bind to the Task<T> overload and keep the value, not return Outcome<None>.
+    [Fact]
+    public async Task Adapt_From_TaskOfT_Strongly_ShouldKeepValue_WhenNoErrorThrown()
+    {
+        Outcome<int> actual = await Task.FromResult(13).ToOutcome((ApplicationException e) => StrongTestMap(e));
+
+        Assert.Equal(Outcome.Of(13), actual);
+    }
+
+    [Fact]
+    public async Task Adapt_From_TaskOfT_Strongly_ShouldMapMatchingException()
+        => Assert.Equal(Outcome.OfProblem<int>(Message),
+            await Task.FromException<int>(new ApplicationException(Message)).ToOutcome((ApplicationException e) => StrongTestMap(e)));
+
+    [Fact]
+    public async Task Adapt_From_TaskOfT_Strongly_ShouldThrow_WhenExceptionTypeDoesNotMatch()
+        => Assert.Same(OtherError, await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await Task.FromException<int>(OtherError).ToOutcome((ApplicationException e) => StrongTestMap(e))));
+
+    [Fact]
+    public async Task Adapt_From_Task_Strongly_ShouldBeOk_WhenNoErrorThrown()
+        => Assert.Equal(Outcome.Ok, await Task.CompletedTask.ToOutcome((ApplicationException e) => StrongTestMap(e)));
+
+    [Fact]
+    public async Task Adapt_From_Task_Strongly_ShouldMapMatchingException()
+        => Assert.Equal(Outcome.OfProblem(Message),
+            await Task.FromException(new ApplicationException(Message)).ToOutcome((ApplicationException e) => StrongTestMap(e)));
+
+    [Fact]
+    public async Task Adapt_From_Task_Strongly_ShouldThrow_WhenExceptionTypeDoesNotMatch()
+        => Assert.Same(OtherError, await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await Task.FromException(OtherError).ToOutcome((ApplicationException e) => StrongTestMap(e))));
+
+    [Fact]
+    public async Task Adapt_From_ValueTaskOfT_Strongly_ShouldKeepValue_WhenNoErrorThrown()
+        => Assert.Equal(Outcome.Of(13), await ValueTask.FromResult(13).ToOutcome((ApplicationException e) => StrongTestMap(e)));
+
+    [Fact]
+    public async Task Adapt_From_ValueTaskOfT_Strongly_ShouldMapMatchingException()
+        => Assert.Equal(Outcome.OfProblem<int>(Message),
+            await ValueTask.FromException<int>(new ApplicationException(Message)).ToOutcome((ApplicationException e) => StrongTestMap(e)));
+
+    [Fact]
+    public async Task Adapt_From_ValueTaskOfT_Strongly_ShouldThrow_WhenExceptionTypeDoesNotMatch()
+        => Assert.Same(OtherError, await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await ValueTask.FromException<int>(OtherError).ToOutcome((ApplicationException e) => StrongTestMap(e))));
+
+    [Fact]
+    public async Task Adapt_From_ValueTask_Strongly_ShouldBeOk_WhenNoErrorThrown()
+        => Assert.Equal(Outcome.Ok, await ValueTask.CompletedTask.ToOutcome((ApplicationException e) => StrongTestMap(e)));
+
+    [Fact]
+    public async Task Adapt_From_ValueTask_Strongly_ShouldMapMatchingException()
+        => Assert.Equal(Outcome.OfProblem(Message),
+            await ValueTask.FromException(new ApplicationException(Message)).ToOutcome((ApplicationException e) => StrongTestMap(e)));
+
+    [Fact]
+    public async Task Adapt_From_ValueTask_Strongly_ShouldThrow_WhenExceptionTypeDoesNotMatch()
+        => Assert.Same(OtherError, await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await ValueTask.FromException(OtherError).ToOutcome((ApplicationException e) => StrongTestMap(e))));
+
+    // A Task<T> is also a Task, and explicit type arguments fill an extension block's type parameters first.
+    // If the plain-Task strongly-typed shortcut had a plain Task receiver, taskOfT.ToOutcome<SomeException>(map)
+    // would compile, bind to it, and silently discard the task's result. Its receiver must stay generic (TTask : Task)
+    // so that call is a compile error. A call that doesn't compile can't be a test, so guard the shape instead.
+    [Fact]
+    public void Adapt_ShouldNotExposeSingleTypeArgumentShortcutOnPlainTask() =>
+        Assert.DoesNotContain(
+            typeof(Adapt).GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static),
+            method => method.Name == nameof(Adapt.ToOutcome)
+                      && method.IsGenericMethodDefinition
+                      && method.GetGenericArguments().Length == 1
+                      && method.GetParameters()[0].ParameterType == typeof(Task));
 }

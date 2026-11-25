@@ -3,7 +3,7 @@
     <Title>WarpCode.Outcomes</Title>
     <Description>
       A small, monadic Result-type library, targeting .Net 8.x and above.
-      Outcomes are a fluent, compositonal discriminated union type representing a value or a problem.
+      Outcomes are a fluent, compositional discriminated union type representing a value or a problem.
       Outcomes support R.O.P. flow control (Railway Orientated Programming) via composition
       with full async support.
     </Description>

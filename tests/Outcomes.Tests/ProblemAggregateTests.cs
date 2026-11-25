@@ -1,0 +1,17 @@
+namespace WarpCode.Outcomes.Tests;
+
+public class ProblemAggregateTests
+{
+    private static readonly Problem TestProblem = new(nameof(TestProblem));
+
+    [Theory]
+    [InlineData(1, "1 problem occurred. ")]
+    [InlineData(2, "2 problems occurred. ")]
+    [InlineData(3, "3 problems occurred. ")]
+    public void Detail_ShouldStateHowManyProblemsOccurred(int count, string expectedStart)
+        => Assert.StartsWith(expectedStart, new ProblemAggregate(Enumerable.Repeat(TestProblem, count).ToArray()).Detail);
+
+    [Fact]
+    public void Constructor_ShouldThrow_WhenProblemsIsNull()
+        => Assert.Throws<ArgumentNullException>(() => new ProblemAggregate(null!));
+}
