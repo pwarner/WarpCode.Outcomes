@@ -19,7 +19,7 @@ using WarpCode.Outcomes.Samples;
 
 var selected = args.Length == 0
     ? samples
-    : samples.Where(sample => args.Contains(sample.Name, StringComparer.OrdinalIgnoreCase)).ToArray();
+    : [.. samples.Where(sample => args.Contains(sample.Name, StringComparer.OrdinalIgnoreCase))];
 
 if (selected.Length == 0)
 {

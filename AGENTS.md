@@ -5,7 +5,7 @@
 - Only types and methods that need to be public are public. Public types and methods must be documented. Classes are sealed until there is a reason not to.
 
 ## General
-- General code style rules can be gleaned from .editorconfig
+- Code style comes from .editorconfig, and its enforced rules are build errors (`EnforceCodeStyleInBuild` + `TreatWarningsAsErrors`). `dotnet format` fixes most of them.
 - use latest compatible language syntax and a functional style where appropriate (for example: ternary expressions, switch expressions, lambda style method bodies)
 - Performance is paramount. Where possible always minimise allocations. When using readonly structs (Outcome and AsyncOutcome are structs) be wary of scenarios where defensive copies will be made by the compiler.
 - Public API documentation for consumers are markdown files stored in the docs folder. They are first-class citizens and should be kept up to date with any changes.

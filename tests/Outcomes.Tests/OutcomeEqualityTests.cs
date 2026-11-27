@@ -67,5 +67,5 @@ public class OutcomeEqualityTests
         Assert.Equal(x.GetHashCode(), y.GetHashCode());
     }
 
-    internal record TestValue(int Int, string String);
+    internal sealed record TestValue(int Int, string String);
 }

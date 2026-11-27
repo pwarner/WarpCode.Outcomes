@@ -9,9 +9,9 @@ public class ProblemAggregateTests
     [InlineData(2, "2 problems occurred. ")]
     [InlineData(3, "3 problems occurred. ")]
     public void Detail_ShouldStateHowManyProblemsOccurred(int count, string expectedStart)
-        => Assert.StartsWith(expectedStart, new ProblemAggregate(Enumerable.Repeat(TestProblem, count).ToArray()).Detail);
+        => Assert.StartsWith(expectedStart, new ProblemAggregate([.. Enumerable.Repeat(TestProblem, count)]).Detail);
 
     [Fact]
     public void Constructor_ShouldThrow_WhenProblemsIsNull()
-        => Assert.Throws<ArgumentNullException>(() => new ProblemAggregate(null!));
+        => Assert.Equal("Problems", Assert.Throws<ArgumentNullException>(() => new ProblemAggregate(null!)).ParamName);
 }

@@ -134,7 +134,7 @@ public static class AggregationExtensions
 
     private static void Collect<T>(ref List<T>? list, int? capacity, T item)
     {
-        list ??= capacity.HasValue ? new List<T>(capacity.Value) : [];
+        list ??= capacity.HasValue ? [with(capacity.Value)] : [];
         list.Add(item);
     }
 }

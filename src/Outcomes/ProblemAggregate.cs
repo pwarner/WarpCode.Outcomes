@@ -4,10 +4,10 @@
 /// A Problem used in outcome aggregation that holds an array of multiple problems.
 /// </summary>
 public sealed record ProblemAggregate(Problem[] Problems)
-    : Problem(Describe(Problems)), IEquatable<ProblemAggregate>
+    : Problem(Describe(Problems ?? throw new ArgumentNullException(nameof(Problems)))), IEquatable<ProblemAggregate>
 {
     private static string Describe(Problem[] problems) =>
-        (problems ?? throw new ArgumentNullException(nameof(Problems))).Length switch
+        problems.Length switch
         {
             1 => "1 problem occurred. ",
             var count => $"{count} problems occurred. "

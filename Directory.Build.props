@@ -5,6 +5,11 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <LangVersion>latest</LangVersion>
+    <!-- run IDE code-style rules in the build; .editorconfig chooses which ones are warnings (and so errors) -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <!-- IDE0005 (unnecessary usings) only runs in the build when XML docs are generated -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Authors>Pete Warner (@pwarner)</Authors>
     <Copyright>Peter Warner</Copyright>
   </PropertyGroup>
