@@ -10,6 +10,8 @@
     <AnalysisLevel>latest-recommended</AnalysisLevel>
     <!-- IDE0005 (unnecessary usings) only runs in the build when XML docs are generated -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- deterministic builds with repository-relative SourceLink paths when running in GitHub Actions -->
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
     <Authors>Pete Warner (@pwarner)</Authors>
     <Copyright>Peter Warner</Copyright>
   </PropertyGroup>

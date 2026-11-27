@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>WarpCode.Outcomes</Title>
     <Description>
@@ -8,14 +8,17 @@
       with full async support.
     </Description>
     <PackageProjectUrl>https://github.com/pwarner/WarpCode.Outcomes</PackageProjectUrl>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageTags>WarpCode;Outcomes;Outcome;WarpCode.Outcomes;Result;Results;Result Union;Outcome Union;Either;ErrorOr;OneOf;ROP;Railway Orientated Programming</PackageTags>
     <RepositoryUrl>https://github.com/pwarner/WarpCode.Outcomes</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <RootNamespace>WarpCode.Outcomes</RootNamespace>
     <PackageId>WarpCode.Outcomes</PackageId>
     <NeutralLanguage>en</NeutralLanguage>
+    <!-- publish a .snupkg to the NuGet symbol server alongside the package -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <!-- The package version is set by the release workflow from the GitHub Release tag (-p:Version=...). -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,7 +26,7 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <None Include="..\..\README.md">
+    <None Include="..\..\readme.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

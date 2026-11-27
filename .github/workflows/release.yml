@@ -1,65 +1,71 @@
 name: Release
 
+# Publishing a GitHub Release (with its tag and release notes) builds, tests and publishes that version to NuGet.
+# The tag is the package version, e.g. 2.0.0 or 2.1.0-beta.1 (a leading 'v' is also accepted).
 on:
   release:
     types: [ published ]
 
 permissions:
-  contents: write
-  packages: write
+  contents: write # attach the packages to the GitHub Release
 
 jobs:
   publish:
     name: Build and Publish to NuGet
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
-      
+      uses: actions/checkout@v7
+
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: |
           10.0.x
           11.0.x
-          
-    - name: Extract version from tag
-      id: get_version
+
+    - name: Get version from release tag
+      env:
+        TAG: ${{ github.event.release.tag_name }}
       run: |
-        # Remove 'v' prefix from tag (e.g., v1.0.0 -> 1.0.0)
-        VERSION=${GITHUB_REF#refs/tags/v}
-        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-        echo "Building version: $VERSION"
-        
+        VERSION="${TAG#v}"
+        if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+          echo "::error::Release tag '$TAG' is not a semantic version such as 2.0.0 or 2.1.0-beta.1"
+          exit 1
+        fi
+        echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+        echo "Building version $VERSION"
+
     - name: Restore dependencies
       run: dotnet restore
-      
+
     - name: Build
-      run: dotnet build --no-restore --configuration Release
-      
+      run: dotnet build --no-restore --configuration Release -p:Version="$VERSION"
+
     - name: Test
-      run: dotnet test --no-build --configuration Release --verbosity normal
-      
+      run: dotnet test --no-build --configuration Release
+
     - name: Pack
+      env:
+        RELEASE_URL: ${{ github.event.release.html_url }}
       run: |
-        dotnet pack src/Smidgen/Smidgen.csproj \
+        dotnet pack src/Outcomes/Outcomes.csproj \
           --no-build \
           --configuration Release \
           --output ./artifacts \
-          /p:Version=${{ steps.get_version.outputs.VERSION }} \
-          /p:PackageReleaseNotes="See https://github.com/pwarner/WarpCode.Outcomes/releases/tag/v${{ steps.get_version.outputs.VERSION }}"
-          
+          -p:Version="$VERSION" \
+          -p:PackageReleaseNotes="See $RELEASE_URL"
+
     - name: Publish to NuGet
       run: |
-        dotnet nuget push ./artifacts/*.nupkg \
-          --api-key ${{ secrets.NUGET_API_KEY }} \
+        dotnet nuget push "./artifacts/*.nupkg" \
+          --api-key "${{ secrets.NUGET_API_KEY }}" \
           --source https://api.nuget.org/v3/index.json \
           --skip-duplicate
-          
-    - name: Upload artifacts to release
-      uses: softprops/action-gh-release@v2
-      with:
-        files: |
-          ./artifacts/*.nupkg
-          ./artifacts/*.snupkg
+
+    - name: Attach packages to the release
+      env:
+        GH_TOKEN: ${{ github.token }}
+        TAG: ${{ github.event.release.tag_name }}
+      run: gh release upload "$TAG" ./artifacts/*.nupkg ./artifacts/*.snupkg --clobber

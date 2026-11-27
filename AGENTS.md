@@ -17,7 +17,7 @@
 - Docs use a light touch of emoji: one per heading, plus GitHub alerts (`> [!TIP]`, `> [!NOTE]`, `> [!WARNING]`, `> [!CAUTION]`) for callouts.
 
 ## Tests
-- Aim for 100% coverage of all public facing methods and types. 
+- Aim for 100% coverage of all public facing methods and types. Measure it with `dotnet test --coverage --coverage-output-format cobertura` (reports land in `TestResults/`, one per target framework).
 - Tests are found in `.\tests\Outcomes.Tests\Outcomes.Tests.csproj`. Test files are named after the class they are testing, with a suffix of `Tests.cs`. 
 - Where appropriate, use `[Theory]` attributes over `[Fact]` to test multiple scenarios with a single test method where only the test inputs and outputs vary but behaviour is the same.
 - Tests run on the Microsoft Testing Platform, so the VSTest `--filter` syntax doesn't work. To run one test class: `dotnet test --project tests/Outcomes.Tests --filter-class "WarpCode.Outcomes.Tests.ThenExtensionsTests"` (add `-f net10.0` for a single target framework).

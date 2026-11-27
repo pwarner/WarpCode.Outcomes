@@ -1,32 +1,62 @@
 name: CI
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
+  push:              # every branch, so work is checked before it is merged to main
+  pull_request:      # contributions from forks
+  workflow_dispatch: # run by hand from the Actions tab
+
+# a newer push to the same branch cancels the run it supersedes
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   build:
     name: Build and Test
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
-      
+      uses: actions/checkout@v7
+
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: |
           10.0.x
           11.0.x
-          
+
+    # line endings and final newlines: the build's IDE0055 rule checks the rest of the formatting
+    - name: Check formatting
+      run: dotnet format whitespace --folder --verify-no-changes
+
     - name: Restore dependencies
       run: dotnet restore
-      
+
     - name: Build
       run: dotnet build --no-restore --configuration Release
-      
+
     - name: Test
-      run: dotnet test --no-build --configuration Release --verbosity normal
+      run: dotnet test --no-build --configuration Release --coverage --coverage-output-format cobertura
+
+    - name: Coverage report
+      if: ${{ !cancelled() }}
+      uses: danielpalme/ReportGenerator-GitHub-Action@5
+      with:
+        reports: TestResults/*.cobertura.xml
+        targetdir: coverage
+        reporttypes: HtmlInline;MarkdownSummaryGithub
+
+    - name: Publish coverage summary
+      if: ${{ !cancelled() }}
+      run: cat coverage/SummaryGithub.md >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Upload coverage report
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: coverage-report
+        path: coverage
