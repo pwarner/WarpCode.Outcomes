@@ -1,4 +1,4 @@
-A small, monadic Result-type library, targeting .Net 8.x and above.
+A small, monadic Result-type library, targeting .NET 10 and above.
 
 Outcomes are a fluent, compositional discriminated union type representing a value or a problem.
 
