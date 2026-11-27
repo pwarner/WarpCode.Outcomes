@@ -33,4 +33,22 @@ public class OutcomeTests
 
     [Fact]
     public void Match_ShouldResolveWithOnProblemFunction_WhenProblem() => Assert.True(new Outcome<None>(TestProblem).Match(_ => false, _ => true));
+
+    [Fact]
+    public void ParameterlessConstructor_ShouldThrow() => Assert.Throws<InvalidOperationException>(() => new Outcome<int>());
+
+    [Fact]
+    public void Constructor_ShouldThrow_WhenProblemIsNull()
+        => Assert.Equal("problem", Assert.Throws<ArgumentNullException>(() => new Outcome<int>((Problem)null!)).ParamName);
+
+    [Fact]
+    public async Task AsAsync_ShouldWrapTheOutcome()
+        => Assert.Equal(Outcome.Of(10), await Outcome.Of(10).AsAsync(TestContext.Current.CancellationToken));
+
+    [Fact]
+    public void ToString_ShouldDescribeValue() => Assert.Equal("Value: 10", Outcome.Of(10).ToString());
+
+    [Fact]
+    public void ToString_ShouldDescribeProblem()
+        => Assert.Equal("Problem: Problem { Detail = TestProblem }", Outcome.OfProblem<int>(TestProblem).ToString());
 }

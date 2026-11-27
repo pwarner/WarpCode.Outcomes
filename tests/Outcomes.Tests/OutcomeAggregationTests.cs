@@ -112,6 +112,33 @@ public class OutcomeAggregationTests
         Assert.Equal(expected, actual);
     }
 
+    // ----- countable sources pre-size their buffers; empty sources produce an empty array -----
+
+    [Fact]
+    public void Aggregate_ShouldCreateOutcomeOfValueArray_WhenSourceIsCountable()
+    {
+        Outcome<int>[] outcomes = [1, 2, 3];
+
+        Assert.Equal([1, 2, 3], outcomes.Aggregate().Match(l => l, _ => []));
+    }
+
+    [Fact]
+    public void Aggregate_ShouldCreateProblemAggregate_WhenCountableSourceHasProblems()
+    {
+        Outcome<None>[] outcomes = [Outcome.Ok, TestProblem];
+        Outcome<None> expected = new ProblemAggregate([TestProblem]);
+
+        Assert.Equal(expected, outcomes.Aggregate());
+    }
+
+    [Fact]
+    public void Aggregate_ShouldCreateEmptyArray_WhenSourceIsEmpty()
+        => Assert.Empty(Array.Empty<Outcome<int>>().Aggregate().Match(l => l, _ => [-1]));
+
+    [Fact]
+    public async Task AggregateAsync_ShouldCreateEmptyArray_WhenSourceIsEmpty()
+        => Assert.Empty((await AsyncOf(Enumerable.Empty<Outcome<int>>()).AggregateAsync()).Match(l => l, _ => [-1]));
+
     private static IEnumerable<Outcome<None>> SomeProblems()
     {
         yield return Outcome.Ok;

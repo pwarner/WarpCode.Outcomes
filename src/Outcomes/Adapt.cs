@@ -250,11 +250,10 @@ public static class Adapt
             task.ToOutcome(NonGeneric(map));
     }
 
-    private static ExceptionMap? NonGeneric<TException>(ExceptionMap<TException>? map)
-        where TException : Exception =>
-        exception => exception switch
-        {
-            TException te => map?.Invoke(te),
-            _ => null
-        };
+    private static ExceptionMap NonGeneric<TException>(ExceptionMap<TException> map)
+        where TException : Exception
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        return exception => exception is TException te ? map(te) : null;
+    }
 }

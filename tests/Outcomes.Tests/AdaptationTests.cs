@@ -22,6 +22,10 @@ public class AdaptationTests
         Adapt.MapExceptions = null;
 
     [Fact]
+    public void Adapt_WithTypedMap_ShouldThrow_WhenMapIsNull()
+        => Assert.Equal("map", Assert.Throws<ArgumentNullException>(() => ThrowFunc.ToOutcome<int, ApplicationException>(null!)).ParamName);
+
+    [Fact]
     public void Adapt_From_Func_ShouldCreateSuccessOutcomeIfNoErrorThrown()
     {
         static int Func() => 13;
