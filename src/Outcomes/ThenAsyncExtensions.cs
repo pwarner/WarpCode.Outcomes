@@ -44,7 +44,7 @@ public static class ThenAsyncExtensions
         /// <param name="next">Function to execute to obtain next value.</param>
         /// <returns>An AsyncOutcome{TNext} representing the result of the composition.</returns>
         public AsyncOutcome<TNext> ThenAsync(Func<T, CancellationToken, ValueTask<TNext>> next)
-            => self.With(self.Local<T, TNext>(async (v, c)=> new(await next(v, c))));
+            => self.With(self.Local<T, TNext>(async (v, c) => new(await next(v, c))));
 
         /// <summary>
         /// `Task`-returning counterpart of <see cref="ThenAsyncExtensions.extension{T,TNext}(AsyncOutcome{T}).ThenAsync(Func{T, CancellationToken, ValueTask{Outcome{TNext}}})"/>.
@@ -113,11 +113,11 @@ public static class ThenAsyncExtensions
     {
         /// <inheritdoc cref="ThenAsyncExtensions.extension{T,TNext}(AsyncOutcome{T}).ThenAsync(Func{T, CancellationToken, ValueTask{Outcome{TNext}}})"/>
         public AsyncOutcome<TNext> ThenAsync(Func<T, T1, T2, CancellationToken, ValueTask<Outcome<TNext>>> next)
-            => self.ThenAsync((v,c) => next(v.Item1, v.Item2, v.Item3, c));
+            => self.ThenAsync((v, c) => next(v.Item1, v.Item2, v.Item3, c));
 
         /// <inheritdoc cref="ThenAsyncExtensions.extension{T,TNext}(AsyncOutcome{T}).ThenAsync(Func{T, CancellationToken, ValueTask{TNext}})"/>
         public AsyncOutcome<TNext> ThenAsync(Func<T, T1, T2, CancellationToken, ValueTask<TNext>> next)
-            => self.ThenAsync((v,c) => next(v.Item1, v.Item2, v.Item3, c));
+            => self.ThenAsync((v, c) => next(v.Item1, v.Item2, v.Item3, c));
 
         /// <inheritdoc cref="ThenAsyncExtensions.extension{T,TNext}(AsyncOutcome{T}).ThenTask(Func{T, CancellationToken, Task{Outcome{TNext}}})"/>
         public AsyncOutcome<TNext> ThenTask(Func<T, T1, T2, CancellationToken, Task<Outcome<TNext>>> next)
@@ -134,11 +134,11 @@ public static class ThenAsyncExtensions
     {
         /// <inheritdoc cref="ThenAsyncExtensions.extension{T,TNext}(AsyncOutcome{T}).ThenAsync(Func{T, CancellationToken, ValueTask{Outcome{TNext}}})"/>
         public AsyncOutcome<TNext> ThenAsync(Func<T, T1, T2, T3, CancellationToken, ValueTask<Outcome<TNext>>> next)
-            => self.ThenAsync((v,c) => next(v.Item1, v.Item2, v.Item3, v.Item4, c));
+            => self.ThenAsync((v, c) => next(v.Item1, v.Item2, v.Item3, v.Item4, c));
 
         /// <inheritdoc cref="ThenAsyncExtensions.extension{T,TNext}(AsyncOutcome{T}).ThenAsync(Func{T, CancellationToken, ValueTask{TNext}})"/>
         public AsyncOutcome<TNext> ThenAsync(Func<T, T1, T2, T3, CancellationToken, ValueTask<TNext>> next)
-            => self.ThenAsync((v,c) => next(v.Item1, v.Item2, v.Item3, v.Item4, c));
+            => self.ThenAsync((v, c) => next(v.Item1, v.Item2, v.Item3, v.Item4, c));
 
         /// <inheritdoc cref="ThenAsyncExtensions.extension{T,TNext}(AsyncOutcome{T}).ThenTask(Func{T, CancellationToken, Task{Outcome{TNext}}})"/>
         public AsyncOutcome<TNext> ThenTask(Func<T, T1, T2, T3, CancellationToken, Task<Outcome<TNext>>> next)

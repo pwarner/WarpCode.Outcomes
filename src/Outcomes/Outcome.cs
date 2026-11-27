@@ -59,7 +59,7 @@ public static class Outcome
 /// <typeparam name="T">The type of the outcome value.</typeparam>
 [DebuggerDisplay("{ToString(),nq}")]
 [StructLayout(LayoutKind.Auto)]
-public readonly struct Outcome<T>: IEquatable<Outcome<T>>
+public readonly struct Outcome<T> : IEquatable<Outcome<T>>
 {
     internal readonly T Value;
     internal readonly Problem? Problem;
@@ -112,7 +112,7 @@ public readonly struct Outcome<T>: IEquatable<Outcome<T>>
     /// </summary>
     /// <param name="cancellationToken">The cancellation token to associate with the asynchronous operation.</param>
     /// <returns>An AsyncOutcome{T} instance representing the asynchronous operation.</returns>
-    public AsyncOutcome<T> AsAsync(CancellationToken cancellationToken = default) 
+    public AsyncOutcome<T> AsAsync(CancellationToken cancellationToken = default)
         => new(new ValueTask<Outcome<T>>(this), cancellationToken);
 
     /// <inheritdoc />

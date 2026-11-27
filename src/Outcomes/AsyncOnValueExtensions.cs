@@ -22,7 +22,7 @@ public static class AsyncOnValueExtensions
         /// <param name="onValue">Action to execute if the outcome is successful.</param>
         /// <returns>The current outcome.</returns>
         public AsyncOutcome<T> OnValue(Action<T> onValue)
-            => self.With(self.Local(onValue));  
+            => self.With(self.Local(onValue));
     }
 
     /// <param name="self">Current value-less outcome.</param>
@@ -30,7 +30,7 @@ public static class AsyncOnValueExtensions
     {
         /// <inheritdoc cref="AsyncOnValueExtensions.extension{T}(AsyncOutcome{T}).OnValue(Action{T})"/>
         public AsyncOutcome<None> OnValue(Action onValue)
-            => self.OnValue(_=> onValue());
+            => self.OnValue(_ => onValue());
     }
 
     /// <summary>OnValue extensions for an async outcome containing a tuple of two values.</summary>

@@ -11,7 +11,7 @@ public static class AsyncThenExtensions
         /// <summary>
         /// Wraps an async call to the `Then` extension on the underlying outcome.
         /// </summary>
-        private async ValueTask<Outcome<TNext>> Local(Func<T, Outcome<TNext>> next) 
+        private async ValueTask<Outcome<TNext>> Local(Func<T, Outcome<TNext>> next)
             => (await self).Then(next);
 
         /// <summary>
@@ -21,7 +21,7 @@ public static class AsyncThenExtensions
         /// </summary>
         /// <param name="next">Function to execute to obtain next outcome.</param>
         /// <returns>An AsyncOutcome{TNext} representing the result of the composition.</returns>
-        public AsyncOutcome<TNext> Then(Func<T, Outcome<TNext>> next) 
+        public AsyncOutcome<TNext> Then(Func<T, Outcome<TNext>> next)
             => self.With(self.Local(next));
 
         /// <summary>
@@ -31,7 +31,7 @@ public static class AsyncThenExtensions
         /// </summary>
         /// <param name="next">Function to execute to obtain next value.</param>
         /// <returns>An AsyncOutcome{TNext} representing the result of the composition.</returns>
-        public AsyncOutcome<TNext> Then(Func<T, TNext> next) 
+        public AsyncOutcome<TNext> Then(Func<T, TNext> next)
             => self.Then(value => new Outcome<TNext>(next(value)));
     }
 

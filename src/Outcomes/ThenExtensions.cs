@@ -17,7 +17,7 @@ public static class ThenExtensions
         /// <returns>An Outcome{TNext} representing the result of the composition.</returns>
         public Outcome<TNext> Then(Func<T, Outcome<TNext>> next) => self switch
         {
-            { Problem: {} p}  => new Outcome<TNext>(p),
+            { Problem: { } p } => new Outcome<TNext>(p),
             { Value: var v } => next(v)
         };
 
