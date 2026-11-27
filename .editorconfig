@@ -296,7 +296,7 @@ dotnet_diagnostic.IDE0055.severity = warning
 # naming rules
 dotnet_diagnostic.IDE1006.severity = warning
 
-# Tests: underscore-separated names, no XML docs, and deliberately odd exception and ValueTask usage
+# Tests: underscore-separated names, no XML docs, and ApplicationException as a stand-in exception
 [tests/**.cs]
 # missing XML comment
 dotnet_diagnostic.CS1591.severity = none
@@ -304,8 +304,6 @@ dotnet_diagnostic.CS1591.severity = none
 dotnet_diagnostic.CA1707.severity = none
 # do not raise reserved exception types
 dotnet_diagnostic.CA2201.severity = none
-# use ValueTasks correctly
-dotnet_diagnostic.CA2012.severity = none
 
 # Samples: illustrative code, not a public API
 [samples/**.cs]

@@ -199,56 +199,62 @@ public static class Adapt
             ((Task)task).ToOutcome(NonGeneric(map));
     }
 
-    extension<T>(ValueTask<T> task)
-    {
-        /// <summary>
-        /// Adapts a <see cref="ValueTask{T}"/>.
-        /// </summary>
-        /// <param name="map">Optional <see cref="ExceptionMap"/> function.</param>
-        /// <returns>A <see cref="ValueTask{T}"/> that resolves to a <see cref="Outcome{T}"/>.</returns>
-        /// <exception cref="Exception">Re-throws any unmapped exceptions.</exception>
-        public async ValueTask<Outcome<T>> ToOutcome(ExceptionMap? map = null) =>
-            await task.AsTask().ToOutcome(map).ConfigureAwait(false);
+    // The ValueTask adapters below are classic `this` extension methods rather than extension-block members on
+    // purpose. The CA2012 analyzer ("use ValueTasks correctly") doesn't yet treat the receiver of an extension-block
+    // member as being passed to a method, so `GetValueTaskAsync().ToOutcome()` would raise a false CA2012 in every
+    // caller's code. Classic extension methods are seen as consuming the ValueTask, which they do (exactly once).
+    // Callers write the same code either way, so convert these back to an extension block once the analyzer is fixed.
 
-        /// <summary>
-        /// Adapts a <see cref="ValueTask{T}"/> for a single, strongly-typed exception.
-        /// </summary>
-        /// <remarks>
-        /// Let the compiler infer the type arguments by giving the lambda's parameter a type,
-        /// e.g. <c>task.ToOutcome((TimeoutException e) => new Problem(e.Message))</c>,
-        /// or specify both explicitly: <c>task.ToOutcome&lt;T, TimeoutException&gt;(map)</c>.
-        /// </remarks>
-        /// <typeparam name="TException">Type of exception being handled.</typeparam>
-        /// <param name="map">A strongly-typed <see cref="ExceptionMap{TException}"/> function.</param>
-        /// <returns>A <see cref="ValueTask{T}"/> that resolves to a <see cref="Outcome{T}"/>.</returns>
-        /// <exception cref="Exception">Re-throws any unmapped exceptions.</exception>
-        public ValueTask<Outcome<T>> ToOutcome<TException>(ExceptionMap<TException> map)
-            where TException : Exception =>
-            task.ToOutcome(NonGeneric(map));
-    }
+    /// <summary>
+    /// Adapts a <see cref="ValueTask{T}"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the task's result.</typeparam>
+    /// <param name="task">The task to adapt.</param>
+    /// <param name="map">Optional <see cref="ExceptionMap"/> function.</param>
+    /// <returns>A <see cref="ValueTask{T}"/> that resolves to a <see cref="Outcome{T}"/>.</returns>
+    /// <exception cref="Exception">Re-throws any unmapped exceptions.</exception>
+    public static async ValueTask<Outcome<T>> ToOutcome<T>(this ValueTask<T> task, ExceptionMap? map = null) =>
+        await task.AsTask().ToOutcome(map).ConfigureAwait(false);
 
-    extension(ValueTask task)
-    {
-        /// <summary>
-        /// Adapts a <see cref="ValueTask"/>.
-        /// </summary>
-        /// <param name="map">Optional <see cref="ExceptionMap"/> function.</param>
-        /// <returns>A <see cref="ValueTask{T}"/> that resolves to a <see cref="Outcome{None}"/>.</returns>
-        /// <exception cref="Exception">Re-throws any unmapped exceptions.</exception>
-        public async ValueTask<Outcome<None>> ToOutcome(ExceptionMap? map = null) =>
-            await task.AsTask().ToOutcome(map).ConfigureAwait(false);
+    /// <summary>
+    /// Adapts a <see cref="ValueTask{T}"/> for a single, strongly-typed exception.
+    /// </summary>
+    /// <remarks>
+    /// Let the compiler infer the type arguments by giving the lambda's parameter a type,
+    /// e.g. <c>task.ToOutcome((TimeoutException e) => new Problem(e.Message))</c>,
+    /// or specify both explicitly: <c>task.ToOutcome&lt;T, TimeoutException&gt;(map)</c>.
+    /// </remarks>
+    /// <typeparam name="T">The type of the task's result.</typeparam>
+    /// <typeparam name="TException">Type of exception being handled.</typeparam>
+    /// <param name="task">The task to adapt.</param>
+    /// <param name="map">A strongly-typed <see cref="ExceptionMap{TException}"/> function.</param>
+    /// <returns>A <see cref="ValueTask{T}"/> that resolves to a <see cref="Outcome{T}"/>.</returns>
+    /// <exception cref="Exception">Re-throws any unmapped exceptions.</exception>
+    public static ValueTask<Outcome<T>> ToOutcome<T, TException>(this ValueTask<T> task, ExceptionMap<TException> map)
+        where TException : Exception =>
+        task.ToOutcome(NonGeneric(map));
 
-        /// <summary>
-        /// Adapts a <see cref="ValueTask"/> for a single, strongly-typed exception.
-        /// </summary>
-        /// <typeparam name="TException">Type of exception being handled.</typeparam>
-        /// <param name="map">A strongly-typed <see cref="ExceptionMap{TException}"/> function.</param>
-        /// <returns>A <see cref="ValueTask{T}"/> that resolves to a value-less <see cref="Outcome{None}"/>.</returns>
-        /// <exception cref="Exception">Re-throws any unmapped exceptions.</exception>
-        public ValueTask<Outcome<None>> ToOutcome<TException>(ExceptionMap<TException> map)
-            where TException : Exception =>
-            task.ToOutcome(NonGeneric(map));
-    }
+    /// <summary>
+    /// Adapts a <see cref="ValueTask"/>.
+    /// </summary>
+    /// <param name="task">The task to adapt.</param>
+    /// <param name="map">Optional <see cref="ExceptionMap"/> function.</param>
+    /// <returns>A <see cref="ValueTask{T}"/> that resolves to a <see cref="Outcome{None}"/>.</returns>
+    /// <exception cref="Exception">Re-throws any unmapped exceptions.</exception>
+    public static async ValueTask<Outcome<None>> ToOutcome(this ValueTask task, ExceptionMap? map = null) =>
+        await task.AsTask().ToOutcome(map).ConfigureAwait(false);
+
+    /// <summary>
+    /// Adapts a <see cref="ValueTask"/> for a single, strongly-typed exception.
+    /// </summary>
+    /// <typeparam name="TException">Type of exception being handled.</typeparam>
+    /// <param name="task">The task to adapt.</param>
+    /// <param name="map">A strongly-typed <see cref="ExceptionMap{TException}"/> function.</param>
+    /// <returns>A <see cref="ValueTask{T}"/> that resolves to a value-less <see cref="Outcome{None}"/>.</returns>
+    /// <exception cref="Exception">Re-throws any unmapped exceptions.</exception>
+    public static ValueTask<Outcome<None>> ToOutcome<TException>(this ValueTask task, ExceptionMap<TException> map)
+        where TException : Exception =>
+        task.ToOutcome(NonGeneric(map));
 
     private static ExceptionMap NonGeneric<TException>(ExceptionMap<TException> map)
         where TException : Exception

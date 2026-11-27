@@ -13,6 +13,9 @@ When a member inside an `extension<T>(Outcome<T> self)` block declares its own t
 
 So don't add composition overloads that callers would have to name a type argument for. If such a member is really needed, put it on the `Outcome<T>`/`AsyncOutcome<T>` struct as an instance method, where explicit type arguments behave normally. (A typed `OnProblem<TProblem>` was rejected for this reason.)
 
+### Gotcha: CA2012 and `ValueTask` receivers
+The CA2012 analyzer ("use ValueTasks correctly") doesn't yet count the receiver of an extension-block member as being passed to a method. So `GetValueTaskAsync().ToOutcome()` raises a false CA2012 in the caller's code when `ToOutcome` is declared in an `extension(ValueTask task)` block, but not when it's a classic `this ValueTask task` extension method. Because callers would hit this in their own builds, any extension whose receiver is a `ValueTask` or `ValueTask<T>` is written as a classic extension method (see the `ValueTask` adapters in `Adapt.cs`). Callers write the same code either way, so they can move back into an extension block once the analyzer is fixed. This doesn't affect `AsyncOutcome<T>` receivers, which are not `ValueTask`s.
+
 ## Composition functions
 ### Happy path
 Happy path means functions executed when an outcome (or result of `await AsyncOutcome`) does not hold a Problem value.
