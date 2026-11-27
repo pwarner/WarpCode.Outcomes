@@ -8,6 +8,11 @@ Two structs representing an Outcome are the target extension points for composit
 - AsyncOutcome<T>
 Extensions use the extension members syntax introduced in C# 14
 
+### Gotcha: explicit type arguments on extension members
+When a member inside an `extension<T>(Outcome<T> self)` block declares its own type parameter, callers can't supply just that type argument. The compiler counts the block's `T` too, as it does for a classic static extension method, so `outcome.OnProblem<OutOfStockProblem>(...)` fails with CS1929 and the caller has to write `outcome.OnProblem<Drink, OutOfStockProblem>(...)`. The compiler can infer the extra type parameter from an explicitly typed lambda such as `(OutOfStockProblem p) => ...`, but not from a method group.
+
+So don't add composition overloads that callers would have to name a type argument for. If such a member is really needed, put it on the `Outcome<T>`/`AsyncOutcome<T>` struct as an instance method, where explicit type arguments behave normally. (A typed `OnProblem<TProblem>` was rejected for this reason.)
+
 ## Composition functions
 ### Happy path
 Happy path means functions executed when an outcome (or result of `await AsyncOutcome`) does not hold a Problem value.
@@ -19,11 +24,11 @@ Happy path means functions executed when an outcome (or result of `await AsyncOu
  info: Monadic Map and Bind are both overloads of `Then` function due to feedback from early users that found those terms confusing. 
 
 ### Sad path
-Sad path means functions executed when an outcome (or result of `await AsyncOutcome`) does not hold a Problem value.
+Sad path means functions executed when an outcome (or result of `await AsyncOutcome`) holds a Problem value.
 - `Rescue` calls `Func<Problem,Outcome<T>>` which can recover from a problem and switch the outcome to the happy path.
 - `OnProblem` calls an `Action<Problem>` and returns the original outcome (wraps a call to `Rescue`).
 
-## Value cardinalty on the happy path
+## Value cardinality on the happy path
 Overloads supports outcomes that hold 0, 1, 2, 3, or 4 values. This determines the number of inputs to the function delegates for `Then`, `Ensure`, and `OnValue`
 - 1 value: Outcome<T> or AsyncOutcome<T>
 - 0 values: Outcome<None> or AsyncOutcome<None>
@@ -79,26 +84,22 @@ AsyncOutcome extensions filename format: `Async{xxx}Extensions.cs`. The Async pr
 - (Async)Outcome<T>.Rescue(Func<Problem, Outcome<T>>)
 - (Async)Outcome<T>.OnProblem(Action<Problem>)
 
-Total: 25 Outcome extensions, 25 AsyncOutcome extensions.
-
 ## Async extensions
 - Async versions of the sync composition extensions extend ONLY the AsyncOutcome type.
 - Async delegate extensions filename format: `{xxx}AsyncExtensions.cs` where `xxx` is the composition method name like `Then`, `Ensure` etc. Both the ValueTask and Task delegate families for an operator live in this one file.
-- For each sync composition operator that takes a Func or Action delegate (22 out of 25), two async versions are provided, given **distinct method names** rather than overloads that differ only by return type:
+- For each sync composition operator that takes a Func or Action delegate (i.e. every overload except the non-delegate ones listed above), two async versions are provided, given **distinct method names** rather than overloads that differ only by return type:
   - delegate returning a `ValueTask` or `ValueTask<T>` — method name `{zzz}Async` (e.g. `ThenAsync`). This is the preferred, allocation-friendly form.
   - delegate returning a `Task` or `Task<T>` — method name `{zzz}Task` (e.g. `ThenTask`).
 - In both cases, a CancellationToken is provided as the last input parameter.
-- An AsyncOutcome is a struct containing the `CancellationToken` that gets passed, and a `ValueTask<Outcome<T>>>`
+- An AsyncOutcome is a struct containing the `CancellationToken` that gets passed, and a `ValueTask<Outcome<T>>`
 
 ### Why distinct async extension method names
 Methods explicitly distinguish between functions returning ValueTask `{zzz}Async` and Task `{zzz}Task`
 This is because an `async` lambda expression is convertible to both `Task<T>` and `ValueTask<T>`, and neither is "better" under C# overload resolution. 
 If a single method name were overloaded on both return types, every inline `async` lambda would be a `CS0121` ambiguous-call error — the single most idiomatic usage in a fluent chain. Splitting the names removes the ambiguity: `{zzz}Async` takes ValueTask-returning delegates (inline `async` lambdas bind here cleanly) and `{zzz}Task` takes Task-returning delegates (an existing `Task`-returning method, including a method group, binds directly without a `ValueTask` wrap). Verified empirically in ThenAsyncExtensionsTests (`ThenAsync_ShouldAwaitGenuinelyAsyncContinuation_WhenSuccess` and `ThenTask_ShouldAcceptTaskReturningMethodGroup_WhenSuccess`).
 
-Total: 44 async extensions (22 ValueTask `{zzz}Async` versions + 22 Task `{zzz}Task` versions)
-
 ### async version examples (shows ValueTask variants, non-exhaustive)
-| operation | original sync version | async verson |
+| operation | original sync version | async version |
 |--|--|--|
 | AsyncOutcome<T>.ThenAsync<TNext> | Func<T, TNext> | Func<T, CancellationToken, ValueTask<TNext>> |
 | AsyncOutcome<T>.ThenAsync<TNext> | Func<T, Outcome<TNext>> | Func<T, CancellationToken, ValueTask<Outcome<TNext>>> |
