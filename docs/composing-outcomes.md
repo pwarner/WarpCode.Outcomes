@@ -160,8 +160,6 @@ public static Outcome<Drink> TheUsualFullService(string customerId) =>
 
 Order matters: side effects see the outcome *as it is at that point* in the pipeline.
 
-<!-- TODO: we could make a strongly typed OnProblem operator that uses a generic TProblem type parameter which is only invoked if the problem is of the expected type. This would save us from having to do a type check and cast in the body of the handler. -->
-
 ## 🧵 Parameter spreading with tuples
 
 You might have noticed how readable composition becomes when you pass methods rather than lambdas. In real workflows, though, a step often needs more than one earlier value. Since we can't use output parameters, we return tuples instead.
